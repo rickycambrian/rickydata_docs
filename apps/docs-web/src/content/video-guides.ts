@@ -12,7 +12,9 @@ export type VideoGuide = {
   recordingPrompt: string;
 };
 
-const quickstartDemoUrl = (import.meta.env.VITE_VIDEO_QUICKSTART_DEMO_URL as string | undefined)?.trim() || "";
+const quickstartDemoUrl =
+  (import.meta.env.VITE_VIDEO_QUICKSTART_DEMO_URL as string | undefined)?.trim() ||
+  "/videos/mcp-marketplace-usage-demo.mp4";
 
 export const QUICKSTART_DEMO_PROMPT =
   'Search the rickydata marketplace for an arxiv paper search server. Enable it so we can use it directly. Then search for recent papers on "multi-agent LLM systems" and download the most interesting one. After that, list the enabled servers to show what\'s active, then disable the arxiv server and confirm it was removed.';

@@ -28,6 +28,24 @@ claude mcp add --transport http \
   --header "Authorization:Bearer $TOKEN" \
   research-agent https://agents.rickydata.org/agents/<agent-id>/mcp`;
 
+const walletFunding = `rickydata wallet balance
+rickydata wallet settings show
+rickydata wallet settings set defaultModel sonnet
+rickydata wallet settings set persistConversations true
+rickydata wallet settings set conversationRetentionDays 30
+rickydata wallet transactions`;
+
+const walletBudgets = `rickydata wallet settings set autoImprove true
+rickydata wallet settings set selfImprovementSchedule daily
+rickydata wallet settings set agentAutoImprove <agent-id>=true`;
+
+const sessionMgmt = `rickydata sessions list <agent-id>
+rickydata sessions get <agent-id> <session-id>
+rickydata sessions resume <session-id> <agent-id>`;
+
+const agentMcpTools = `rickydata mcp agent tools <agent-id>
+rickydata mcp agent call <agent-id> <tool-name> '{"param":"value"}'`;
+
 const canvasFlow = `rickydata canvas list
 rickydata canvas execute <workflow-id>
 rickydata canvas runs
@@ -93,6 +111,35 @@ export function PlaybooksPage(): JSX.Element {
           <p className="muted">Goal: prevent payment failures and set safe defaults before team rollout.</p>
         </div>
 
+        <p>
+          MCP tool calls cost $0.0005 USDC each on Base mainnet. Agent chat uses your BYOK Anthropic key at a 10% platform markup.
+          Fund your wallet before enabling servers, then configure conversation retention and self-improvement to get the most from agent sessions.
+        </p>
+
+        <div className="quickstart-grid">
+          <CommandBlock title="Wallet balance + preferences" code={walletFunding} caption="Check balance, configure model defaults, enable conversation persistence, and view transaction history." />
+          <CommandBlock title="Self-improvement + budgets" code={walletBudgets} caption="Enable auto-improvement so agents learn from past conversations. Set per-agent overrides." />
+        </div>
+
+        <h3>Wallet preferences reference</h3>
+        <ul className="meta-list">
+          <li><code>defaultModel</code> — Default Claude model for agent chat (haiku, sonnet, opus)</li>
+          <li><code>persistConversations</code> — Save chat history across sessions (required for self-improvement)</li>
+          <li><code>conversationRetentionDays</code> — How long to keep conversations (1-365 days)</li>
+          <li><code>autoImprove</code> — Enable self-improvement: agents analyze past conversations to extract learnings</li>
+          <li><code>selfImprovementSchedule</code> — Run frequency: after_each, daily, weekly, biweekly</li>
+          <li><code>selfImprovementScope</code> — Which agents to include in improvement cycles</li>
+          <li><code>agentAutoImprove</code> — Per-agent toggle for self-improvement</li>
+          <li><code>postToKnowledgeBook</code> — Post learnings to the shared knowledge book</li>
+        </ul>
+
+        <h3>Funding your wallet</h3>
+        <p>
+          Deposit USDC on <strong>Base mainnet only</strong> to the address shown in your{" "}
+          <a href="https://mcpmarketplace.rickydata.org/wallet" target="_blank" rel="noreferrer">wallet panel</a>.
+          Deposits on other networks (Ethereum mainnet, Arbitrum, etc.) trigger the wrong-network recovery process and may take up to 30 days to recover.
+        </p>
+
         <ul className="playbook-links">
           <li><a href="https://mcpmarketplace.rickydata.org/wallet" target="_blank" rel="noreferrer">Open wallet panel</a></li>
           <li><Link to="/docs/sdk-cli-balance">CLI wallet balance</Link></li>
@@ -108,7 +155,16 @@ export function PlaybooksPage(): JSX.Element {
           <p className="muted">Goal: enable reliable agent usage with cost visibility and session continuity.</p>
         </div>
 
-        <CommandBlock title="BYOK + first chat" code={byokFlow} caption="Use your own Anthropic key, then run and resume sessions." />
+        <p>
+          Store your Anthropic API key (<code>sk-ant-...</code>) to use agents at a 10% platform markup instead of per-message wallet charges.
+          Sessions persist across restarts when conversation retention is enabled, and you can resume any previous session by ID.
+          Use <code>/model</code>, <code>/cost</code>, and <code>/session</code> as REPL commands during chat.
+        </p>
+
+        <div className="quickstart-grid">
+          <CommandBlock title="BYOK + first chat" code={byokFlow} caption="Use your own Anthropic key, then run and resume sessions." />
+          <CommandBlock title="Session management" code={sessionMgmt} caption="List, inspect, and resume past sessions by agent." />
+        </div>
 
         <ul className="playbook-links">
           <li><Link to="/search?q=apikey+set&section=sdk&type=cli">CLI apikey set</Link></li>
@@ -124,7 +180,15 @@ export function PlaybooksPage(): JSX.Element {
           <p className="muted">Goal: connect an agent endpoint to any MCP-compatible client.</p>
         </div>
 
-        <CommandBlock title="Mount agent MCP endpoint" code={agentAsMcp} caption="Connect agent skills as callable MCP tools." />
+        <p>
+          Every agent exposes a standard MCP endpoint at <code>/agents/:id/mcp</code>. Mount it in Claude Code or any MCP client
+          to use agent skills as regular tools. You can also call agent tools directly from the CLI without mounting.
+        </p>
+
+        <div className="quickstart-grid">
+          <CommandBlock title="Mount agent MCP endpoint" code={agentAsMcp} caption="Connect agent skills as callable MCP tools in Claude Code." />
+          <CommandBlock title="Direct agent tool calls" code={agentMcpTools} caption="List and call agent tools from the CLI without mounting." />
+        </div>
 
         <ul className="playbook-links">
           <li><a href="https://mcpmarketplace.rickydata.org/getting-started" target="_blank" rel="noreferrer">Marketplace getting started</a></li>
@@ -137,6 +201,12 @@ export function PlaybooksPage(): JSX.Element {
           <h2>6) Canvas workflows</h2>
           <p className="muted">Goal: execute and monitor multi-step workflows via CLI and workspace UI.</p>
         </div>
+
+        <p>
+          Canvas workflows chain agents, MCP tools, approval gates, and GitHub actions into automated multi-step pipelines.
+          Build visually in the workspace UI or define as JSON and execute from the CLI.
+          Workflows support 14+ node types including agent teams, browser verification, and GitHub PR automation.
+        </p>
 
         <CommandBlock title="Canvas CLI loop" code={canvasFlow} caption="List, run, inspect, and iterate on workflows." />
 
@@ -175,12 +245,18 @@ export function PlaybooksPage(): JSX.Element {
           <p className="muted">Goal: document all high-impact website flows users run in production.</p>
         </div>
 
+        <p>
+          The marketplace website at <a href="https://mcpmarketplace.rickydata.org" target="_blank" rel="noreferrer">mcpmarketplace.rickydata.org</a> is
+          the web interface for browsing 5,000+ MCP servers, managing your wallet, chatting with agents, and building custom agents.
+          Each server page shows security scores, isolation profiles, tool lists, and a Try Tool panel for testing before you enable.
+        </p>
+
         <ul className="playbook-links">
-          <li><a href="https://mcpmarketplace.rickydata.org/browse" target="_blank" rel="noreferrer">Server browse + filtering</a></li>
-          <li><a href="https://mcpmarketplace.rickydata.org/wallet" target="_blank" rel="noreferrer">Wallet funding + settings + self-improvement</a></li>
-          <li><a href="https://mcpmarketplace.rickydata.org/agents" target="_blank" rel="noreferrer">Agent discovery + chat</a></li>
-          <li><a href="https://mcpmarketplace.rickydata.org/build" target="_blank" rel="noreferrer">Custom agent builder</a></li>
-          <li><a href="https://mcpmarketplace.rickydata.org/my-agents" target="_blank" rel="noreferrer">My agents and publishing lifecycle</a></li>
+          <li><a href="https://mcpmarketplace.rickydata.org/browse" target="_blank" rel="noreferrer">Server browse + filtering</a> — search, filter by category, inspect security and trust data</li>
+          <li><a href="https://mcpmarketplace.rickydata.org/wallet" target="_blank" rel="noreferrer">Wallet funding + settings + self-improvement</a> — deposit USDC, configure preferences, run improvement cycles</li>
+          <li><a href="https://mcpmarketplace.rickydata.org/agents" target="_blank" rel="noreferrer">Agent discovery + chat</a> — browse agents, start chat sessions, track costs</li>
+          <li><a href="https://mcpmarketplace.rickydata.org/build" target="_blank" rel="noreferrer">Custom agent builder</a> — create agents from a description or detailed form</li>
+          <li><a href="https://mcpmarketplace.rickydata.org/my-agents" target="_blank" rel="noreferrer">My agents and publishing lifecycle</a> — manage, test, and publish your agents</li>
         </ul>
       </section>
 
@@ -189,10 +265,17 @@ export function PlaybooksPage(): JSX.Element {
           <h2>Custom agent build + publish lifecycle</h2>
           <p className="muted">Goal: move from draft agent to published, testable, and budget-controlled production usage.</p>
         </div>
+
+        <p>
+          Build custom agents from the marketplace website. Describe what your agent should do and the builder auto-generates
+          configuration, or use the detailed form for full control over system prompts, MCP tool access, and required secrets.
+          After testing via chat, publish to make the agent available on the marketplace and as an MCP endpoint.
+        </p>
+
         <ul className="playbook-links">
-          <li><a href="https://mcpmarketplace.rickydata.org/build" target="_blank" rel="noreferrer">Build new custom agent</a></li>
-          <li><a href="https://mcpmarketplace.rickydata.org/my-agents" target="_blank" rel="noreferrer">Review + manage my agents</a></li>
-          <li><a href="https://mcpmarketplace.rickydata.org/feed" target="_blank" rel="noreferrer">Validate feed visibility after publish</a></li>
+          <li><a href="https://mcpmarketplace.rickydata.org/build" target="_blank" rel="noreferrer">Build new custom agent</a> — auto-generate or manually configure</li>
+          <li><a href="https://mcpmarketplace.rickydata.org/my-agents" target="_blank" rel="noreferrer">Review + manage my agents</a> — edit, test, publish, or delete drafts</li>
+          <li><a href="https://mcpmarketplace.rickydata.org/feed" target="_blank" rel="noreferrer">Validate feed visibility after publish</a> — confirm your agent appears publicly</li>
           <li><Link to="/docs/marketplace-docs-agent-gateway">Agent gateway architecture and lifecycle internals</Link></li>
         </ul>
       </section>
