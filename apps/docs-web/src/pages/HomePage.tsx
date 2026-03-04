@@ -26,8 +26,22 @@ export function HomePage(): JSX.Element {
       </section>
 
       <section className="quickstart-strip">
-        <h2>Primary user journeys</h2>
-        <div className="journey-grid">
+        <h2>Get started</h2>
+        <ol>
+          <li>
+            Install CLI:
+            <code>npm install -g rickydata</code>
+          </li>
+          <li>
+            Authenticate + connect:
+            <code>rickydata init</code>
+          </li>
+          <li>
+            Discover and enable servers:
+            <code>rickydata mcp search "brave"</code>
+          </li>
+        </ol>
+        <div className="journey-grid" style={{ marginTop: "1.25rem" }}>
           <article className="journey-card">
             <h3>CLI + Claude setup</h3>
             <p>Install CLI, authenticate, connect gateway, verify MCP tools.</p>
@@ -49,24 +63,6 @@ export function HomePage(): JSX.Element {
             <Link to="/playbooks#agent-chat">Open journey</Link>
           </article>
         </div>
-      </section>
-
-      <section className="quickstart-strip">
-        <h2>3-step minimum setup</h2>
-        <ol>
-          <li>
-            Install CLI:
-            <code>npm install -g rickydata</code>
-          </li>
-          <li>
-            Authenticate + connect:
-            <code>rickydata init</code>
-          </li>
-          <li>
-            Discover and enable servers:
-            <code>rickydata mcp search "brave"</code>
-          </li>
-        </ol>
       </section>
 
       <div className="card-grid">

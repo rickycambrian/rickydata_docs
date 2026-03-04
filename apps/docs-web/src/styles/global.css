@@ -154,8 +154,8 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
 }
 
 .hero h1 {
-  margin: 0.75rem 0; font-size: clamp(1.75rem, 3vw, 2.25rem);
-  font-weight: 700; line-height: 1.15; letter-spacing: -0.025em; color: var(--text);
+  margin: 0.75rem 0; font-size: clamp(1.875rem, 3vw, 2.5rem);
+  font-weight: 700; line-height: 1.15; letter-spacing: -0.03em; color: var(--text);
 }
 
 .lead {
@@ -200,7 +200,7 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
 
 .quickstart-strip h2 {
   margin-top: 0; margin-bottom: 0.75rem;
-  font-size: 1.0625rem; font-weight: 600; letter-spacing: -0.01em;
+  font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em;
 }
 
 .quickstart-strip ol {
@@ -227,7 +227,7 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
 }
 .journey-card:hover { border-color: var(--border-active); background: var(--surface-2); }
 
-.journey-card h3 { margin: 0 0 0.25rem; font-size: 0.8125rem; font-weight: 600; color: var(--text); }
+.journey-card h3 { margin: 0 0 0.25rem; font-size: 0.9375rem; font-weight: 600; color: var(--text); }
 .journey-card p { margin: 0 0 0.5rem; color: var(--text-secondary); font-size: 0.75rem; line-height: 1.55; }
 .journey-card a { font-size: 0.75rem; font-weight: 500; color: var(--accent); }
 .journey-card a:hover { color: var(--accent-hover); }
@@ -429,11 +429,11 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
 
 .playbook-section {
   border: none; border-top: 1px solid var(--border);
-  border-radius: 0; padding: 2rem 0; background: transparent;
+  border-radius: 0; padding: 2.5rem 0; background: transparent;
 }
 .playbook-section:first-child { border-top: none; padding-top: 0; }
 
-.playbook-header h2 { margin: 0 0 0.25rem; font-size: 1.0625rem; font-weight: 600; letter-spacing: -0.01em; }
+.playbook-header h2 { margin: 0 0 0.25rem; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
 .playbook-header p { margin: 0 0 0.875rem; font-size: 0.8125rem; color: var(--text-secondary); }
 .playbook-section > p { font-size: 0.8125rem; line-height: 1.65; color: var(--text-secondary); margin-bottom: 0.875rem; }
 
@@ -483,6 +483,22 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
 }
 .matrix-table thead { background: var(--surface-1); }
 .matrix-table tbody tr:hover { background: var(--surface-1); }
+
+/* ── Collapsible Sections ── */
+.playbook-toggle {
+  width: 100%; display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 0.75rem; background: none; border: none; padding: 0; margin: 0;
+  cursor: pointer; text-align: left; color: inherit; font: inherit;
+}
+.playbook-toggle:hover .playbook-header h2 { color: var(--accent); }
+
+.toggle-chevron {
+  flex-shrink: 0; font-size: 1.125rem; color: var(--muted);
+  transition: transform 0.2s ease; margin-top: 0.125rem;
+}
+.toggle-chevron.toggle-open { transform: rotate(90deg); }
+
+.playbook-body { margin-top: 0.875rem; }
 
 /* ── Utilities ── */
 .muted { color: var(--muted); }

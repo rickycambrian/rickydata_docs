@@ -68,24 +68,12 @@ export function Layout({ children }: PropsWithChildren): JSX.Element {
       <div className="content-shell">
         <aside className="sidebar">
           <section className="sidebar-section">
-            <h3>Start Here</h3>
+            <h3>Navigate</h3>
             <ul className="sidebar-links">
-              <li><Link to="/quickstart">CLI + MCP Quickstart</Link></li>
-              <li><Link to="/playbooks">Operational Playbooks</Link></li>
+              <li><Link to="/quickstart">Quickstart</Link></li>
+              <li><Link to="/playbooks">Playbooks</Link></li>
               <li><Link to="/docs/sdk-readme">SDK + CLI Reference</Link></li>
-              <li><a href="/quickstart">Featured Setup Video</a></li>
-            </ul>
-          </section>
-
-          <section className="sidebar-section">
-            <h3>Primary Journeys</h3>
-            <ul className="sidebar-links">
-              <li><a href="/playbooks#local-mcp-setup">Local MCP setup</a></li>
-              <li><a href="/playbooks#mcp-runtime">MCP runtime loop</a></li>
-              <li><a href="/playbooks#wallet-controls">Wallet + safety controls</a></li>
-              <li><a href="/playbooks#agent-chat">Agent chat (BYOK)</a></li>
-              <li><a href="/playbooks#agent-as-mcp">Agent as MCP endpoint</a></li>
-              <li><a href="/playbooks#canvas">Canvas workflows</a></li>
+              <li><Link to="/changelog">Changelog</Link></li>
             </ul>
           </section>
 
@@ -104,15 +92,6 @@ export function Layout({ children }: PropsWithChildren): JSX.Element {
                   </div>
                 </li>
               ))}
-            </ul>
-          </section>
-
-          <section className="sidebar-section">
-            <h3>Agent Access</h3>
-            <ul className="sidebar-links">
-              <li><a href="/llms.txt">Global llms prompt</a></li>
-              <li><a href="/playbooks#agent-chat">Agent quickstarts</a></li>
-              <li><a href="/playbooks#canvas">Canvas workflows</a></li>
             </ul>
           </section>
         </aside>

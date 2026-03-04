@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { CommandBlock } from "../components/CommandBlock";
 import { VideoGuideCard } from "../components/VideoGuideCard";
-import { FEATURED_VIDEO_GUIDE, QUICKSTART_DEMO_PROMPT } from "../content/video-guides";
+import { FEATURED_VIDEO_GUIDE } from "../content/video-guides";
 
 const bootstrapCode = `npm install -g rickydata
 rickydata init
@@ -31,18 +31,11 @@ export function QuickstartPage(): JSX.Element {
           marketplace discovery, tool enablement, and direct tool calls.
         </p>
         <div className="hero-actions">
-          <a className="btn btn-primary" href="/llms.txt">Open Global llms.txt</a>
-          <Link className="btn btn-secondary" to="/playbooks">Open Playbooks</Link>
-          <Link className="btn btn-secondary" to="/search?q=sdk+readme&section=sdk">Open SDK Docs</Link>
+          <Link className="btn btn-primary" to="/playbooks">Continue to Playbooks</Link>
         </div>
       </section>
 
       <VideoGuideCard guide={FEATURED_VIDEO_GUIDE} />
-
-      <section className="prompt-callout">
-        <h2>Try this exact prompt in Claude Code</h2>
-        <pre>{QUICKSTART_DEMO_PROMPT}</pre>
-      </section>
 
       <section className="quickstart-grid">
         <CommandBlock
@@ -65,17 +58,6 @@ export function QuickstartPage(): JSX.Element {
           code={agentsCode}
           caption="Set your Anthropic key, inspect available agents, and start chat."
         />
-      </section>
-
-      <section className="callout">
-        <h2>Claude Code meta-tools after connection</h2>
-        <ul className="meta-list">
-          <li><code>gateway__search_servers</code></li>
-          <li><code>gateway__enable_server</code></li>
-          <li><code>gateway__disable_server</code></li>
-          <li><code>gateway__list_enabled</code></li>
-          <li><code>gateway__server_info</code></li>
-        </ul>
       </section>
 
       <section className="quick-links">

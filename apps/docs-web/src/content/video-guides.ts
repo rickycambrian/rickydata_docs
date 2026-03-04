@@ -12,39 +12,74 @@ export type VideoGuide = {
   recordingPrompt: string;
 };
 
-const quickstartDemoUrl =
-  (import.meta.env.VITE_VIDEO_QUICKSTART_DEMO_URL as string | undefined)?.trim() ||
-  "/videos/mcp-marketplace-usage-demo.mp4";
+/* ── helpers ─────────────────────────────────────────────── */
+
+/** Resolve a video URL: prefer env-var override, fall back to local path in dev only. */
+function resolveVideo(envKey: string, localFile: string): string | undefined {
+  const env = (import.meta.env[envKey] as string | undefined)?.trim();
+  if (env) return env;
+  if (import.meta.env.DEV) return `/videos/${localFile}`;
+  return undefined;
+}
+
+function videoOrUndefined(envKey: string, localFile: string): { status: VideoGuideStatus; videoUrl?: string } {
+  const url = resolveVideo(envKey, localFile);
+  // Treat the local fallback as "live" only if the file is actually shipped
+  // (the .gitkeep / README guard means the file only exists after manual copy).
+  return url ? { status: "live", videoUrl: url } : { status: "record-needed" };
+}
+
+/* ── prompts ─────────────────────────────────────────────── */
 
 export const QUICKSTART_DEMO_PROMPT =
   'Search the rickydata marketplace for an arxiv paper search server. Enable it so we can use it directly. Then search for recent papers on "multi-agent LLM systems" and download the most interesting one. After that, list the enabled servers to show what\'s active, then disable the arxiv server and confirm it was removed.';
 
+/* ── video guides ────────────────────────────────────────── */
+
+/** Featured on /quickstart — Claude Code natural-language demo */
 export const FEATURED_VIDEO_GUIDE: VideoGuide = {
   id: "mcp-cli-claude-end-to-end",
   title: "CLI + Claude Code: discover, enable, call, and disable an MCP server",
   duration: "3-5 min",
-  status: quickstartDemoUrl ? "live" : "record-needed",
   audience: "New users onboarding to MCP through CLI + Claude Code",
   purpose:
     "Show one complete loop from server discovery to tool execution and cleanup so users trust the workflow immediately.",
   pageAnchor: "/quickstart",
-  ...(quickstartDemoUrl ? { videoUrl: quickstartDemoUrl } : {}),
-  recordingPrompt: QUICKSTART_DEMO_PROMPT
+  recordingPrompt: QUICKSTART_DEMO_PROMPT,
+  ...videoOrUndefined("VITE_VIDEO_QUICKSTART_DEMO_URL", "mcp-marketplace-usage-demo.mp4")
+};
+
+/** CLI step-by-step runtime loop — shown on /playbooks#mcp-runtime */
+export const MCP_RUNTIME_LOOP_GUIDE: VideoGuide = {
+  id: "cli-mcp-runtime-loop",
+  title: "MCP runtime loop: search, enable, call tools, and disable from the CLI",
+  duration: "3 min",
+  audience: "Developers who prefer explicit CLI commands over natural-language prompts",
+  purpose:
+    "Walk through every CLI command in the MCP lifecycle so users can reproduce the flow step by step.",
+  pageAnchor: "/playbooks#mcp-runtime",
+  recordingPrompt:
+    'rickydata mcp tools (empty), rickydata mcp search "arxiv", rickydata mcp enable "blazickjp/arxiv-mcp-server", rickydata mcp tools, rickydata mcp call search_papers, rickydata mcp call download_paper, rickydata mcp disable, rickydata mcp tools (empty again).',
+  ...videoOrUndefined("VITE_VIDEO_MCP_RUNTIME_URL", "01-cli-mcp-runtime-loop.mp4")
+};
+
+/** Init wizard + auth flow — shown on /playbooks#local-mcp-setup */
+export const INIT_WIZARD_GUIDE: VideoGuide = {
+  id: "auth-login-and-init-wizard",
+  title: "Auth login + init wizard walkthrough",
+  duration: "2 min",
+  audience: "Users installing the CLI for the first time",
+  purpose: "Show exactly what rickydata init does: browser login, token handoff, MCP connect, and verification.",
+  pageAnchor: "/playbooks#local-mcp-setup",
+  recordingPrompt:
+    "Run npm install -g rickydata, then rickydata init, show browser login, token handoff, Claude Code connection, and verification output.",
+  ...videoOrUndefined("VITE_VIDEO_INIT_WIZARD_URL", "02-init-wizard-auth-connect.mp4")
 };
 
 export const RECORDING_BACKLOG: VideoGuide[] = [
   FEATURED_VIDEO_GUIDE,
-  {
-    id: "auth-login-and-init-wizard",
-    title: "Auth login + init wizard walkthrough",
-    duration: "2-3 min",
-    status: "record-needed",
-    audience: "Users installing the CLI for the first time",
-    purpose: "Show exactly what rickydata init does and where tokens are sourced.",
-    pageAnchor: "/playbooks#local-mcp-setup",
-    recordingPrompt:
-      "Run npm install -g rickydata, then rickydata init, show browser login, token handoff, Claude Code connection, and verification output."
-  },
+  MCP_RUNTIME_LOOP_GUIDE,
+  INIT_WIZARD_GUIDE,
   {
     id: "wallet-funding-and-network-safety",
     title: "Wallet funding on Base + wrong-network safety",

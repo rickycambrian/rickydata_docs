@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { VideoGuide } from "../content/video-guides";
 
 type VideoGuideCardProps = {
@@ -6,6 +7,8 @@ type VideoGuideCardProps = {
 };
 
 export function VideoGuideCard({ guide, showPrompt = true }: VideoGuideCardProps): JSX.Element {
+  const [videoFailed, setVideoFailed] = useState(false);
+
   return (
     <section className="video-guide-card">
       <div className="video-guide-head">
@@ -13,9 +16,9 @@ export function VideoGuideCard({ guide, showPrompt = true }: VideoGuideCardProps
           <p className="eyebrow">Video Guide</p>
           <h3>{guide.title}</h3>
         </div>
-        <span className={`status-badge ${guide.status === "live" ? "status-live" : "status-pending"}`}>
-          {guide.status === "live" ? "Live" : "Record Needed"}
-        </span>
+        {guide.status === "live" && !videoFailed && (
+          <span className="status-badge status-live">Live</span>
+        )}
       </div>
 
       <p className="muted">{guide.purpose}</p>
@@ -25,20 +28,22 @@ export function VideoGuideCard({ guide, showPrompt = true }: VideoGuideCardProps
         <span className="pill">Audience: {guide.audience}</span>
       </div>
 
-      {guide.videoUrl ? (
+      {guide.videoUrl && !videoFailed ? (
         <div className="video-frame-wrap">
-          <video className="video-frame" controls preload="metadata">
+          <video
+            className="video-frame"
+            controls
+            preload="metadata"
+            onError={() => setVideoFailed(true)}
+          >
             <source src={guide.videoUrl} type="video/mp4" />
             Your browser does not support video playback.
           </video>
         </div>
       ) : (
         <div className="video-placeholder">
-          <p>No published video URL configured yet.</p>
-          <small>
-            Set build env var <code>VITE_VIDEO_QUICKSTART_DEMO_URL</code> or host the mp4 at
-            <code> apps/docs-web/public/videos/mcp-marketplace-usage-demo.mp4</code> during local preview.
-          </small>
+          <p>Video coming soon.</p>
+          <small>This walkthrough is being recorded and will appear here shortly.</small>
         </div>
       )}
 

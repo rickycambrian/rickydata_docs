@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { CommandBlock } from "../components/CommandBlock";
+import { CollapsibleSection } from "../components/CollapsibleSection";
 import { VideoGuideCard } from "../components/VideoGuideCard";
-import { FEATURED_VIDEO_GUIDE, QUICKSTART_DEMO_PROMPT, RECORDING_BACKLOG } from "../content/video-guides";
+import { FEATURED_VIDEO_GUIDE, INIT_WIZARD_GUIDE, MCP_RUNTIME_LOOP_GUIDE, QUICKSTART_DEMO_PROMPT } from "../content/video-guides";
 
 const installAndConnect = `npm install -g rickydata
 rickydata init
@@ -11,12 +12,11 @@ const manualConnect = `rickydata auth login
 rickydata mcp connect
 # restart Claude Code`;
 
-const cliLoop = `rickydata mcp search "arxiv"
-rickydata mcp enable "blazickjp/arxiv-mcp-server"
-rickydata mcp tools
-rickydata mcp call blazickjp-arxiv-mcp-server__search_papers '{"query":"multi-agent LLM systems","max_results":5}'
-rickydata mcp disable "blazickjp/arxiv-mcp-server"
-rickydata mcp tools`;
+const cliSearch = `rickydata mcp call blazickjp-arxiv-mcp-server__search_papers \\
+  '{"query":"multi-agent LLM systems","max_results":3}'`;
+
+const cliDownload = `rickydata mcp call blazickjp-arxiv-mcp-server__download_paper \\
+  '{"paper_id":"2203.08975v2"}'`;
 
 const byokFlow = `rickydata apikey set
 rickydata agents list
@@ -63,18 +63,29 @@ export function PlaybooksPage(): JSX.Element {
         </p>
       </section>
 
-      <section id="local-mcp-setup" className="playbook-section">
-        <div className="playbook-header">
-          <h2>1) Local MCP setup in Claude Code</h2>
-          <p className="muted">Goal: authenticated MCP gateway connection in under 5 minutes.</p>
+      <CollapsibleSection
+        id="local-mcp-setup"
+        title="1) Local MCP setup in Claude Code"
+        subtitle="Goal: authenticated MCP gateway connection in under 5 minutes."
+        defaultOpen
+      >
+        <VideoGuideCard guide={INIT_WIZARD_GUIDE} />
+
+        <h3>Reproduce step by step</h3>
+
+        <CommandBlock title="1. Install the CLI" code={`npm install -g rickydata`} caption="Installs the rickydata CLI globally. Provides both 'rickydata' and 'mcpg' commands." />
+        <CommandBlock title="2. Run the init wizard" code={`rickydata init`} caption="Opens your browser for login, exchanges the token, connects the MCP gateway to Claude Code, and verifies the connection. One command does everything." />
+        <CommandBlock title="3. Verify auth status" code={`rickydata auth status`} caption="Shows your wallet address, token type (mcpwt_), expiry (30 days), and balance." />
+        <CommandBlock title="4. Verify MCP connection" code={`rickydata mcp tools`} caption="Should show 'No server tools enabled' — gateway is connected, ready to search and enable servers." />
+
+        <h3>Manual path (if you prefer explicit control)</h3>
+
+        <div className="quickstart-grid">
+          <CommandBlock title="Auth only" code={manualConnect} caption="Login and connect as separate steps." />
+          <CommandBlock title="Verify" code={`rickydata auth status\nrickydata mcp tools`} caption="Confirm auth and MCP gateway independently." />
         </div>
 
         <VideoGuideCard guide={FEATURED_VIDEO_GUIDE} />
-
-        <div className="quickstart-grid">
-          <CommandBlock title="Recommended path" code={installAndConnect} caption="Wizard does auth + connect + verification." />
-          <CommandBlock title="Manual path" code={manualConnect} caption="Use this if you want explicit control." />
-        </div>
 
         <ul className="playbook-links">
           <li><Link to="/quickstart">Quickstart page</Link></li>
@@ -82,18 +93,29 @@ export function PlaybooksPage(): JSX.Element {
           <li><Link to="/docs/sdk-cli-login">CLI auth login command</Link></li>
           <li><Link to="/docs/sdk-cli-connect">CLI mcp connect command</Link></li>
         </ul>
-      </section>
+      </CollapsibleSection>
 
-      <section id="mcp-runtime" className="playbook-section">
-        <div className="playbook-header">
-          <h2>2) Discover, enable, call, and disable MCP servers</h2>
-          <p className="muted">Goal: complete one full MCP lifecycle loop and prove tool execution works.</p>
-        </div>
+      <CollapsibleSection
+        id="mcp-runtime"
+        title="2) Discover, enable, call, and disable MCP servers"
+        subtitle="Goal: complete one full MCP lifecycle loop and prove tool execution works."
+        defaultOpen
+      >
+        <VideoGuideCard guide={MCP_RUNTIME_LOOP_GUIDE} />
 
-        <CommandBlock title="End-to-end CLI loop" code={cliLoop} caption="Exact command loop shown in the featured demo." />
+        <h3>Reproduce step by step</h3>
+
+        <CommandBlock title="1. Confirm clean state" code={`rickydata mcp tools`} caption="Should show no tools enabled." />
+        <CommandBlock title="2. Search for a server" code={`rickydata mcp search "arxiv"`} caption="Browse the marketplace. The top result (blazickjp/arxiv-mcp-server) has 4 tools and a 95 trust score." />
+        <CommandBlock title="3. Enable the server" code={`rickydata mcp enable "blazickjp/arxiv-mcp-server"`} caption="Enables the server and registers its tools with your session." />
+        <CommandBlock title="4. List available tools" code={`rickydata mcp tools`} caption="Now shows 4 arxiv tools: search_papers, download_paper, list_papers, read_paper." />
+        <CommandBlock title="5. Call a tool" code={cliSearch} caption="Search arxiv for papers. Returns titles, authors, abstracts, and paper IDs." />
+        <CommandBlock title="6. Download a paper" code={cliDownload} caption="Downloads the PDF and converts to markdown. Use a paper_id from step 5." />
+        <CommandBlock title="7. Disable the server" code={`rickydata mcp disable "blazickjp/arxiv-mcp-server"`} caption="Removes the server and all its tools from your session." />
+        <CommandBlock title="8. Confirm removal" code={`rickydata mcp tools`} caption="Back to empty — clean slate." />
 
         <div className="prompt-callout">
-          <p className="muted">Claude Code prompt for the same flow</p>
+          <p className="muted">Or run the same flow in Claude Code with one prompt</p>
           <pre>{QUICKSTART_DEMO_PROMPT}</pre>
         </div>
 
@@ -103,14 +125,13 @@ export function PlaybooksPage(): JSX.Element {
           <li><Link to="/docs/sdk-cli-call-tool-name-args-json">CLI mcp call</Link></li>
           <li><Link to="/docs/sdk-cli-disable-name-or-id">CLI mcp disable</Link></li>
         </ul>
-      </section>
+      </CollapsibleSection>
 
-      <section id="wallet-controls" className="playbook-section">
-        <div className="playbook-header">
-          <h2>3) Wallet funding, budgets, retention, and self-improvement controls</h2>
-          <p className="muted">Goal: prevent payment failures and set safe defaults before team rollout.</p>
-        </div>
-
+      <CollapsibleSection
+        id="wallet-controls"
+        title="3) Wallet funding, budgets, retention, and self-improvement controls"
+        subtitle="Goal: prevent payment failures and set safe defaults before team rollout."
+      >
         <p>
           MCP tool calls cost $0.0005 USDC each on Base mainnet. Agent chat uses your BYOK Anthropic key at a 10% platform markup.
           Fund your wallet before enabling servers, then configure conversation retention and self-improvement to get the most from agent sessions.
@@ -147,14 +168,13 @@ export function PlaybooksPage(): JSX.Element {
           <li><Link to="/search?q=wallet+settings+set&section=sdk&type=cli">CLI wallet settings set</Link></li>
           <li><Link to="/docs/marketplace-docs-wrong-network-recovery-policy">Wrong-network deposit recovery policy</Link></li>
         </ul>
-      </section>
+      </CollapsibleSection>
 
-      <section id="agent-chat" className="playbook-section">
-        <div className="playbook-header">
-          <h2>4) Agent chat with BYOK and session controls</h2>
-          <p className="muted">Goal: enable reliable agent usage with cost visibility and session continuity.</p>
-        </div>
-
+      <CollapsibleSection
+        id="agent-chat"
+        title="4) Agent chat with BYOK and session controls"
+        subtitle="Goal: enable reliable agent usage with cost visibility and session continuity."
+      >
         <p>
           Store your Anthropic API key (<code>sk-ant-...</code>) to use agents at a 10% platform markup instead of per-message wallet charges.
           Sessions persist across restarts when conversation retention is enabled, and you can resume any previous session by ID.
@@ -172,14 +192,13 @@ export function PlaybooksPage(): JSX.Element {
           <li><Link to="/docs/sdk-cli-list-agent-id">CLI sessions list</Link></li>
           <li><Link to="/docs/marketplace-docs-agent-gateway">Agent gateway architecture</Link></li>
         </ul>
-      </section>
+      </CollapsibleSection>
 
-      <section id="agent-as-mcp" className="playbook-section">
-        <div className="playbook-header">
-          <h2>5) Use agents as MCP endpoints</h2>
-          <p className="muted">Goal: connect an agent endpoint to any MCP-compatible client.</p>
-        </div>
-
+      <CollapsibleSection
+        id="agent-as-mcp"
+        title="5) Use agents as MCP endpoints"
+        subtitle="Goal: connect an agent endpoint to any MCP-compatible client."
+      >
         <p>
           Every agent exposes a standard MCP endpoint at <code>/agents/:id/mcp</code>. Mount it in Claude Code or any MCP client
           to use agent skills as regular tools. You can also call agent tools directly from the CLI without mounting.
@@ -194,14 +213,13 @@ export function PlaybooksPage(): JSX.Element {
           <li><a href="https://mcpmarketplace.rickydata.org/getting-started" target="_blank" rel="noreferrer">Marketplace getting started</a></li>
           <li><a href="https://mcpmarketplace.rickydata.org/agents" target="_blank" rel="noreferrer">Browse agents</a></li>
         </ul>
-      </section>
+      </CollapsibleSection>
 
-      <section id="canvas" className="playbook-section">
-        <div className="playbook-header">
-          <h2>6) Canvas workflows</h2>
-          <p className="muted">Goal: execute and monitor multi-step workflows via CLI and workspace UI.</p>
-        </div>
-
+      <CollapsibleSection
+        id="canvas"
+        title="6) Canvas workflows"
+        subtitle="Goal: execute and monitor multi-step workflows via CLI and workspace UI."
+      >
         <p>
           Canvas workflows chain agents, MCP tools, approval gates, and GitHub actions into automated multi-step pipelines.
           Build visually in the workspace UI or define as JSON and execute from the CLI.
@@ -215,36 +233,13 @@ export function PlaybooksPage(): JSX.Element {
           <li><Link to="/docs/sdk-cli-runs">CLI canvas runs</Link></li>
           <li><a href="https://mcpmarketplace.rickydata.org/workspace" target="_blank" rel="noreferrer">Workspace UI</a></li>
         </ul>
-      </section>
+      </CollapsibleSection>
 
-      <section id="video-backlog" className="playbook-section">
-        <div className="playbook-header">
-          <h2>Video backlog for docs polish</h2>
-          <p className="muted">Record these in order to maximize onboarding quality for new customers.</p>
-        </div>
-
-        <ul className="video-backlog-list">
-          {RECORDING_BACKLOG.map((guide) => (
-            <li key={guide.id}>
-              <div className="result-head">
-                <strong>{guide.title}</strong>
-                <span className={`status-badge ${guide.status === "live" ? "status-live" : "status-pending"}`}>
-                  {guide.status === "live" ? "Live" : "Record Needed"}
-                </span>
-              </div>
-              <p>{guide.purpose}</p>
-              <small>{guide.duration} · {guide.audience} · target: {guide.pageAnchor}</small>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section id="marketplace-ui" className="playbook-section">
-        <div className="playbook-header">
-          <h2>Marketplace web app operations</h2>
-          <p className="muted">Goal: document all high-impact website flows users run in production.</p>
-        </div>
-
+      <CollapsibleSection
+        id="marketplace-ui"
+        title="Marketplace web app operations"
+        subtitle="Goal: document all high-impact website flows users run in production."
+      >
         <p>
           The marketplace website at <a href="https://mcpmarketplace.rickydata.org" target="_blank" rel="noreferrer">mcpmarketplace.rickydata.org</a> is
           the web interface for browsing 5,000+ MCP servers, managing your wallet, chatting with agents, and building custom agents.
@@ -258,14 +253,13 @@ export function PlaybooksPage(): JSX.Element {
           <li><a href="https://mcpmarketplace.rickydata.org/build" target="_blank" rel="noreferrer">Custom agent builder</a> — create agents from a description or detailed form</li>
           <li><a href="https://mcpmarketplace.rickydata.org/my-agents" target="_blank" rel="noreferrer">My agents and publishing lifecycle</a> — manage, test, and publish your agents</li>
         </ul>
-      </section>
+      </CollapsibleSection>
 
-      <section id="agent-build" className="playbook-section">
-        <div className="playbook-header">
-          <h2>Custom agent build + publish lifecycle</h2>
-          <p className="muted">Goal: move from draft agent to published, testable, and budget-controlled production usage.</p>
-        </div>
-
+      <CollapsibleSection
+        id="agent-build"
+        title="Custom agent build + publish lifecycle"
+        subtitle="Goal: move from draft agent to published, testable, and budget-controlled production usage."
+      >
         <p>
           Build custom agents from the marketplace website. Describe what your agent should do and the builder auto-generates
           configuration, or use the detailed form for full control over system prompts, MCP tool access, and required secrets.
@@ -278,7 +272,7 @@ export function PlaybooksPage(): JSX.Element {
           <li><a href="https://mcpmarketplace.rickydata.org/feed" target="_blank" rel="noreferrer">Validate feed visibility after publish</a> — confirm your agent appears publicly</li>
           <li><Link to="/docs/marketplace-docs-agent-gateway">Agent gateway architecture and lifecycle internals</Link></li>
         </ul>
-      </section>
+      </CollapsibleSection>
     </div>
   );
 }
