@@ -27,8 +27,10 @@ Independent documentation platform for RickyData MCP and agent marketplace syste
 - `GET /api/public/nav`
 - `GET /api/public/search?q=&section=&type=&limit=`
 - `GET /api/public/docs/:slug`
+- `GET /api/public/docs/:slug/llms.txt` (plain text markdown for agents)
 - `GET /api/public/changelog?product=&limit=`
 - `GET /api/public/version-matrix`
+- `GET /api/public/llms.txt` (global machine prompt)
 
 ### Internal (Token Protected)
 
@@ -111,6 +113,19 @@ npm run test
 - `ingest-nightly.yml`: scheduled full ingest
 - `ingest-on-dispatch.yml`: manual repo-specific ingest
 - `content-drift-check.yml`: compares latest source commits vs ingested commits
+
+## Operations Runbook
+
+- `docs/GCP_SETUP_AND_OPERATIONS.md`: step-by-step GCP setup, GitHub secrets, deploy flow, DNS mapping, and ops procedures.
+
+## UX Features
+
+- Marketplace-style dark visual language aligned with the MCP Marketplace brand direction.
+- Dedicated `/quickstart` flow for SDK/CLI install + auth + MCP + agents.
+- Per-doc copy action for full markdown.
+- Agent-friendly plain-text endpoints on the docs domain:
+- `/llms.txt`
+- `/docs/:slug/llms.txt`
 
 ## Required GitHub Secrets
 

@@ -82,6 +82,31 @@ export type VersionMatrixResponse = {
   }>;
 };
 
+export type ProductPageResponse = {
+  product: string;
+  total: number;
+  types: Array<{ docType: string; count: number }>;
+  sections: {
+    startHere: ProductDocItem[];
+    guides: ProductDocItem[];
+    architecture: ProductDocItem[];
+    api: ProductDocItem[];
+    cli: ProductDocItem[];
+    recent: ProductDocItem[];
+    references: ProductDocItem[];
+  };
+};
+
+export type ProductDocItem = {
+  slug: string;
+  title: string;
+  summary: string;
+  docType: string;
+  updatedAt: string;
+  sourceRepo: string;
+  sourcePath: string;
+};
+
 export function getNav(): Promise<NavResponse> {
   return apiGet<NavResponse>("/api/public/nav");
 }
@@ -108,4 +133,8 @@ export function getChangelog(product?: string): Promise<ChangelogResponse> {
 
 export function getVersionMatrix(): Promise<VersionMatrixResponse> {
   return apiGet<VersionMatrixResponse>("/api/public/version-matrix");
+}
+
+export function getProduct(product: string): Promise<ProductPageResponse> {
+  return apiGet<ProductPageResponse>(`/api/public/products/${encodeURIComponent(product)}`);
 }

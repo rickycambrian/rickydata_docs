@@ -25,17 +25,26 @@ export function SearchPage(): JSX.Element {
   return (
     <div className="page">
       <h1>Search</h1>
-      {section && <p>Section: <code>{section}</code></p>}
-      {type && <p>Type: <code>{type}</code></p>}
+      {(section || type) && (
+        <div className="filter-row">
+          {section && <span className="pill">section: {section}</span>}
+          {type && <span className="pill">type: {type}</span>}
+        </div>
+      )}
       {error && <p className="error">{error}</p>}
-      <p>{data?.total ?? 0} results</p>
+      <p className="muted">{data?.total ?? 0} results</p>
 
       <ul className="result-list">
         {data?.items.map((item) => (
           <li key={item.slug}>
-            <Link to={`/docs/${item.slug}`}>{item.title}</Link>
+            <div className="result-head">
+              <Link to={`/docs/${item.slug}`}>{item.title}</Link>
+              <a href={`/docs/${item.slug}/llms.txt`}>llms.txt</a>
+            </div>
             <p>{item.summary}</p>
-            <small>{item.product} · {item.docType}</small>
+            <small>
+              {item.product} · {item.docType} · {new Date(item.updatedAt).toLocaleString()}
+            </small>
           </li>
         ))}
       </ul>

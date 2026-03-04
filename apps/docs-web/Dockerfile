@@ -13,7 +13,12 @@ RUN npm run build -w packages/shared-types \
  && npm run build -w apps/docs-web
 
 FROM nginx:1.27-alpine AS runner
-COPY apps/docs-web/nginx.conf /etc/nginx/conf.d/default.conf
+ARG VITE_DOCS_API_URL
+COPY apps/docs-web/nginx.conf /tmp/default.conf.template
+RUN rm -f /etc/nginx/templates/*.template \
+ && API_URL="${VITE_DOCS_API_URL%/}" \
+ && test -n "$API_URL" \
+ && sed "s|__DOCS_API_URL__|$API_URL|g" /tmp/default.conf.template > /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/apps/docs-web/dist /usr/share/nginx/html
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]

@@ -10,7 +10,7 @@ export function ApiAndCliPanel(props: {
         <ul className="endpoint-list">
           {props.endpoints.slice(0, 30).map((endpoint) => (
             <li key={`${endpoint.service}-${endpoint.method}-${endpoint.path}`}>
-              <div><strong>{endpoint.method}</strong> <code>{endpoint.path}</code></div>
+              <div className="endpoint-title"><strong>{endpoint.method}</strong> <code>{endpoint.path}</code></div>
               <small>{endpoint.service} · {endpoint.authMode}</small>
             </li>
           ))}
@@ -23,7 +23,7 @@ export function ApiAndCliPanel(props: {
         <ul className="command-list">
           {props.commands.slice(0, 30).map((command) => (
             <li key={command.command}>
-              <div><code>rickydata {command.command}</code></div>
+              <div className="endpoint-title"><code>rickydata {command.command}</code></div>
               <small>{command.description}</small>
             </li>
           ))}

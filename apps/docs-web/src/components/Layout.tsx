@@ -25,21 +25,39 @@ export function Layout({ children }: PropsWithChildren): JSX.Element {
     navigate(`/search?q=${encodeURIComponent(q)}`);
   }
 
+  const topLinks = [
+    { href: "/quickstart", label: "Quickstart" },
+    { href: "/changelog", label: "Changelog" },
+    { href: "/versions", label: "Version Matrix" },
+    { href: "/llms.txt", label: "llms.txt", external: true }
+  ];
+
   return (
     <div className="layout-shell">
       <header className="topbar">
         <div className="topbar-inner">
-          <Link to="/" className="brand">RickyData Docs</Link>
+          <Link to="/" className="brand">MCP Marketplace Docs</Link>
           <nav className="top-links">
-            <Link to="/changelog">Changelog</Link>
-            <Link to="/versions">Version Matrix</Link>
+            {topLinks.map((item) => (
+              item.external ? (
+                <a key={item.href} href={item.href}>{item.label}</a>
+              ) : (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={location.pathname === item.href ? "active" : undefined}
+                >
+                  {item.label}
+                </Link>
+              )
+            ))}
           </nav>
           <form className="search-form" onSubmit={onSubmit}>
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search docs"
+              placeholder="Search setup, commands, API docs..."
             />
           </form>
         </div>
@@ -47,21 +65,42 @@ export function Layout({ children }: PropsWithChildren): JSX.Element {
 
       <div className="content-shell">
         <aside className="sidebar">
-          <h3>Products</h3>
-          <ul>
-            {nav?.products.map((product) => (
-              <li key={product.product}>
-                <Link to={`/search?q=&section=${encodeURIComponent(product.product)}`}>
-                  {product.product} ({product.total})
-                </Link>
-                <div className="sidebar-meta">
-                  {product.types.map((type) => (
-                    <span key={type.docType}>{type.docType}: {type.count}</span>
-                  ))}
-                </div>
-              </li>
-            ))}
-          </ul>
+          <section className="sidebar-section">
+            <h3>Start Here</h3>
+            <ul className="sidebar-links">
+              <li><Link to="/quickstart">CLI + MCP Quickstart</Link></li>
+              <li><Link to="/docs/sdk-readme">SDK/CLI README</Link></li>
+              <li><Link to="/search?q=auth+login&section=sdk">Auth + Login Docs</Link></li>
+              <li><Link to="/search?q=mcp+connect&section=sdk">Connect MCP Client</Link></li>
+            </ul>
+          </section>
+
+          <section className="sidebar-section">
+            <h3>Products</h3>
+            <ul>
+              {nav?.products.map((product) => (
+                <li key={product.product} className="product-item">
+                  <Link to={`/products/${encodeURIComponent(product.product)}`}>
+                    {product.product} ({product.total})
+                  </Link>
+                  <div className="sidebar-meta">
+                    {product.types.map((type) => (
+                      <span key={type.docType}>{type.docType}: {type.count}</span>
+                    ))}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="sidebar-section">
+            <h3>Agent Access</h3>
+            <ul className="sidebar-links">
+              <li><a href="/llms.txt">Global llms prompt</a></li>
+              <li><Link to="/search?q=agent+quickstart">Agent quickstarts</Link></li>
+              <li><Link to="/search?q=canvas">Canvas workflows</Link></li>
+            </ul>
+          </section>
         </aside>
         <main className="main-content">{children}</main>
       </div>

@@ -12,11 +12,14 @@ export function ChangelogPage(): JSX.Element {
   return (
     <div className="page">
       <h1>Changelog</h1>
-      <p>{data?.total ?? 0} release-note pages indexed.</p>
+      <p className="muted">{data?.total ?? 0} release-note pages indexed.</p>
       <ul className="result-list">
         {data?.items.map((item) => (
           <li key={item.slug}>
-            <Link to={`/docs/${item.slug}`}>{item.title}</Link>
+            <div className="result-head">
+              <Link to={`/docs/${item.slug}`}>{item.title}</Link>
+              <a href={`/docs/${item.slug}/llms.txt`}>llms.txt</a>
+            </div>
             <p>{item.summary}</p>
             <small>{item.product} · {new Date(item.updatedAt).toLocaleString()}</small>
           </li>

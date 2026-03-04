@@ -3,6 +3,7 @@ import { useMemo } from "react";
 type TocEntry = {
   id: string;
   label: string;
+  depth: number;
 };
 
 function extractHeadings(markdown: string): TocEntry[] {
@@ -10,15 +11,16 @@ function extractHeadings(markdown: string): TocEntry[] {
   const entries: TocEntry[] = [];
 
   for (const line of lines) {
-    const match = line.match(/^##\s+(.+)$/);
+    const match = line.match(/^(##|###|####)\s+(.+)$/);
     if (!match) continue;
-    const label = (match[1] || "").trim();
+    const label = (match[2] || "").trim();
     if (!label) continue;
+    const depth = (match[1] || "##").length;
     const id = label
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
-    entries.push({ id, label });
+    entries.push({ id, label, depth });
   }
 
   return entries;
@@ -36,7 +38,7 @@ export function Toc({ markdown }: { markdown: string }): JSX.Element | null {
       <h4>On This Page</h4>
       <ul>
         {entries.map((entry) => (
-          <li key={entry.id}>
+          <li key={entry.id} className={`toc-depth-${entry.depth}`}>
             <a href={`#${entry.id}`}>{entry.label}</a>
           </li>
         ))}

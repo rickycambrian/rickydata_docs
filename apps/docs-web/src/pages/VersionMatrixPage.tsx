@@ -11,6 +11,7 @@ export function VersionMatrixPage(): JSX.Element {
   return (
     <div className="page">
       <h1>Version Matrix</h1>
+      <p className="muted">Latest ingest snapshot across source repos.</p>
       <table className="matrix-table">
         <thead>
           <tr>
