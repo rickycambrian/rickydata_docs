@@ -1,0 +1,54 @@
+name: Content Drift Check
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Clone source repos
+        env:
+          DOCS_GIT_TOKEN: ${{ secrets.DOCS_GIT_TOKEN }}
+        run: |
+          clone_repo () {
+            local repo_url="$1"
+            local target_dir="$2"
+
+            if [ -n "${DOCS_GIT_TOKEN}" ]; then
+              local basic_auth
+              basic_auth="$(printf 'x-access-token:%s' "${DOCS_GIT_TOKEN}" | base64)"
+              git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${basic_auth}" clone --depth=1 "${repo_url}" "${target_dir}"
+            else
+              git clone --depth=1 "${repo_url}" "${target_dir}"
+            fi
+          }
+
+          clone_repo https://github.com/rickycambrian/mcp_deployments_registry.git /tmp/mcp_deployments_registry
+          clone_repo https://github.com/rickycambrian/rickydata_SDK.git /tmp/rickydata_SDK
+          clone_repo https://github.com/rickycambrian/rickydata_mcp.git /tmp/rickydata_mcp
+          clone_repo https://github.com/rickycambrian/KF_serverless.git /tmp/KF_serverless
+          clone_repo https://github.com/rickycambrian/canvas-workflows.git /tmp/canvas-workflows
+
+      - name: Check drift
+        env:
+          DOCS_API_URL: ${{ secrets.DOCS_API_URL }}
+          DOCS_REPO_MCP_DEPLOYMENTS: /tmp/mcp_deployments_registry
+          DOCS_REPO_RICKYDATA_SDK: /tmp/rickydata_SDK
+          DOCS_REPO_RICKYDATA_MCP: /tmp/rickydata_mcp
+          DOCS_REPO_KF_SERVERLESS: /tmp/KF_serverless
+          DOCS_REPO_CANVAS_WORKFLOWS: /tmp/canvas-workflows
+        run: npm run content:drift

@@ -1,0 +1,28 @@
+name: Manual Docs Ingest
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'Repo name to ingest (empty = full ingest)'
+        required: false
+        default: ''
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger ingest
+        run: |
+          if [ -z "${{ github.event.inputs.repo }}" ]; then
+            curl -fsS -X POST "${{ secrets.DOCS_API_URL }}/api/internal/ingest/run" \
+              -H "Authorization: Bearer ${{ secrets.INGEST_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d '{}'
+          else
+            curl -fsS -X POST "${{ secrets.DOCS_API_URL }}/api/internal/ingest/repo" \
+              -H "Authorization: Bearer ${{ secrets.INGEST_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d '{"repo":"${{ github.event.inputs.repo }}"}'
+          fi

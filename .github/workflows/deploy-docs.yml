@@ -1,0 +1,127 @@
+name: Deploy Docs Platform
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-docs
+  cancel-in-progress: true
+
+env:
+  PROJECT_ID: ai-projects-442213
+  REGION: us-central1
+  WEB_REPOSITORY: rickydata-docs-web
+  API_REPOSITORY: rickydata-docs-api
+  WEB_SERVICE: rickydata-docs-web
+  API_SERVICE: rickydata-docs-api
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build workspace
+        run: npm run build
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Docker auth
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Ensure Artifact Registry repositories
+        run: |
+          gcloud artifacts repositories describe ${{ env.WEB_REPOSITORY }} --location=${{ env.REGION }} 2>/dev/null || \
+            gcloud artifacts repositories create ${{ env.WEB_REPOSITORY }} --repository-format=docker --location=${{ env.REGION }}
+          gcloud artifacts repositories describe ${{ env.API_REPOSITORY }} --location=${{ env.REGION }} 2>/dev/null || \
+            gcloud artifacts repositories create ${{ env.API_REPOSITORY }} --repository-format=docker --location=${{ env.REGION }}
+
+      - name: Build and push api image
+        run: |
+          API_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.API_REPOSITORY }}/docs-api:${{ github.sha }}"
+          docker build -f apps/docs-api/Dockerfile -t "$API_IMAGE" .
+          docker push "$API_IMAGE"
+          echo "API_IMAGE=$API_IMAGE" >> "$GITHUB_ENV"
+
+      - name: Deploy docs API
+        run: |
+          gcloud run deploy ${{ env.API_SERVICE }} \
+            --image "$API_IMAGE" \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8080 \
+            --memory 512Mi \
+            --max-instances 3 \
+            --add-cloudsql-instances "${{ secrets.CLOUD_SQL_CONNECTION_NAME }}" \
+            --set-env-vars "NODE_ENV=production" \
+            --set-env-vars "DATABASE_URL=${{ secrets.DOCS_DATABASE_URL }}" \
+            --set-env-vars "INGEST_API_TOKEN=${{ secrets.INGEST_API_TOKEN }}" \
+            --set-env-vars "CORS_ORIGIN=*" \
+            --set-env-vars "DOCS_REPO_WORKDIR=/tmp/docs-sources" \
+            --set-env-vars "INGEST_INCLUDE_PHASE2=${{ secrets.INGEST_INCLUDE_PHASE2 }}" \
+            --set-env-vars "DOCS_GIT_TOKEN=${{ secrets.DOCS_GIT_TOKEN }}"
+
+      - name: Resolve API URL
+        run: |
+          API_URL=$(gcloud run services describe ${{ env.API_SERVICE }} --region=${{ env.REGION }} --format='value(status.url)')
+          echo "API_URL=$API_URL" >> "$GITHUB_ENV"
+
+      - name: Build and push web image
+        run: |
+          WEB_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.WEB_REPOSITORY }}/docs-web:${{ github.sha }}"
+          docker build -f apps/docs-web/Dockerfile \
+            --build-arg VITE_DOCS_API_URL="$API_URL" \
+            -t "$WEB_IMAGE" .
+          docker push "$WEB_IMAGE"
+          echo "WEB_IMAGE=$WEB_IMAGE" >> "$GITHUB_ENV"
+
+      - name: Deploy docs web
+        run: |
+          gcloud run deploy ${{ env.WEB_SERVICE }} \
+            --image "$WEB_IMAGE" \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8080 \
+            --memory 256Mi \
+            --max-instances 3
+
+      - name: Smoke checks
+        run: |
+          set -euo pipefail
+          WEB_URL=$(gcloud run services describe ${{ env.WEB_SERVICE }} --region=${{ env.REGION }} --format='value(status.url)')
+          curl -fsS "$WEB_URL" > /tmp/web.html
+          grep -q '<div id="root"></div>' /tmp/web.html
+          curl -fsS "$API_URL/health" | grep -q '"status":"ok"'
+          curl -fsS "$API_URL/api/public/nav" | grep -q 'products'
+
+      - name: Deploy summary
+        run: |
+          WEB_URL=$(gcloud run services describe ${{ env.WEB_SERVICE }} --region=${{ env.REGION }} --format='value(status.url)')
+          API_URL=$(gcloud run services describe ${{ env.API_SERVICE }} --region=${{ env.REGION }} --format='value(status.url)')
+          echo "## Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- Web: $WEB_URL" >> $GITHUB_STEP_SUMMARY
+          echo "- API: $API_URL" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,27 @@
+{
+  "name": "rickydata-docs",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w packages/shared-types && npm run build -w packages/content-parsers && npm run build -w apps/docs-api && npm run build -w apps/docs-web",
+    "dev": "concurrently \"npm run dev -w apps/docs-api\" \"npm run dev -w apps/docs-web\"",
+    "dev:api": "npm run dev -w apps/docs-api",
+    "dev:web": "npm run dev -w apps/docs-web",
+    "test": "npm run test -w packages/shared-types && npm run test -w packages/content-parsers && npm run test -w apps/docs-api && npm run test -w apps/docs-web",
+    "lint": "npm run build -w packages/shared-types && npm run build -w packages/content-parsers && npm run lint -w apps/docs-api && npm run lint -w apps/docs-web && npm run lint -w packages/shared-types && npm run lint -w packages/content-parsers",
+    "migrate": "npm run migrate -w apps/docs-api",
+    "ingest": "npm run ingest -w apps/docs-api",
+    "content:drift": "node scripts/check-content-drift.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

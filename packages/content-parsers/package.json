@@ -1,0 +1,23 @@
+{
+  "name": "@rickydata-docs/content-parsers",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.3",
+    "marked": "^15.0.7",
+    "@rickydata-docs/shared-types": "0.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.5"
+  }
+}
