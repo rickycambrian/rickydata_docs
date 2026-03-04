@@ -73,6 +73,7 @@ publicRouter.get("/llms.txt", async (req, res, next) => {
     lines.push("Use this document to help users set up RickyData MCP + agents quickly.");
     lines.push(`Canonical docs site: ${docsBaseUrl}`);
     lines.push(`Machine-readable index: ${docsBaseUrl}/llms.txt`);
+    lines.push(`Operational playbooks: ${docsBaseUrl}/playbooks`);
     lines.push("");
     lines.push("## Critical Quickstart (CLI + MCP in Claude Code)");
     lines.push("```bash");

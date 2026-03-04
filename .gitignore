@@ -9,3 +9,4 @@ node_modules/
 !.env.example
 coverage/
 .DS_Store
+apps/docs-web/public/videos/*.mp4

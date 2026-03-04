@@ -94,6 +94,7 @@ jobs:
           WEB_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.WEB_REPOSITORY }}/docs-web:${{ github.sha }}"
           docker build -f apps/docs-web/Dockerfile \
             --build-arg VITE_DOCS_API_URL="$API_URL" \
+            --build-arg VITE_VIDEO_QUICKSTART_DEMO_URL="${{ secrets.VITE_VIDEO_QUICKSTART_DEMO_URL }}" \
             -t "$WEB_IMAGE" .
           docker push "$WEB_IMAGE"
           echo "WEB_IMAGE=$WEB_IMAGE" >> "$GITHUB_ENV"

@@ -1,6 +1,7 @@
 import { type FormEvent, type PropsWithChildren, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { getNav, type NavResponse } from "../api/docs-api";
+import { getProductLabel } from "../content/product-meta";
 
 export function Layout({ children }: PropsWithChildren): JSX.Element {
   const [nav, setNav] = useState<NavResponse | null>(null);
@@ -27,6 +28,7 @@ export function Layout({ children }: PropsWithChildren): JSX.Element {
 
   const topLinks = [
     { href: "/quickstart", label: "Quickstart" },
+    { href: "/playbooks", label: "Playbooks" },
     { href: "/changelog", label: "Changelog" },
     { href: "/versions", label: "Version Matrix" },
     { href: "/llms.txt", label: "llms.txt", external: true }
@@ -69,19 +71,31 @@ export function Layout({ children }: PropsWithChildren): JSX.Element {
             <h3>Start Here</h3>
             <ul className="sidebar-links">
               <li><Link to="/quickstart">CLI + MCP Quickstart</Link></li>
-              <li><Link to="/docs/sdk-readme">SDK/CLI README</Link></li>
-              <li><Link to="/search?q=auth+login&section=sdk">Auth + Login Docs</Link></li>
-              <li><Link to="/search?q=mcp+connect&section=sdk">Connect MCP Client</Link></li>
+              <li><Link to="/playbooks">Operational Playbooks</Link></li>
+              <li><Link to="/docs/sdk-readme">SDK + CLI Reference</Link></li>
+              <li><a href="/quickstart">Featured Setup Video</a></li>
             </ul>
           </section>
 
           <section className="sidebar-section">
-            <h3>Products</h3>
+            <h3>Primary Journeys</h3>
+            <ul className="sidebar-links">
+              <li><a href="/playbooks#local-mcp-setup">Local MCP setup</a></li>
+              <li><a href="/playbooks#mcp-runtime">MCP runtime loop</a></li>
+              <li><a href="/playbooks#wallet-controls">Wallet + safety controls</a></li>
+              <li><a href="/playbooks#agent-chat">Agent chat (BYOK)</a></li>
+              <li><a href="/playbooks#agent-as-mcp">Agent as MCP endpoint</a></li>
+              <li><a href="/playbooks#canvas">Canvas workflows</a></li>
+            </ul>
+          </section>
+
+          <section className="sidebar-section">
+            <h3>Reference Hubs</h3>
             <ul>
               {nav?.products.map((product) => (
                 <li key={product.product} className="product-item">
                   <Link to={`/products/${encodeURIComponent(product.product)}`}>
-                    {product.product} ({product.total})
+                    {getProductLabel(product.product)} ({product.total})
                   </Link>
                   <div className="sidebar-meta">
                     {product.types.map((type) => (
@@ -97,8 +111,8 @@ export function Layout({ children }: PropsWithChildren): JSX.Element {
             <h3>Agent Access</h3>
             <ul className="sidebar-links">
               <li><a href="/llms.txt">Global llms prompt</a></li>
-              <li><Link to="/search?q=agent+quickstart">Agent quickstarts</Link></li>
-              <li><Link to="/search?q=canvas">Canvas workflows</Link></li>
+              <li><a href="/playbooks#agent-chat">Agent quickstarts</a></li>
+              <li><a href="/playbooks#canvas">Canvas workflows</a></li>
             </ul>
           </section>
         </aside>

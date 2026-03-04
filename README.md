@@ -2,6 +2,11 @@
 
 Independent documentation platform for RickyData MCP and agent marketplace systems.
 
+## Deployment Policy
+
+- Production deployment is **CI/CD only** via GitHub Actions (`deploy-docs.yml`).
+- Do not use manual `gcloud run deploy` for normal releases.
+
 ## Implemented Stack
 
 - **Frontend**: React 18 + Vite + TypeScript (`apps/docs-web`)
@@ -117,11 +122,14 @@ npm run test
 ## Operations Runbook
 
 - `docs/GCP_SETUP_AND_OPERATIONS.md`: step-by-step GCP setup, GitHub secrets, deploy flow, DNS mapping, and ops procedures.
+- `docs/DOCS_INFORMATION_ARCHITECTURE.md`: journey-first docs structure, page roles, and video placement model.
 
 ## UX Features
 
 - Marketplace-style dark visual language aligned with the MCP Marketplace brand direction.
 - Dedicated `/quickstart` flow for SDK/CLI install + auth + MCP + agents.
+- Journey-first `/playbooks` page for onboarding, runtime usage, wallet controls, and advanced flows.
+- Embedded video-guide cards (with fallback placeholders when a video URL is not configured).
 - Per-doc copy action for full markdown.
 - Agent-friendly plain-text endpoints on the docs domain:
 - `/llms.txt`
@@ -136,6 +144,13 @@ npm run test
 - `DOCS_API_URL`
 - `INGEST_INCLUDE_PHASE2`
 - `DOCS_GIT_TOKEN` (required if any source repos are private)
+- `VITE_VIDEO_QUICKSTART_DEMO_URL` (optional, enables hosted demo video on quickstart/playbooks)
+
+## Video Asset Strategy
+
+- Recommended: host mp4 files in a static bucket/CDN and pass URLs via Vite build args/secrets.
+- Current featured video slot uses `VITE_VIDEO_QUICKSTART_DEMO_URL`.
+- Local preview fallback: place file at `apps/docs-web/public/videos/mcp-marketplace-usage-demo.mp4`.
 
 ## Database Notes
 

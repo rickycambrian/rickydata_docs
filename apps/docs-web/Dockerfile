@@ -1,7 +1,9 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 ARG VITE_DOCS_API_URL
+ARG VITE_VIDEO_QUICKSTART_DEMO_URL
 ENV VITE_DOCS_API_URL=$VITE_DOCS_API_URL
+ENV VITE_VIDEO_QUICKSTART_DEMO_URL=$VITE_VIDEO_QUICKSTART_DEMO_URL
 COPY package*.json ./
 COPY tsconfig.base.json ./
 COPY apps/docs-web/package.json apps/docs-web/package.json

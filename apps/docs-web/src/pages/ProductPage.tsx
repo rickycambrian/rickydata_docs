@@ -1,29 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getProduct, type ProductDocItem, type ProductPageResponse } from "../api/docs-api";
-
-type ProductMeta = {
-  label: string;
-  description: string;
-};
-
-const PRODUCT_META: Record<string, ProductMeta> = {
-  marketplace: {
-    label: "MCP Marketplace",
-    description:
-      "Core marketplace platform docs covering server discovery, gateway architecture, integration patterns, and production operations."
-  },
-  "mcp-server": {
-    label: "RickyData MCP Server",
-    description:
-      "Reference docs for the hosted MCP server layer, transport behavior, endpoint contracts, and runtime characteristics."
-  },
-  sdk: {
-    label: "RickyData SDK + CLI",
-    description:
-      "Install, authenticate, connect clients, discover tools, and run agent workflows using the SDK and CLI."
-  }
-};
+import { getProductMeta } from "../content/product-meta";
 
 function ProductSection(props: { title: string; subtitle: string; items: ProductDocItem[]; empty: string }): JSX.Element {
   return (
@@ -72,7 +50,7 @@ export function ProductPage(): JSX.Element {
 
   const productMeta = useMemo(() => {
     if (!product) return undefined;
-    return PRODUCT_META[product];
+    return getProductMeta(product);
   }, [product]);
 
   if (error) {
@@ -95,6 +73,7 @@ export function ProductPage(): JSX.Element {
           ))}
           <span className="pill">total: {data.total}</span>
           <a className="pill-link" href={`/search?section=${encodeURIComponent(data.product)}&q=`}>advanced search</a>
+          <Link className="pill-link" to="/playbooks">playbooks</Link>
         </div>
       </section>
 
@@ -139,6 +118,13 @@ export function ProductPage(): JSX.Element {
           subtitle="Most recently updated pages for this product."
           items={data.sections.recent}
           empty="No recently updated docs found."
+        />
+
+        <ProductSection
+          title="Other References"
+          subtitle="Additional indexed docs that do not fit guide/API/CLI/architecture buckets."
+          items={data.sections.references}
+          empty="No additional reference docs."
         />
       </div>
     </div>

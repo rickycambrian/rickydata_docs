@@ -15,6 +15,12 @@ This runbook is for the `rickydata_docs` platform in project `ai-projects-442213
 - `rickydata-docs-api`
 - `rickydata-docs-web`
 
+## Release Policy
+
+- Deploy docs platform changes through GitHub Actions only (`deploy-docs.yml`).
+- Avoid manual Cloud Run deploy commands for standard releases.
+- Manual gcloud deploy should be reserved for incident response only.
+
 ## Architecture
 
 - `apps/docs-api`: Express API (public docs endpoints + internal ingest endpoints)
@@ -34,6 +40,7 @@ Set in repo `rickycambrian/rickydata_docs`:
 - `DOCS_API_URL`: Cloud Run API URL
 - `INGEST_INCLUDE_PHASE2`: `true` or `false`
 - `DOCS_GIT_TOKEN`: GitHub token for cloning private source repos
+- `VITE_VIDEO_QUICKSTART_DEMO_URL` (optional): hosted mp4 URL for the quickstart/playbooks featured demo
 
 ## Service Account for GitHub Actions
 
@@ -131,6 +138,34 @@ For API custom domain (optional), repeat with `rickydata-docs-api`, then set:
 - Redeploy API
 - Keep `DOCS_GIT_TOKEN` scoped to minimal required repo read access
 - Keep Cloud SQL automated backups enabled
+
+## Docs Video Hosting (Optional but Recommended)
+
+Use object storage for public docs videos instead of committing mp4 binaries into git.
+
+Example using Cloud Storage:
+
+```bash
+# Create bucket once (adjust name if needed)
+gcloud storage buckets create gs://rickydata-docs-assets \
+  --project ai-projects-442213 \
+  --location us-central1 \
+  --uniform-bucket-level-access
+
+# Upload video
+gcloud storage cp /path/to/mcp_marketplace_usage_demo.mp4 \
+  gs://rickydata-docs-assets/videos/mcp-marketplace-usage-demo.mp4
+
+# Make object public (or use CDN/auth policy if preferred)
+gcloud storage objects update gs://rickydata-docs-assets/videos/mcp-marketplace-usage-demo.mp4 \
+  --add-acl-grant=entity=AllUsers,role=READER
+```
+
+Then set GitHub secret:
+
+- `VITE_VIDEO_QUICKSTART_DEMO_URL=https://storage.googleapis.com/rickydata-docs-assets/videos/mcp-marketplace-usage-demo.mp4`
+
+On next CI deploy, the video appears automatically in `/quickstart` and `/playbooks`.
 
 ## Cost and Sizing Notes
 

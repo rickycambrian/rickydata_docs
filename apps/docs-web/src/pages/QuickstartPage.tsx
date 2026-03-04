@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { CommandBlock } from "../components/CommandBlock";
+import { VideoGuideCard } from "../components/VideoGuideCard";
+import { FEATURED_VIDEO_GUIDE, QUICKSTART_DEMO_PROMPT } from "../content/video-guides";
 
 const bootstrapCode = `npm install -g rickydata
 rickydata init
@@ -30,8 +32,16 @@ export function QuickstartPage(): JSX.Element {
         </p>
         <div className="hero-actions">
           <a className="btn btn-primary" href="/llms.txt">Open Global llms.txt</a>
+          <Link className="btn btn-secondary" to="/playbooks">Open Playbooks</Link>
           <Link className="btn btn-secondary" to="/search?q=sdk+readme&section=sdk">Open SDK Docs</Link>
         </div>
+      </section>
+
+      <VideoGuideCard guide={FEATURED_VIDEO_GUIDE} />
+
+      <section className="prompt-callout">
+        <h2>Try this exact prompt in Claude Code</h2>
+        <pre>{QUICKSTART_DEMO_PROMPT}</pre>
       </section>
 
       <section className="quickstart-grid">
