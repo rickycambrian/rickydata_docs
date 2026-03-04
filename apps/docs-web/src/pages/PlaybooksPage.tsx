@@ -12,10 +12,10 @@ rickydata mcp connect
 # restart Claude Code`;
 
 const cliLoop = `rickydata mcp search "arxiv"
-rickydata mcp enable blazickjp-arxiv-mcp-server
+rickydata mcp enable "blazickjp/arxiv-mcp-server"
 rickydata mcp tools
 rickydata mcp call blazickjp-arxiv-mcp-server__search_papers '{"query":"multi-agent LLM systems","max_results":5}'
-rickydata mcp disable blazickjp-arxiv-mcp-server
+rickydata mcp disable "blazickjp/arxiv-mcp-server"
 rickydata mcp tools`;
 
 const byokFlow = `rickydata apikey set

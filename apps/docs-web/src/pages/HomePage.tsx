@@ -20,20 +20,9 @@ export function HomePage(): JSX.Element {
           then scale into agents, wallet policy, and workflow automation.
         </p>
         <div className="hero-actions">
-          <Link className="btn btn-primary" to="/quickstart">Open Quickstart</Link>
-          <Link className="btn btn-secondary" to="/playbooks">Open Playbooks</Link>
-          <Link className="btn btn-secondary" to="/docs/sdk-readme">SDK + CLI Guide</Link>
-          <a className="btn btn-ghost" href="/llms.txt">llms.txt</a>
+          <Link className="btn btn-primary" to="/quickstart">Get Started</Link>
+          <Link className="btn btn-secondary" to="/playbooks">Browse Playbooks</Link>
         </div>
-      </section>
-
-      <section className="stats-grid">
-        {(nav?.products || []).map((product) => (
-          <article className="stat-card" key={product.product}>
-            <p className="stat-value">{product.total}</p>
-            <p className="stat-label">{product.product}</p>
-          </article>
-        ))}
       </section>
 
       <section className="quickstart-strip">
@@ -80,7 +69,6 @@ export function HomePage(): JSX.Element {
         </ol>
       </section>
 
-      <h2>Docs by Product</h2>
       <div className="card-grid">
         {(nav?.products || []).map((product) => (
           <article className="card" key={product.product}>
@@ -91,18 +79,6 @@ export function HomePage(): JSX.Element {
         ))}
       </div>
 
-      <section className="quick-links">
-        <h2>Common Journeys</h2>
-        <ul>
-          <li><Link to="/quickstart">CLI + MCP install and login</Link></li>
-          <li><a href="/playbooks#mcp-runtime">MCP search/enable/call/disable runtime loop</a></li>
-          <li><a href="/playbooks#wallet-controls">Wallet funding + retention + budgets</a></li>
-          <li><a href="/playbooks#agent-chat">Agents quickstart and BYOK</a></li>
-          <li><a href="/playbooks#canvas">Canvas workflow docs</a></li>
-          <li><a href="/playbooks#marketplace-ui">Marketplace web operations</a></li>
-          <li><Link to="/changelog">Latest release notes</Link></li>
-        </ul>
-      </section>
     </div>
   );
 }

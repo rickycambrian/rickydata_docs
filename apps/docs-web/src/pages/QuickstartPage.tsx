@@ -12,9 +12,9 @@ rickydata mcp connect
 # Restart Claude Code`;
 
 const mcpWorkflowCode = `rickydata mcp search "brave"
-rickydata mcp enable brave-search-mcp-server
+rickydata mcp enable "io.github.brave/brave-search-mcp-server"
 rickydata mcp tools
-rickydata mcp call blazickjp-arxiv-mcp-server__search_papers '{"query":"transformers","max_results":3}'`;
+rickydata mcp call io-github-brave-brave-search-mcp-server__brave_web_search '{"query":"transformers","count":3}'`;
 
 const agentsCode = `rickydata apikey set
 rickydata agents list
