@@ -30,6 +30,10 @@ export function QuickstartPage(): JSX.Element {
           This is the fastest path to get `rickydata` working in local agentic sessions and Claude Code with
           marketplace discovery, tool enablement, and direct tool calls.
         </p>
+        <p className="lead">
+          Prefer Claude.ai web chat? Skip the CLI — <Link to="/playbooks#claude-chat-setup">add rickydata as a connector</Link> in
+          two clicks.
+        </p>
         <div className="hero-actions">
           <Link className="btn btn-primary" to="/playbooks">Continue to Playbooks</Link>
         </div>

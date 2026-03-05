@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { CommandBlock } from "../components/CommandBlock";
 import { CollapsibleSection } from "../components/CollapsibleSection";
 import { VideoGuideCard } from "../components/VideoGuideCard";
-import { FEATURED_VIDEO_GUIDE, INIT_WIZARD_GUIDE, MCP_RUNTIME_LOOP_GUIDE, QUICKSTART_DEMO_PROMPT } from "../content/video-guides";
+import { FEATURED_VIDEO_GUIDE, INIT_WIZARD_GUIDE, MCP_RUNTIME_LOOP_GUIDE, CLAUDE_CHAT_CONNECTOR_GUIDE, QUICKSTART_DEMO_PROMPT } from "../content/video-guides";
 
 const installAndConnect = `npm install -g rickydata
 rickydata init
@@ -96,8 +96,42 @@ export function PlaybooksPage(): JSX.Element {
       </CollapsibleSection>
 
       <CollapsibleSection
+        id="claude-chat-setup"
+        title="2) Connect to Claude.ai web chat"
+        subtitle="Goal: use rickydata marketplace tools directly in Claude.ai — no CLI required."
+        defaultOpen
+      >
+        <VideoGuideCard guide={CLAUDE_CHAT_CONNECTOR_GUIDE} />
+
+        <h3>Steps</h3>
+
+        <ol className="numbered-steps">
+          <li>
+            Go to <a href="https://claude.ai/customize" target="_blank" rel="noreferrer">claude.ai/customize</a> and
+            click <strong>Connectors</strong>.
+          </li>
+          <li>
+            Click <strong>+ Add custom connector</strong>. Enter a name (e.g. <code>rickydata</code>) and the
+            URL: <code>https://connect.rickydata.org/mcp</code>.
+          </li>
+          <li>
+            Click <strong>Connect</strong>. Complete the login flow in the popup — the same auth you use with the CLI.
+          </li>
+          <li>
+            Done. Start a new Claude.ai chat and your marketplace MCP tools are available. Search, enable, and call
+            tools the same way you would in Claude Code.
+          </li>
+        </ol>
+
+        <ul className="playbook-links">
+          <li><a href="https://claude.ai/customize" target="_blank" rel="noreferrer">Claude.ai Customize page</a></li>
+          <li><Link to="/quickstart">Quickstart (CLI path)</Link></li>
+        </ul>
+      </CollapsibleSection>
+
+      <CollapsibleSection
         id="mcp-runtime"
-        title="2) Discover, enable, call, and disable MCP servers"
+        title="3) Discover, enable, call, and disable MCP servers"
         subtitle="Goal: complete one full MCP lifecycle loop and prove tool execution works."
         defaultOpen
       >
@@ -129,7 +163,7 @@ export function PlaybooksPage(): JSX.Element {
 
       <CollapsibleSection
         id="wallet-controls"
-        title="3) Wallet funding, budgets, retention, and self-improvement controls"
+        title="4) Wallet funding, budgets, retention, and self-improvement controls"
         subtitle="Goal: prevent payment failures and set safe defaults before team rollout."
       >
         <p>
@@ -172,7 +206,7 @@ export function PlaybooksPage(): JSX.Element {
 
       <CollapsibleSection
         id="agent-chat"
-        title="4) Agent chat with BYOK and session controls"
+        title="5) Agent chat with BYOK and session controls"
         subtitle="Goal: enable reliable agent usage with cost visibility and session continuity."
       >
         <p>
@@ -196,7 +230,7 @@ export function PlaybooksPage(): JSX.Element {
 
       <CollapsibleSection
         id="agent-as-mcp"
-        title="5) Use agents as MCP endpoints"
+        title="6) Use agents as MCP endpoints"
         subtitle="Goal: connect an agent endpoint to any MCP-compatible client."
       >
         <p>
@@ -217,7 +251,7 @@ export function PlaybooksPage(): JSX.Element {
 
       <CollapsibleSection
         id="canvas"
-        title="6) Canvas workflows"
+        title="7) Canvas workflows"
         subtitle="Goal: execute and monitor multi-step workflows via CLI and workspace UI."
       >
         <p>

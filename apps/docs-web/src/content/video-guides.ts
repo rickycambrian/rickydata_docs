@@ -76,6 +76,20 @@ export const INIT_WIZARD_GUIDE: VideoGuide = {
   ...videoOrUndefined("VITE_VIDEO_INIT_WIZARD_URL", "02-init-wizard-auth-connect.mp4")
 };
 
+/** Connect to Claude.ai web chat via custom connector — shown on /playbooks#claude-chat-setup */
+export const CLAUDE_CHAT_CONNECTOR_GUIDE: VideoGuide = {
+  id: "claude-chat-connector",
+  title: "Connect rickydata to Claude.ai web chat",
+  duration: "2 min",
+  audience: "Users who prefer Claude.ai web chat over Claude Code or CLI",
+  purpose:
+    "Show how to add rickydata as a custom MCP connector in Claude.ai so marketplace tools and agents work directly in web chat.",
+  pageAnchor: "/playbooks#claude-chat-setup",
+  recordingPrompt:
+    "Go to claude.ai/customize → Connectors → + Add custom connector → name: rickydata, URL: https://connect.rickydata.org/mcp → Connect → complete login.",
+  ...videoOrUndefined("VITE_VIDEO_CLAUDE_CHAT_CONNECTOR_URL", "03-claude-chat-connector.mp4")
+};
+
 export const RECORDING_BACKLOG: VideoGuide[] = [
   FEATURED_VIDEO_GUIDE,
   MCP_RUNTIME_LOOP_GUIDE,
