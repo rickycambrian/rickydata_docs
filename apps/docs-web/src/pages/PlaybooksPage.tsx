@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CommandBlock } from "../components/CommandBlock";
 import { CollapsibleSection } from "../components/CollapsibleSection";
@@ -52,7 +53,7 @@ rickydata canvas runs
 rickydata canvas run <run-id>`;
 
 export function PlaybooksPage(): JSX.Element {
-  document.title = "Playbooks — RickyData Docs";
+  useEffect(() => { document.title = "Playbooks — RickyData Docs"; }, []);
   return (
     <div className="page playbooks-page">
       <section className="hero hero-compact">

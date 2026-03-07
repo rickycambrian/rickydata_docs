@@ -330,7 +330,7 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
   border-radius: var(--radius-md); padding: 0.875rem;
 }
 
-.toc h3, .aux-panel h3, .provenance h3 {
+.toc h4, .aux-panel h4, .provenance h4 {
   font-size: 0.625rem; font-weight: 600; text-transform: uppercase;
   letter-spacing: 0.08em; color: var(--muted); margin: 0 0 0.5rem;
 }
@@ -439,6 +439,18 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
 
 .playbook-links { margin: 0.875rem 0 0; padding-left: 1.125rem; display: grid; gap: 0.25rem; }
 .playbook-links li { color: var(--text-secondary); font-size: 0.8125rem; line-height: 1.55; }
+
+/* ── Numbered Steps ── */
+.numbered-steps {
+  margin: 0; padding-left: 1.25rem; display: grid; gap: 0.5rem;
+  font-size: 0.8125rem; line-height: 1.65; color: var(--text-secondary);
+}
+.numbered-steps li { padding: 0.25rem 0; }
+.numbered-steps code {
+  display: inline; padding: 0.15em 0.4em; border-radius: 3px;
+  background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border);
+  color: var(--accent); font-size: 0.8125rem;
+}
 
 /* ── Callout ── */
 .prompt-callout {

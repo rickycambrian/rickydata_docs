@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CommandBlock } from "../components/CommandBlock";
 import { VideoGuideCard } from "../components/VideoGuideCard";
@@ -21,7 +22,7 @@ rickydata agents list
 rickydata chat <agent-id>`;
 
 export function QuickstartPage(): JSX.Element {
-  document.title = "Quickstart — RickyData Docs";
+  useEffect(() => { document.title = "Quickstart — RickyData Docs"; }, []);
   return (
     <div className="page">
       <section className="hero hero-compact">
