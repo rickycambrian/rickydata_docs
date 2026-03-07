@@ -1,8 +1,9 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { ChangelogPage } from "./pages/ChangelogPage";
 import { DocPage } from "./pages/DocPage";
 import { HomePage } from "./pages/HomePage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 import { PlaybooksPage } from "./pages/PlaybooksPage";
 import { ProductPage } from "./pages/ProductPage";
 import { QuickstartPage } from "./pages/QuickstartPage";
@@ -21,7 +22,7 @@ export function App(): JSX.Element {
         <Route path="/docs/:slug" element={<DocPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/versions" element={<VersionMatrixPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>
   );

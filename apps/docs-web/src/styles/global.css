@@ -366,6 +366,39 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
 }
 .markdown pre code { background: transparent; padding: 0; font-size: inherit; color: inherit; }
 
+.markdown ul, .markdown ol { padding-left: 1.25rem; margin-bottom: 0.875rem; }
+.markdown li { margin-bottom: 0.25rem; }
+.markdown li > ul, .markdown li > ol { margin-bottom: 0; }
+
+.markdown blockquote {
+  margin: 0 0 0.875rem; padding: 0.625rem 1rem;
+  border-left: 3px solid var(--accent); background: var(--surface-1);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--text-secondary);
+}
+.markdown blockquote p:last-child { margin-bottom: 0; }
+
+.markdown img { max-width: 100%; height: auto; border-radius: var(--radius-md); }
+
+.markdown hr {
+  border: none; border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+.markdown table {
+  width: 100%; border-collapse: collapse; margin-bottom: 0.875rem;
+  font-size: 0.8125rem;
+}
+.markdown th, .markdown td {
+  border: 1px solid var(--border); padding: 0.5rem 0.625rem; text-align: left;
+}
+.markdown th {
+  font-weight: 600; background: var(--surface-1);
+  color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.markdown tbody tr:hover { background: var(--surface-1); }
+
 /* ── Quickstart Grid ── */
 .quickstart-grid { margin-top: 1rem; display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 
