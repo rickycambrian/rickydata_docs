@@ -7,6 +7,7 @@ export function HomePage(): JSX.Element {
   const [nav, setNav] = useState<NavResponse | null>(null);
 
   useEffect(() => {
+    document.title = "RickyData Docs";
     getNav().then(setNav).catch(() => setNav({ products: [] }));
   }, []);
 

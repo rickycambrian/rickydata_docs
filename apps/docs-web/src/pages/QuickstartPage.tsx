@@ -21,13 +21,14 @@ rickydata agents list
 rickydata chat <agent-id>`;
 
 export function QuickstartPage(): JSX.Element {
+  document.title = "Quickstart — RickyData Docs";
   return (
     <div className="page">
       <section className="hero hero-compact">
         <p className="eyebrow">Quickstart</p>
         <h1>Install CLI, authenticate once, unlock MCP + agents</h1>
         <p className="lead">
-          This is the fastest path to get `rickydata` working in local agentic sessions and Claude Code with
+          This is the fastest path to get <code>rickydata</code> working in local agentic sessions and Claude Code with
           marketplace discovery, tool enablement, and direct tool calls.
         </p>
         <p className="lead">
@@ -45,7 +46,7 @@ export function QuickstartPage(): JSX.Element {
         <CommandBlock
           title="1) Recommended bootstrap"
           code={bootstrapCode}
-          caption="`rickydata init` runs auth + MCP connect setup and verification."
+          caption="rickydata init runs auth + MCP connect setup and verification."
         />
         <CommandBlock
           title="2) Manual bootstrap"

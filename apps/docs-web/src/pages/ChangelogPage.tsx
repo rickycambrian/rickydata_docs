@@ -6,6 +6,7 @@ export function ChangelogPage(): JSX.Element {
   const [data, setData] = useState<ChangelogResponse | null>(null);
 
   useEffect(() => {
+    document.title = "Changelog — RickyData Docs";
     getChangelog().then(setData).catch(() => setData({ total: 0, items: [] }));
   }, []);
 

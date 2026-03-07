@@ -5,6 +5,7 @@ export function VersionMatrixPage(): JSX.Element {
   const [data, setData] = useState<VersionMatrixResponse | null>(null);
 
   useEffect(() => {
+    document.title = "Version Matrix — RickyData Docs";
     getVersionMatrix().then(setData).catch(() => setData({ rows: [] }));
   }, []);
 

@@ -52,6 +52,7 @@ rickydata canvas runs
 rickydata canvas run <run-id>`;
 
 export function PlaybooksPage(): JSX.Element {
+  document.title = "Playbooks — RickyData Docs";
   return (
     <div className="page playbooks-page">
       <section className="hero hero-compact">

@@ -38,7 +38,7 @@ export function Layout({ children }: PropsWithChildren): JSX.Element {
     <div className="layout-shell">
       <header className="topbar">
         <div className="topbar-inner">
-          <Link to="/" className="brand">MCP Marketplace Docs</Link>
+          <Link to="/" className="brand">RickyData Docs</Link>
           <nav className="top-links">
             {topLinks.map((item) => (
               item.external ? (

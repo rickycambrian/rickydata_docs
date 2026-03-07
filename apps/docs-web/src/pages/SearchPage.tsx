@@ -29,6 +29,7 @@ export function SearchPage(): JSX.Element {
   });
 
   useEffect(() => {
+    document.title = q ? `Search: ${q} — RickyData Docs` : "Search — RickyData Docs";
     searchDocs(q, section, type)
       .then((result) => {
         setData(result);

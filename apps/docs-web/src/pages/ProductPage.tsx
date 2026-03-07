@@ -42,6 +42,8 @@ export function ProductPage(): JSX.Element {
       .then((result) => {
         setData(result);
         setError(null);
+        const label = getProductMeta(product)?.label || product;
+        document.title = `${label} — RickyData Docs`;
       })
       .catch((e) => {
         setError(e instanceof Error ? e.message : "Failed to load product docs");

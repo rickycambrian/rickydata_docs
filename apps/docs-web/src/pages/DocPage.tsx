@@ -39,6 +39,7 @@ export function DocPage(): JSX.Element {
       .then((result) => {
         setData(result);
         setError(null);
+        document.title = `${result.doc.title} — RickyData Docs`;
       })
       .catch((e) => {
         setError(e instanceof Error ? e.message : "Failed to load document");

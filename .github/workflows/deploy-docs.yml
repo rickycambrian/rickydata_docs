@@ -97,6 +97,7 @@ jobs:
             --build-arg VITE_VIDEO_QUICKSTART_DEMO_URL="${{ secrets.VITE_VIDEO_QUICKSTART_DEMO_URL }}" \
             --build-arg VITE_VIDEO_MCP_RUNTIME_URL="${{ secrets.VITE_VIDEO_MCP_RUNTIME_URL }}" \
             --build-arg VITE_VIDEO_INIT_WIZARD_URL="${{ secrets.VITE_VIDEO_INIT_WIZARD_URL }}" \
+            --build-arg VITE_VIDEO_CLAUDE_CHAT_CONNECTOR_URL="${{ secrets.VITE_VIDEO_CLAUDE_CHAT_CONNECTOR_URL }}" \
             -t "$WEB_IMAGE" .
           docker push "$WEB_IMAGE"
           echo "WEB_IMAGE=$WEB_IMAGE" >> "$GITHUB_ENV"

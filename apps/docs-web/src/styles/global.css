@@ -461,10 +461,16 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
 /* ── Meta ── */
 .meta-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25rem; }
 
+.meta-list li {
+  font-size: 0.8125rem; line-height: 1.65; color: var(--text-secondary);
+  padding: 0.375rem 0;
+}
+
 .meta-list li code {
-  width: 100%; display: block; border-radius: var(--radius-sm);
-  padding: 0.4375rem 0.625rem; border: 1px solid var(--border);
+  display: inline; border-radius: 3px;
+  padding: 0.15em 0.4em; border: 1px solid var(--border);
   background: rgba(0, 0, 0, 0.25); font-size: 0.8125rem;
+  color: var(--accent);
 }
 
 /* ── Table ── */
