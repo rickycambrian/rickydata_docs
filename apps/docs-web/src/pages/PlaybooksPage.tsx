@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { CommandBlock } from "../components/CommandBlock";
 import { CollapsibleSection } from "../components/CollapsibleSection";
 import { VideoGuideCard } from "../components/VideoGuideCard";
-import { FEATURED_VIDEO_GUIDE, INIT_WIZARD_GUIDE, MCP_RUNTIME_LOOP_GUIDE, CLAUDE_CHAT_CONNECTOR_GUIDE, QUICKSTART_DEMO_PROMPT } from "../content/video-guides";
+import { FEATURED_VIDEO_GUIDE, INIT_WIZARD_GUIDE, MCP_RUNTIME_LOOP_GUIDE, CLAUDE_CHAT_CONNECTOR_GUIDE, WALLET_FUNDING_GUIDE, QUICKSTART_DEMO_PROMPT } from "../content/video-guides";
 
 const installAndConnect = `npm install -g rickydata
 rickydata init
@@ -168,6 +168,8 @@ export function PlaybooksPage(): JSX.Element {
         title="4) Wallet funding, budgets, retention, and self-improvement controls"
         subtitle="Goal: prevent payment failures and set safe defaults before team rollout."
       >
+        <VideoGuideCard guide={WALLET_FUNDING_GUIDE} />
+
         <p>
           MCP tool calls cost $0.0005 USDC each on Base mainnet. Agent chat uses your BYOK Anthropic key at a 10% platform markup.
           Fund your wallet before enabling servers, then configure conversation retention and self-improvement to get the most from agent sessions.

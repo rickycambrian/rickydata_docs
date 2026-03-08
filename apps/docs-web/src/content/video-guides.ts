@@ -90,21 +90,24 @@ export const CLAUDE_CHAT_CONNECTOR_GUIDE: VideoGuide = {
   ...videoOrUndefined("VITE_VIDEO_CLAUDE_CHAT_CONNECTOR_URL", "03-claude-chat-connector.mp4")
 };
 
+/** Wallet funding on Base — shown on /playbooks#wallet-controls */
+export const WALLET_FUNDING_GUIDE: VideoGuide = {
+  id: "wallet-funding-and-network-safety",
+  title: "Wallet funding on Base + wrong-network safety",
+  duration: "15 sec",
+  audience: "Users funding for MCP tool calls and agent chat",
+  purpose:
+    "Show the wallet funding flow on Base mainnet so users deposit USDC correctly and avoid wrong-network issues.",
+  pageAnchor: "/playbooks#wallet-controls",
+  recordingPrompt:
+    "Open mcpmarketplace.rickydata.org/wallet, show deposit address, switch wallet network to Base, add USDC token, fund, and explain wrong-network warning + recovery policy.",
+  ...videoOrUndefined("VITE_VIDEO_WALLET_FUNDING_URL", "04-wallet-funding.mp4")
+};
+
 export const RECORDING_BACKLOG: VideoGuide[] = [
   FEATURED_VIDEO_GUIDE,
   MCP_RUNTIME_LOOP_GUIDE,
   INIT_WIZARD_GUIDE,
-  {
-    id: "wallet-funding-and-network-safety",
-    title: "Wallet funding on Base + wrong-network safety",
-    duration: "3-4 min",
-    status: "record-needed",
-    audience: "Users funding for MCP tool calls and agent chat",
-    purpose: "Reduce payment failures by showing exact network/token expectations and recovery policy.",
-    pageAnchor: "/playbooks#wallet-controls",
-    recordingPrompt:
-      "Open mcpmarketplace.rickydata.org/wallet, show deposit address, switch wallet network to Base, add USDC token, fund, and explain wrong-network warning + recovery policy."
-  },
   {
     id: "wallet-preferences-retention-autoimprove",
     title: "Wallet preferences: retention, auto-improvement, and scheduling",
