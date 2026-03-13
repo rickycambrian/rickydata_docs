@@ -3,16 +3,26 @@ import { Link, useParams } from "react-router-dom";
 import { getProduct, type ProductDocItem, type ProductPageResponse } from "../api/docs-api";
 import { getProductMeta } from "../content/product-meta";
 
-function ProductSection(props: { title: string; subtitle: string; items: ProductDocItem[]; empty: string }): JSX.Element {
+type SectionVariant = "prominent" | "reference" | "recent" | "subdued" | "default";
+
+function ProductSection(props: {
+  title: string;
+  subtitle: string;
+  items: ProductDocItem[];
+  empty: string;
+  variant?: SectionVariant;
+}): JSX.Element {
+  const variant = props.variant || "default";
+
   return (
-    <section className="product-section">
+    <section className={`product-section product-section--${variant}`}>
       <div className="product-section-head">
         <h2>{props.title}</h2>
         <p className="muted">{props.subtitle}</p>
       </div>
 
       {props.items.length === 0 ? (
-        <p className="muted">{props.empty}</p>
+        <p className="product-section-empty">{props.empty}</p>
       ) : (
         <ul className="result-list">
           {props.items.map((item) => (
@@ -22,7 +32,11 @@ function ProductSection(props: { title: string; subtitle: string; items: Product
                 <a href={`/docs/${item.slug}/llms.txt`}>llms.txt</a>
               </div>
               <p>{item.summary}</p>
-              <small>{item.docType} · {new Date(item.updatedAt).toLocaleString()}</small>
+              {variant === "recent" ? (
+                <small className="result-timestamp">{new Date(item.updatedAt).toLocaleString()}</small>
+              ) : (
+                <small>{item.docType} · {new Date(item.updatedAt).toLocaleString()}</small>
+              )}
             </li>
           ))}
         </ul>
@@ -85,6 +99,7 @@ export function ProductPage(): JSX.Element {
           subtitle="Curated docs to understand this product fast."
           items={data.sections.startHere}
           empty="No start-here docs indexed yet."
+          variant="prominent"
         />
 
         <ProductSection
@@ -99,6 +114,7 @@ export function ProductPage(): JSX.Element {
           subtitle="Endpoint-level documentation and contracts."
           items={data.sections.api}
           empty="No API docs indexed yet."
+          variant="reference"
         />
 
         <ProductSection
@@ -106,6 +122,7 @@ export function ProductPage(): JSX.Element {
           subtitle="Command-level docs for terminal workflows."
           items={data.sections.cli}
           empty="No CLI docs indexed yet."
+          variant="reference"
         />
 
         <ProductSection
@@ -120,6 +137,7 @@ export function ProductPage(): JSX.Element {
           subtitle="Most recently updated pages for this product."
           items={data.sections.recent}
           empty="No recently updated docs found."
+          variant="recent"
         />
 
         <ProductSection
@@ -127,6 +145,7 @@ export function ProductPage(): JSX.Element {
           subtitle="Additional indexed docs that do not fit guide/API/CLI/architecture buckets."
           items={data.sections.references}
           empty="No additional reference docs."
+          variant="subdued"
         />
       </div>
     </div>

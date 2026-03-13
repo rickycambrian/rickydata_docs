@@ -36,6 +36,43 @@ export function Layout({ children }: PropsWithChildren): JSX.Element {
 
   return (
     <div className="layout-shell">
+      <a
+        href="#main-content"
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          top: "auto",
+          width: "1px",
+          height: "1px",
+          overflow: "hidden",
+          zIndex: 100,
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.position = "fixed";
+          e.currentTarget.style.left = "1rem";
+          e.currentTarget.style.top = "0.5rem";
+          e.currentTarget.style.width = "auto";
+          e.currentTarget.style.height = "auto";
+          e.currentTarget.style.overflow = "visible";
+          e.currentTarget.style.padding = "0.5rem 1rem";
+          e.currentTarget.style.background = "var(--accent)";
+          e.currentTarget.style.color = "oklch(18% 0.02 70)";
+          e.currentTarget.style.borderRadius = "var(--radius-sm)";
+          e.currentTarget.style.fontWeight = "600";
+          e.currentTarget.style.fontSize = "0.875rem";
+          e.currentTarget.style.textDecoration = "none";
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.position = "absolute";
+          e.currentTarget.style.left = "-9999px";
+          e.currentTarget.style.width = "1px";
+          e.currentTarget.style.height = "1px";
+          e.currentTarget.style.overflow = "hidden";
+        }}
+      >
+        Skip to main content
+      </a>
+
       <header className="topbar">
         <div className="topbar-inner">
           <Link to="/" className="brand">RickyData Docs</Link>
@@ -95,7 +132,7 @@ export function Layout({ children }: PropsWithChildren): JSX.Element {
             </ul>
           </section>
         </aside>
-        <main className="main-content">{children}</main>
+        <main id="main-content" className="main-content">{children}</main>
       </div>
     </div>
   );

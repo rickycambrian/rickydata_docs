@@ -7,12 +7,16 @@ export function SourceProvenance(props: {
   return (
     <section className="provenance">
       <h4>Source Provenance</h4>
-      <ul>
-        <li>Repo: <code>{props.sourceRepo}</code></li>
-        <li>Path: <code>{props.sourcePath}</code></li>
-        <li>Commit: <code>{props.sourceCommit.slice(0, 12)}</code></li>
-        <li>Updated: {new Date(props.updatedAt).toLocaleString()}</li>
-      </ul>
+      <dl className="provenance-grid">
+        <dt>Repo</dt>
+        <dd><code>{props.sourceRepo}</code></dd>
+        <dt>Path</dt>
+        <dd><code>{props.sourcePath}</code></dd>
+        <dt>Commit</dt>
+        <dd><code>{props.sourceCommit.slice(0, 12)}</code></dd>
+        <dt>Updated</dt>
+        <dd>{new Date(props.updatedAt).toLocaleString()}</dd>
+      </dl>
     </section>
   );
 }

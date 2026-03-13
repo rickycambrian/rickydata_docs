@@ -44,35 +44,48 @@ export function QuickstartPage(): JSX.Element {
       <VideoGuideCard guide={FEATURED_VIDEO_GUIDE} />
 
       <section className="quickstart-grid">
-        <CommandBlock
-          title="1) Recommended bootstrap"
-          code={bootstrapCode}
-          caption="rickydata init runs auth + MCP connect setup and verification."
-        />
-        <CommandBlock
-          title="2) Manual bootstrap"
-          code={manualCode}
-          caption="Use this if you want explicit control over each setup step."
-        />
-        <CommandBlock
-          title="3) Verify MCP marketplace workflow"
-          code={mcpWorkflowCode}
-          caption="Search, enable, inspect tools, and call one tool end-to-end from the CLI."
-        />
-        <CommandBlock
-          title="4) Agent workflow (BYOK)"
-          code={agentsCode}
-          caption="Set your Anthropic key, inspect available agents, and start chat."
-        />
+        <div className="quickstart-grid-primary">
+          <CommandBlock
+            title="1) Recommended bootstrap"
+            code={bootstrapCode}
+            caption="rickydata init runs auth + MCP connect setup and verification."
+          />
+          <CommandBlock
+            title="3) Verify MCP marketplace workflow"
+            code={mcpWorkflowCode}
+            caption="Search, enable, inspect tools, and call one tool end-to-end from the CLI."
+          />
+        </div>
+        <div className="quickstart-grid-secondary">
+          <CommandBlock
+            title="2) Manual bootstrap"
+            code={manualCode}
+            caption="Use this if you want explicit control over each setup step."
+          />
+          <CommandBlock
+            title="4) Agent workflow (BYOK)"
+            code={agentsCode}
+            caption="Set your Anthropic key, inspect available agents, and start chat."
+          />
+        </div>
       </section>
 
-      <section className="quick-links">
+      <section className="quick-links quick-links-enhanced">
         <h2>Next docs to read</h2>
-        <ul>
-          <li><Link to="/docs/sdk-readme">SDK + CLI reference</Link> · <a href="/docs/sdk-readme/llms.txt">llms.txt</a></li>
-          <li><Link to="/docs/marketplace-readme">Marketplace architecture + usage</Link> · <a href="/docs/marketplace-readme/llms.txt">llms.txt</a></li>
-          <li><Link to="/search?q=agent&section=mcp-server">Agent-focused docs</Link></li>
-        </ul>
+        <div className="quick-links-grid">
+          <Link className="quick-link-item" to="/docs/sdk-readme">
+            <span className="quick-link-title">SDK + CLI reference</span>
+            <span className="quick-link-meta">Full command reference</span>
+          </Link>
+          <Link className="quick-link-item" to="/docs/marketplace-readme">
+            <span className="quick-link-title">Marketplace architecture</span>
+            <span className="quick-link-meta">Gateway and usage patterns</span>
+          </Link>
+          <Link className="quick-link-item" to="/search?q=agent&section=mcp-server">
+            <span className="quick-link-title">Agent-focused docs</span>
+            <span className="quick-link-meta">Search results for agent tools</span>
+          </Link>
+        </div>
       </section>
     </div>
   );

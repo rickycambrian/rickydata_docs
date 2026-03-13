@@ -2,6 +2,23 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { searchDocs, type SearchResponse } from "../api/docs-api";
 
+const GROUP_LABELS: Record<string, string> = {
+  guide: "Guides",
+  architecture: "Architecture",
+  cli: "CLI Reference",
+  api: "API Reference",
+  security: "Security",
+  workflow: "Workflows",
+  "release-note": "Release Notes",
+  other: "Other",
+};
+
+function groupWeight(groupName: string): "primary" | "reference" | "default" {
+  if (groupName === "guide" || groupName === "architecture") return "primary";
+  if (groupName === "cli" || groupName === "api") return "reference";
+  return "default";
+}
+
 export function SearchPage(): JSX.Element {
   const [params] = useSearchParams();
   const [data, setData] = useState<SearchResponse | null>(null);
@@ -41,18 +58,19 @@ export function SearchPage(): JSX.Element {
   }, [q, section, type]);
 
   return (
-    <div className="page">
+    <div className="page search-page">
       <h1>Advanced Search</h1>
       {(section || type) && (
         <div className="filter-row">
-          {section && <span className="pill">section: {section}</span>}
-          {type && <span className="pill">type: {type}</span>}
+          {section && <span className="pill filter-pill">{section}</span>}
+          {type && <span className="pill filter-pill">{type}</span>}
+          <Link className="pill-link" to="/search">Clear filters</Link>
         </div>
       )}
       {broadSectionSearch && (
         <div className="prompt-callout">
           <p className="muted">
-            You are browsing a broad section view. For structured onboarding, use the product hub:
+            Browsing a broad section view. For structured onboarding, try the product hub:
           </p>
           <p>
             <Link to={`/products/${encodeURIComponent(section || "")}`}>Open {section} product hub</Link>
@@ -60,30 +78,41 @@ export function SearchPage(): JSX.Element {
         </div>
       )}
       {error && <p className="error">{error}</p>}
-      <p className="muted">{data?.total ?? 0} results</p>
 
-      {orderedGroups.map(([groupName, items]) => (
-        <section key={groupName} className="product-section">
-          <div className="product-section-head">
-            <h2>{groupName}</h2>
-            <p className="muted">{items.length} result{items.length === 1 ? "" : "s"}</p>
-          </div>
-          <ul className="result-list">
-            {items.map((item) => (
-              <li key={item.slug}>
-                <div className="result-head">
-                  <Link to={`/docs/${item.slug}`}>{item.title}</Link>
-                  <a href={`/docs/${item.slug}/llms.txt`}>llms.txt</a>
-                </div>
-                <p>{item.summary}</p>
-                <small>
-                  {item.product} · {item.docType} · {new Date(item.updatedAt).toLocaleString()}
-                </small>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+      <p className="search-results-count">{data?.total ?? 0} results</p>
+
+      {orderedGroups.length === 0 && data && (
+        <div className="search-empty">
+          <p>No results found{q ? ` for "${q}"` : ""}.</p>
+          <small>Try broadening your search or removing filters.</small>
+        </div>
+      )}
+
+      {orderedGroups.map(([groupName, items]) => {
+        const weight = groupWeight(groupName);
+        return (
+          <section key={groupName} className={`search-group search-group--${weight}`}>
+            <div className="search-group-head">
+              <h2>{GROUP_LABELS[groupName] || groupName}</h2>
+              <span className="search-group-count">{items.length}</span>
+            </div>
+            <ul className="result-list">
+              {items.map((item) => (
+                <li key={item.slug}>
+                  <div className="result-head">
+                    <Link to={`/docs/${item.slug}`}>{item.title}</Link>
+                    <a href={`/docs/${item.slug}/llms.txt`}>llms.txt</a>
+                  </div>
+                  <p>{item.summary}</p>
+                  <small>
+                    {item.product} · {new Date(item.updatedAt).toLocaleString()}
+                  </small>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
     </div>
   );
 }
