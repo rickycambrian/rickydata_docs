@@ -110,6 +110,14 @@ Body base: `font-size: 0.9375rem; line-height: 1.6; font-kerning: normal`.
 | `--space-xl` | `1.5rem` | 24px |
 | `--space-2xl` | `2rem` | 32px |
 | `--space-3xl` | `3rem` | 48px |
+| `--space-4xl` | `4.5rem` | 72px |
+
+### Section Spacing Rules
+
+- `.page > section + section` uses `margin-top: var(--space-4xl)` for major page-level section separation.
+- `.hero + *` uses `margin-top: var(--space-3xl)` for the gap after any hero.
+- `.playbooks-page .collapsible + .collapsible` uses `margin-top: var(--space-xl)` for tighter collapsible stacking.
+- Major sections (`.journey-section`, `.products-section`, `.playbook-section`, `.product-section`) use `border-top: 1px solid var(--border)` as visual dividers between content blocks.
 
 ## Motion
 
@@ -304,6 +312,55 @@ Three variants:
 - `.filter-pill` — accent-colored filter pill for search.
 - `.status-badge` — uppercase status indicator with semantic OKLCH colors.
 
+### Section Heading with Underline Decoration
+
+`.section-heading` — major section title with accent underline.
+
+```css
+.section-heading::after {
+  content: ""; display: block; width: 2rem; height: 2px;
+  background: var(--accent); margin-top: var(--space-sm);
+}
+```
+
+Used on HomePage for "Choose your journey" and "Product reference" headings. Apply to any major page section heading that needs visual weight.
+
+### Sidebar Hover-Reveal
+
+Product items in the sidebar show doc-type metadata only on hover:
+
+```css
+.sidebar-meta { opacity: 0; transition: opacity var(--duration-fast) var(--ease-out-quart); }
+.product-item:hover .sidebar-meta { opacity: 1; }
+```
+
+This keeps the sidebar compact by default while still providing detail on demand.
+
+### Resources Strip
+
+File: `HomePage.tsx` + `global.css`
+
+A compact inline link bar for secondary navigation (changelog, version matrix, search, llms.txt). Replaces duplicate link grids at the bottom of pages.
+
+```css
+.resources-strip {
+  display: flex; align-items: center; gap: var(--space-md);
+  padding: var(--space-lg) 0; font-size: var(--text-sm);
+  border-top: 1px solid var(--border); margin-top: var(--space-3xl);
+}
+```
+
+**React pattern:**
+```tsx
+<section className="resources-strip">
+  <span className="muted">Also:</span>
+  <Link to="/changelog">Changelog</Link>
+  <Link to="/versions">Version Matrix</Link>
+  <Link to="/search">Search</Link>
+  <a href="/llms.txt">llms.txt</a>
+</section>
+```
+
 ### See Also / Backlink Sections
 
 Reusable pattern for cross-linking at page bottom:
@@ -324,6 +381,8 @@ Reusable pattern for cross-linking at page bottom:
 - **No `rgba()` transparency** — use OKLCH alpha syntax (`oklch(... / 0.08)`)
 - **Always include `prefers-reduced-motion`** — blanket `transition-duration: 0.01ms !important` for all elements
 - **No box-shadow on sidebar or page containers** — flat, border-only separation
+- **No hero should exceed 1 sentence of lead text** — heroes are entry points, not documentation; keep `.lead` to one sentence max
+- **No consecutive identical link grids** — use `.resources-strip` for secondary navigation instead of repeating the same grid pattern multiple times on a page
 
 ## File Reference
 

@@ -19,8 +19,7 @@ export function HomePage(): JSX.Element {
         <p className="eyebrow">Public Docs</p>
         <h1>Production docs for MCP&nbsp;onboarding, wallet&nbsp;controls, and agent&nbsp;operations</h1>
         <p className="lead">
-          Journey-first documentation for real users: install once, authenticate once, discover and use MCP servers,
-          then scale into agents, wallet policy, and workflow automation.
+          Install once, authenticate once, then discover and use 5,000+ MCP servers and AI agents.
         </p>
         <div className="hero-actions">
           <Link className="btn btn-primary" to="/quickstart">Get Started</Link>
@@ -96,26 +95,12 @@ export function HomePage(): JSX.Element {
         </section>
       )}
 
-      <section className="resources-section">
-        <h2 className="section-heading">Resources</h2>
-        <div className="quick-links-grid">
-          <Link className="quick-link-item" to="/changelog">
-            <span className="quick-link-title">Changelog</span>
-            <span className="quick-link-meta">Release notes from all source repos</span>
-          </Link>
-          <Link className="quick-link-item" to="/versions">
-            <span className="quick-link-title">Version Matrix</span>
-            <span className="quick-link-meta">Ingestion status across repos</span>
-          </Link>
-          <Link className="quick-link-item" to="/search">
-            <span className="quick-link-title">Search All Docs</span>
-            <span className="quick-link-meta">Full-text search across all indexed pages</span>
-          </Link>
-          <a className="quick-link-item" href="/llms.txt">
-            <span className="quick-link-title">llms.txt</span>
-            <span className="quick-link-meta">Machine-readable docs index</span>
-          </a>
-        </div>
+      <section className="resources-strip">
+        <span className="muted">Also:</span>
+        <Link to="/changelog">Changelog</Link>
+        <Link to="/versions">Version Matrix</Link>
+        <Link to="/search">Search</Link>
+        <a href="/llms.txt">llms.txt</a>
       </section>
     </div>
   );

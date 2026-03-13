@@ -60,8 +60,7 @@ export function PlaybooksPage(): JSX.Element {
         <p className="eyebrow">Operational Playbooks</p>
         <h1>Journey-first docs for install, usage, wallet controls, and agent operations</h1>
         <p className="lead">
-          Use these playbooks as the canonical order for onboarding real users: first local MCP connectivity, then
-          reliable tool execution, then wallet + agent controls, and finally advanced agent/canvas workflows.
+          Canonical order for real users: local MCP setup, tool execution, wallet controls, then agent workflows.
         </p>
       </section>
 
@@ -69,7 +68,6 @@ export function PlaybooksPage(): JSX.Element {
         id="local-mcp-setup"
         title="1) Local MCP setup in Claude Code"
         subtitle="Goal: authenticated MCP gateway connection in under 5 minutes."
-        defaultOpen
       >
         <VideoGuideCard guide={INIT_WIZARD_GUIDE} />
 
@@ -101,7 +99,6 @@ export function PlaybooksPage(): JSX.Element {
         id="claude-chat-setup"
         title="2) Connect to Claude.ai web chat"
         subtitle="Goal: use rickydata marketplace tools directly in Claude.ai — no CLI required."
-        defaultOpen
       >
         <VideoGuideCard guide={CLAUDE_CHAT_CONNECTOR_GUIDE} />
 
@@ -135,7 +132,6 @@ export function PlaybooksPage(): JSX.Element {
         id="mcp-runtime"
         title="3) Discover, enable, call, and disable MCP servers"
         subtitle="Goal: complete one full MCP lifecycle loop and prove tool execution works."
-        defaultOpen
       >
         <VideoGuideCard guide={MCP_RUNTIME_LOOP_GUIDE} />
 

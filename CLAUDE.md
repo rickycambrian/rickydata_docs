@@ -20,6 +20,8 @@ The current redesign uses:
 - **Layout**: Asymmetric, left-aligned, varied card sizes. No uniform grids.
 - **Motion**: ease-out-quart/expo curves, 150-400ms durations, prefers-reduced-motion support.
 - **Dark theme**: Preserved, but with warm chroma instead of pure gray.
+- **Content**: 1-sentence hero leads, no duplicate link grids (use `.resources-strip` for secondary nav).
+- **Spacing**: `--space-4xl` (72px) for section separation, `border-top` dividers between major sections.
 
 ## File Ownership (Redesign)
 

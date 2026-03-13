@@ -36,6 +36,9 @@ When reviewing changes, verify all of the following:
 - No centered hero layouts
 - Collapsibles use `grid-template-rows` animation, not `display:none`
 - `prefers-reduced-motion` is respected
+- Hero text is max 1 lead sentence (`.lead` should be a single sentence)
+- No page has duplicate link grid sections — use `.resources-strip` for secondary nav
+- Sidebar product metadata uses hover-reveal (`.sidebar-meta` opacity 0 by default)
 
 ### 4. Build Verification
 - Run `cd apps/docs-web && npx vite build` and confirm it passes
