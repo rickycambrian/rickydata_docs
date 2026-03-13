@@ -67,14 +67,16 @@ export function DocPage(): JSX.Element {
   return (
     <div className="doc-layout">
       <article className="doc-article">
-        <h1>{data.doc.title}</h1>
-        <p className="muted">{data.doc.summary}</p>
-        <div className="doc-actions">
-          <button type="button" className="ghost-btn" onClick={copyMarkdown}>
-            {copied ? "Markdown Copied" : "Copy Full Markdown"}
-          </button>
-          <a className="ghost-btn" href={`/docs/${data.doc.slug}/llms.txt`}>Open llms.txt</a>
-        </div>
+        <header className="doc-header">
+          <h1>{data.doc.title}</h1>
+          <p className="doc-summary">{data.doc.summary}</p>
+          <div className="doc-actions">
+            <button type="button" className="ghost-btn" onClick={copyMarkdown}>
+              {copied ? "Markdown Copied" : "Copy Full Markdown"}
+            </button>
+            <a className="ghost-btn" href={`/docs/${data.doc.slug}/llms.txt`}>Open llms.txt</a>
+          </div>
+        </header>
 
         <SourceProvenance
           sourceRepo={data.doc.sourceRepo}
@@ -106,13 +108,16 @@ export function DocPage(): JSX.Element {
         </div>
 
         {data.related.length > 0 && (
-          <section>
+          <section className="doc-related">
             <h3>Related Pages</h3>
-            <ul>
+            <ul className="doc-related-list">
               {data.related.map((item) => (
                 <li key={item.slug}>
                   <Link to={`/docs/${item.slug}`}>{item.title}</Link>
-                  <small> · {item.docType} · <a href={`/docs/${item.slug}/llms.txt`}>llms.txt</a></small>
+                  <span className="doc-related-meta">
+                    {item.docType}
+                    <a href={`/docs/${item.slug}/llms.txt`}>llms.txt</a>
+                  </span>
                 </li>
               ))}
             </ul>

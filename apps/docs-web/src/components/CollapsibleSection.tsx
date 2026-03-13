@@ -42,7 +42,11 @@ export function CollapsibleSection({
         </div>
         <span className={`toggle-chevron ${open ? "toggle-open" : ""}`}>&#9656;</span>
       </button>
-      {open && <div className="playbook-body">{children}</div>}
+      <div className={`playbook-body-wrapper ${open ? "playbook-body-open" : ""}`}>
+        <div className="playbook-body-inner">
+          <div className="playbook-body">{children}</div>
+        </div>
+      </div>
     </section>
   );
 }

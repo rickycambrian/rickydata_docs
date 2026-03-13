@@ -8,6 +8,7 @@ type VideoGuideCardProps = {
 
 export function VideoGuideCard({ guide, showPrompt = true }: VideoGuideCardProps): JSX.Element {
   const [videoFailed, setVideoFailed] = useState(false);
+  const hasVideo = guide.videoUrl && !videoFailed;
 
   return (
     <section className="video-guide-card">
@@ -15,20 +16,22 @@ export function VideoGuideCard({ guide, showPrompt = true }: VideoGuideCardProps
         <div>
           <p className="eyebrow">Video Guide</p>
           <h3>{guide.title}</h3>
+          <p className="video-guide-purpose">{guide.purpose}</p>
         </div>
         {guide.status === "live" && !videoFailed && (
           <span className="status-badge status-live">Live</span>
         )}
+        {guide.status !== "live" && (
+          <span className="status-badge status-pending">Pending</span>
+        )}
       </div>
-
-      <p className="muted">{guide.purpose}</p>
 
       <div className="video-guide-meta">
-        <span className="pill">Duration: {guide.duration}</span>
-        <span className="pill">Audience: {guide.audience}</span>
+        <span className="pill">{guide.duration}</span>
+        <span className="pill">{guide.audience}</span>
       </div>
 
-      {guide.videoUrl && !videoFailed ? (
+      {hasVideo ? (
         <div className="video-frame-wrap">
           <video
             className="video-frame"
@@ -42,16 +45,17 @@ export function VideoGuideCard({ guide, showPrompt = true }: VideoGuideCardProps
         </div>
       ) : (
         <div className="video-placeholder">
-          <p>Video coming soon.</p>
-          <small>This walkthrough is being recorded and will appear here shortly.</small>
+          <div className="video-placeholder-icon">&#9654;</div>
+          <p>Recording in progress</p>
+          <small>This walkthrough is being recorded and will appear here when ready.</small>
         </div>
       )}
 
       {showPrompt && (
-        <div className="video-prompt">
-          <p className="muted">Recommended demo prompt/script</p>
+        <details className="video-prompt">
+          <summary>Demo prompt / script</summary>
           <pre>{guide.recordingPrompt}</pre>
-        </div>
+        </details>
       )}
     </section>
   );

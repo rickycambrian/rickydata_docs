@@ -22,7 +22,7 @@ export function CommandBlock({ title, code, caption }: CommandBlockProps): JSX.E
   return (
     <section className="command-block">
       <div className="command-block-head">
-        <h3>{title}</h3>
+        <span className="command-block-step">{title}</span>
         <button type="button" className="ghost-btn" onClick={onCopy}>
           {copied ? "Copied" : "Copy"}
         </button>
@@ -30,7 +30,7 @@ export function CommandBlock({ title, code, caption }: CommandBlockProps): JSX.E
       <pre>
         <code>{code}</code>
       </pre>
-      {caption && <p className="muted">{caption}</p>}
+      {caption && <p className="command-block-caption">{caption}</p>}
     </section>
   );
 }

@@ -11,11 +11,13 @@ export function HomePage(): JSX.Element {
     getNav().then(setNav).catch(() => setNav({ products: [] }));
   }, []);
 
+  const products = nav?.products || [];
+
   return (
     <div className="page">
-      <section className="hero">
+      <section className="hero hero-home">
         <p className="eyebrow">Public Docs</p>
-        <h1>Production docs for MCP onboarding, wallet controls, and agent operations</h1>
+        <h1>Production docs for MCP&nbsp;onboarding, wallet&nbsp;controls, and agent&nbsp;operations</h1>
         <p className="lead">
           Journey-first documentation for real users: install once, authenticate once, discover and use MCP servers,
           then scale into agents, wallet policy, and workflow automation.
@@ -27,55 +29,72 @@ export function HomePage(): JSX.Element {
       </section>
 
       <section className="quickstart-strip">
-        <h2>Get started</h2>
-        <ol>
-          <li>
-            Install CLI:
-            <code>npm install -g rickydata</code>
-          </li>
-          <li>
-            Authenticate + connect:
-            <code>rickydata init</code>
-          </li>
-          <li>
-            Discover and enable servers:
-            <code>rickydata mcp search "brave"</code>
-          </li>
-        </ol>
-        <div className="journey-grid" style={{ marginTop: "1.25rem" }}>
-          <article className="journey-card">
+        <h2>Three commands to working MCP</h2>
+        <div className="quickstart-steps">
+          <div className="quickstart-step">
+            <span className="step-number">1</span>
+            <div className="step-body">
+              <span className="step-label">Install CLI</span>
+              <code>npm install -g rickydata</code>
+            </div>
+          </div>
+          <div className="quickstart-step">
+            <span className="step-number">2</span>
+            <div className="step-body">
+              <span className="step-label">Authenticate + connect</span>
+              <code>rickydata init</code>
+            </div>
+          </div>
+          <div className="quickstart-step">
+            <span className="step-number">3</span>
+            <div className="step-body">
+              <span className="step-label">Discover and enable servers</span>
+              <code>rickydata mcp search "brave"</code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="journey-section">
+        <h2 className="section-heading">Choose your journey</h2>
+        <div className="journey-grid">
+          <article className="journey-card journey-card-featured">
             <h3>CLI + Claude setup</h3>
-            <p>Install CLI, authenticate, connect gateway, verify MCP tools.</p>
-            <Link to="/playbooks#local-mcp-setup">Open journey</Link>
+            <p>Install CLI, authenticate, connect gateway, verify MCP tools. The recommended starting point for new users.</p>
+            <Link to="/playbooks#local-mcp-setup">Start here</Link>
           </article>
           <article className="journey-card">
-            <h3>MCP server runtime loop</h3>
+            <h3>MCP server runtime</h3>
             <p>Search, enable, call tools, then disable and audit active servers.</p>
             <Link to="/playbooks#mcp-runtime">Open journey</Link>
           </article>
           <article className="journey-card">
-            <h3>Wallet + policy controls</h3>
+            <h3>Wallet + policy</h3>
             <p>Funding, Base-network safety, retention, budgets, self-improvement.</p>
             <Link to="/playbooks#wallet-controls">Open journey</Link>
           </article>
           <article className="journey-card">
-            <h3>Agents and canvas workflows</h3>
+            <h3>Agents + canvas</h3>
             <p>BYOK chat, agent-as-MCP, and workflow execution through canvas.</p>
             <Link to="/playbooks#agent-chat">Open journey</Link>
           </article>
         </div>
       </section>
 
-      <div className="card-grid">
-        {(nav?.products || []).map((product) => (
-          <article className="card" key={product.product}>
-            <h2>{getProductLabel(product.product)}</h2>
-            <p>{product.total} pages</p>
-            <Link to={`/products/${encodeURIComponent(product.product)}`}>Open product hub</Link>
-          </article>
-        ))}
-      </div>
-
+      {products.length > 0 && (
+        <section className="products-section">
+          <h2 className="section-heading">Product reference</h2>
+          <div className="card-grid">
+            {products.map((product, i) => (
+              <article className={`card${i === 0 ? " card-featured" : ""}`} key={product.product}>
+                <h2>{getProductLabel(product.product)}</h2>
+                <p>{product.total} pages</p>
+                <Link to={`/products/${encodeURIComponent(product.product)}`}>Open product hub</Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
