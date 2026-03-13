@@ -30,8 +30,10 @@ The current redesign uses:
 | catalog-designer | `ProductPage.tsx`, `SearchPage.tsx`, `PlaybooksPage.tsx`, `DocPage.tsx`, all `components/*.tsx` |
 | docs-expert | `.claude/skills/design-system/` |
 
-## Design System Skill
-Run `/design-system` to see the full verified design system documentation including all OKLCH tokens, typography, spacing, motion, and component patterns. Source file: `.claude/skills/design-system/SKILL.md`.
+## Skills & Sub-agents
+
+- **`/design-system`** — Invoke when building or modifying pages in `apps/docs-web/`. Provides all verified OKLCH tokens, typography, spacing, motion, and component patterns. Source: `.claude/skills/design-system/SKILL.md`.
+- **`docs-reviewer`** sub-agent — Use after content or navigation changes to verify backlink completeness, navigation integrity, design consistency, and build success. Defined at `.claude/agents/docs-reviewer.md`.
 
 ## Key Paths
 - Global CSS: `apps/docs-web/src/styles/global.css`

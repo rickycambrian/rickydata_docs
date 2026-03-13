@@ -6,6 +6,7 @@ import { getDoc, type DocResponse } from "../api/docs-api";
 import { ApiAndCliPanel } from "../components/ApiAndCliPanel";
 import { SourceProvenance } from "../components/SourceProvenance";
 import { Toc } from "../components/Toc";
+import { getProductLabel } from "../content/product-meta";
 
 function toHeadingId(label: string): string {
   return label
@@ -68,6 +69,12 @@ export function DocPage(): JSX.Element {
     <div className="doc-layout">
       <article className="doc-article">
         <header className="doc-header">
+          <nav className="breadcrumb">
+            <Link to="/">Home</Link>
+            <Link to={`/products/${data.doc.product}`}>{getProductLabel(data.doc.product)}</Link>
+            <span>{data.doc.docType}</span>
+            <span>{data.doc.title}</span>
+          </nav>
           <h1>{data.doc.title}</h1>
           <p className="doc-summary">{data.doc.summary}</p>
           <div className="doc-actions">

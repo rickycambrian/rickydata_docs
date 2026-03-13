@@ -481,6 +481,15 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
 
 .doc-header { margin-bottom: var(--space-xl); }
 
+.breadcrumb {
+  display: flex; gap: var(--space-sm); font-size: var(--text-sm);
+  color: var(--text-secondary); margin-bottom: var(--space-sm);
+}
+.breadcrumb a { color: var(--accent); }
+.breadcrumb > *:not(:first-child)::before {
+  content: ">"; margin-right: var(--space-sm); color: var(--muted);
+}
+
 .doc-article h1 {
   font-family: var(--font-heading);
   margin-top: 0; margin-bottom: var(--space-sm);
@@ -869,6 +878,45 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
 .playbook-body-inner {
   overflow: hidden;
 }
+
+/* ── See Also ── */
+.see-also {
+  margin-top: var(--space-3xl); padding-top: var(--space-xl);
+  border-top: 1px solid var(--border);
+}
+.see-also h3 {
+  font-family: var(--font-heading); font-size: var(--text-sm);
+  font-weight: 600; margin: 0 0 var(--space-md); color: var(--text-secondary);
+}
+.see-also-links {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: var(--space-sm);
+}
+.see-also-links li a {
+  display: inline-block; padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--border-active); border-radius: var(--radius-sm);
+  font-size: var(--text-sm); color: var(--text-secondary);
+}
+.see-also-links li a:hover { color: var(--text); border-color: var(--text-secondary); }
+
+/* ── Cross-Product Nav ── */
+.product-cross-nav {
+  margin-top: var(--space-3xl); padding-top: var(--space-xl);
+  border-top: 1px solid var(--border);
+}
+.product-cross-nav h3 {
+  font-family: var(--font-heading); font-size: var(--text-sm);
+  font-weight: 600; margin: 0 0 var(--space-md); color: var(--text-secondary);
+}
+.product-cross-nav-links {
+  display: flex; flex-wrap: wrap; gap: var(--space-sm);
+}
+.product-cross-nav-links a {
+  display: inline-block; padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--border-active); border-radius: var(--radius-sm);
+  font-size: var(--text-sm); color: var(--text-secondary);
+}
+.product-cross-nav-links a:hover { color: var(--text); border-color: var(--text-secondary); }
 
 /* ── Utilities ── */
 .muted { color: var(--muted); }

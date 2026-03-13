@@ -70,8 +70,35 @@ export function QuickstartPage(): JSX.Element {
         </div>
       </section>
 
+      <div className="prompt-callout">
+        <p className="muted">Using Claude.ai web chat instead of the CLI?</p>
+        <p><Link to="/playbooks#claude-chat-setup">Skip to connector setup</Link> — add rickydata as a connector in two clicks, no CLI required.</p>
+      </div>
+
       <section className="quick-links quick-links-enhanced">
-        <h2>Next docs to read</h2>
+        <h2>Continue your journey</h2>
+        <div className="quick-links-grid">
+          <Link className="quick-link-item" to="/playbooks#claude-chat-setup">
+            <span className="quick-link-title">Connect to Claude.ai</span>
+            <span className="quick-link-meta">Use marketplace tools in web chat</span>
+          </Link>
+          <Link className="quick-link-item" to="/playbooks#mcp-runtime">
+            <span className="quick-link-title">MCP server lifecycle</span>
+            <span className="quick-link-meta">Search, enable, call, disable tools</span>
+          </Link>
+          <Link className="quick-link-item" to="/playbooks#wallet-controls">
+            <span className="quick-link-title">Wallet + billing setup</span>
+            <span className="quick-link-meta">Fund wallet and set safe defaults</span>
+          </Link>
+          <Link className="quick-link-item" to="/playbooks#agent-chat">
+            <span className="quick-link-title">Agent chat with BYOK</span>
+            <span className="quick-link-meta">Use your own API key for agents</span>
+          </Link>
+        </div>
+      </section>
+
+      <section className="quick-links quick-links-enhanced">
+        <h2>Reference docs</h2>
         <div className="quick-links-grid">
           <Link className="quick-link-item" to="/docs/sdk-readme">
             <span className="quick-link-title">SDK + CLI reference</span>

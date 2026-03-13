@@ -111,6 +111,8 @@ export function Layout({ children }: PropsWithChildren): JSX.Element {
               <li><Link to="/playbooks">Playbooks</Link></li>
               <li><Link to="/docs/sdk-readme">SDK + CLI Reference</Link></li>
               <li><Link to="/changelog">Changelog</Link></li>
+              <li><Link to="/search">Search All Docs</Link></li>
+              <li><Link to="/versions">Version Matrix</Link></li>
             </ul>
           </section>
 

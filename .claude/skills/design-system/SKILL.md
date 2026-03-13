@@ -246,6 +246,7 @@ File: `DocPage.tsx` + `global.css`
 - `.doc-article` — left column, transparent background, no border.
 - `.doc-right-column` — sticky (`top: 72px`), `max-height: calc(100vh - 80px)`, `overflow-y: auto`. Contains TOC and API/CLI panel.
 - `.doc-header` — title, summary, action buttons (copy markdown, open llms.txt).
+- `.breadcrumb` — flex nav with `>` separators: `Home > Product > docType > title`. Uses `getProductLabel()` for product names. Links use `--accent` color.
 - `.markdown` class — full markdown styling including tables, blockquotes, code blocks, lists, images, horizontal rules.
 - `.doc-related` — related pages section at bottom with top border separator.
 
@@ -266,6 +267,8 @@ Section variants applied via CSS class `product-section--{variant}`:
 - `reference` — API/CLI: mono font heading.
 - `recent` — timestamps emphasized.
 - `subdued` — "Other References": reduced opacity, hover restores.
+
+`.product-cross-nav` — "Other Product Hubs" section at bottom of each product page. Pill-styled links (`.product-cross-nav-links a`) exclude the current product. Uses `--border-active` border, `--text-secondary` color, hover brightens.
 
 ### Video Guide Card
 
@@ -301,6 +304,14 @@ Three variants:
 - `.filter-pill` — accent-colored filter pill for search.
 - `.status-badge` — uppercase status indicator with semantic OKLCH colors.
 
+### See Also / Backlink Sections
+
+Reusable pattern for cross-linking at page bottom:
+
+- `.see-also` — top border separator with `margin-top: var(--space-3xl)`. Contains `h3` (heading-font, small, secondary color) and `.see-also-links` (flex-wrap pill-styled links with `--border-active`).
+- Used on ChangelogPage and VersionMatrixPage to prevent dead-end pages.
+- For ProductPage, use `.product-cross-nav` (same visual pattern, different class for semantic clarity).
+
 ## Anti-Patterns (Lessons Learned)
 
 - **No Inter font** — use Space Grotesk for headings, DM Sans for body
@@ -320,13 +331,13 @@ Three variants:
 |------|----------|
 | `apps/docs-web/src/styles/global.css` | All design tokens, all component CSS, responsive breakpoints, reduced-motion |
 | `apps/docs-web/index.html` | Font loading (`<link>` to Google Fonts), preconnect hints |
-| `apps/docs-web/src/components/Layout.tsx` | Topbar, sidebar, content shell, skip-to-content, search form |
+| `apps/docs-web/src/components/Layout.tsx` | Topbar, sidebar (Navigate + Reference Hubs + Search + Version Matrix), content shell, skip-to-content, search form |
 | `apps/docs-web/src/pages/HomePage.tsx` | Hero-home, quickstart strip, journey grid, product card grid |
 | `apps/docs-web/src/pages/QuickstartPage.tsx` | Hero-compact, command blocks grid, quick-links-enhanced grid |
-| `apps/docs-web/src/pages/ProductPage.tsx` | Product hero, section variants (prominent/reference/recent/subdued) |
+| `apps/docs-web/src/pages/ProductPage.tsx` | Product hero, section variants (prominent/reference/recent/subdued), cross-product nav |
 | `apps/docs-web/src/pages/SearchPage.tsx` | Search groups (primary/reference/default), filter pills, empty state |
 | `apps/docs-web/src/pages/PlaybooksPage.tsx` | Collapsible sections, command blocks, numbered steps, video guides |
-| `apps/docs-web/src/pages/DocPage.tsx` | Doc layout (2-col), markdown rendering, related pages |
+| `apps/docs-web/src/pages/DocPage.tsx` | Doc layout (2-col), breadcrumb nav, markdown rendering, related pages |
 | `apps/docs-web/src/components/CollapsibleSection.tsx` | grid-template-rows expand/collapse, hash-based auto-open |
 | `apps/docs-web/src/components/CommandBlock.tsx` | Code panel with copy button |
 | `apps/docs-web/src/components/VideoGuideCard.tsx` | Video embed with fallback placeholder, status badges |

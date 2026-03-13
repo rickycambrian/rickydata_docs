@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getProduct, type ProductDocItem, type ProductPageResponse } from "../api/docs-api";
-import { getProductMeta } from "../content/product-meta";
+import { getProductMeta, PRODUCT_META, getProductLabel } from "../content/product-meta";
 
 type SectionVariant = "prominent" | "reference" | "recent" | "subdued" | "default";
 
@@ -148,6 +148,17 @@ export function ProductPage(): JSX.Element {
           variant="subdued"
         />
       </div>
+
+      <section className="product-cross-nav">
+        <h3>Other Product Hubs</h3>
+        <div className="product-cross-nav-links">
+          {Object.keys(PRODUCT_META)
+            .filter((key) => key !== product)
+            .map((key) => (
+              <Link key={key} to={`/products/${key}`}>{getProductLabel(key)}</Link>
+            ))}
+        </div>
+      </section>
     </div>
   );
 }

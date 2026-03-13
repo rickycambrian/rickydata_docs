@@ -95,6 +95,28 @@ export function HomePage(): JSX.Element {
           </div>
         </section>
       )}
+
+      <section className="resources-section">
+        <h2 className="section-heading">Resources</h2>
+        <div className="quick-links-grid">
+          <Link className="quick-link-item" to="/changelog">
+            <span className="quick-link-title">Changelog</span>
+            <span className="quick-link-meta">Release notes from all source repos</span>
+          </Link>
+          <Link className="quick-link-item" to="/versions">
+            <span className="quick-link-title">Version Matrix</span>
+            <span className="quick-link-meta">Ingestion status across repos</span>
+          </Link>
+          <Link className="quick-link-item" to="/search">
+            <span className="quick-link-title">Search All Docs</span>
+            <span className="quick-link-meta">Full-text search across all indexed pages</span>
+          </Link>
+          <a className="quick-link-item" href="/llms.txt">
+            <span className="quick-link-title">llms.txt</span>
+            <span className="quick-link-meta">Machine-readable docs index</span>
+          </a>
+        </div>
+      </section>
     </div>
   );
 }
