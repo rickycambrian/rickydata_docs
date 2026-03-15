@@ -35,6 +35,7 @@ The current redesign uses:
 ## Skills & Sub-agents
 
 - **`/design-system`** — Invoke when building or modifying pages in `apps/docs-web/`. Provides all verified OKLCH tokens, typography, spacing, motion, and component patterns. Source: `.claude/skills/design-system/SKILL.md`.
+- **`/video-deployment`** — Invoke when adding, updating, or debugging video guides. Covers the full pipeline: local file, GCS upload, GitHub Secrets, Dockerfile args, deploy workflow, and `video-guides.ts` config. Source: `.claude/skills/video-deployment/SKILL.md`.
 - **`docs-reviewer`** sub-agent — Use after content or navigation changes to verify backlink completeness, navigation integrity, design consistency, and build success. Defined at `.claude/agents/docs-reviewer.md`.
 
 ## Key Paths
