@@ -69,10 +69,10 @@ export const INIT_WIZARD_GUIDE: VideoGuide = {
   title: "Auth login + init wizard walkthrough",
   duration: "2 min",
   audience: "Users installing the CLI for the first time",
-  purpose: "Show exactly what rickydata init does: browser login, token handoff, MCP connect, and verification.",
+  purpose: "Show exactly what rickydata init does: browser login, token handoff, MCP connect, agent proxy setup, and verification.",
   pageAnchor: "/playbooks#local-mcp-setup",
   recordingPrompt:
-    "Run npm install -g rickydata, then rickydata init, show browser login, token handoff, Claude Code connection, and verification output.",
+    "Run npm install -g rickydata, then rickydata init, show 5 steps: browser login, MCP server connect, agent proxy setup, gateway verification, and next steps.",
   ...videoOrUndefined("VITE_VIDEO_INIT_WIZARD_URL", "02-init-wizard-auth-connect.mp4")
 };
 
@@ -142,15 +142,15 @@ export const RECORDING_BACKLOG: VideoGuide[] = [
       "Run rickydata apikey set, rickydata agents list, rickydata chat <agent-id>, and explain session persistence vs ephemeral behavior."
   },
   {
-    id: "agent-as-mcp-client-connection",
-    title: "Connect an agent as MCP endpoint in Claude Code",
+    id: "agent-as-mcp-dynamic-proxy",
+    title: "Enable agents as MCP tools with zero-restart proxy",
     duration: "3-5 min",
     status: "record-needed",
     audience: "Users turning agents into callable MCP tools",
-    purpose: "Teach how to authenticate and mount /agents/:id/mcp in an MCP client.",
+    purpose: "Show the dynamic agent proxy flow: rickydata init sets up the proxy, then enable/disable agents instantly without restarting Claude Code.",
     pageAnchor: "/playbooks#agent-as-mcp",
     recordingPrompt:
-      "Generate or obtain auth token, run claude mcp add with /agents/<agent-id>/mcp URL, then list and call one agent skill tool."
+      "Run rickydata init (show proxy setup step), then rickydata mcp agent enable <agent-id>, verify tools appear in Claude Code without restart, call a tool, then rickydata mcp agent disable <agent-id> and verify tools vanish."
   },
   {
     id: "marketplace-web-tool-testing",
