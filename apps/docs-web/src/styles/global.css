@@ -942,6 +942,89 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
 .resources-strip a { color: var(--accent); }
 .resources-strip a:hover { color: var(--accent-hover); }
 
+/* ── Path Toggle ── */
+.path-toggle {
+  margin-top: var(--space-xl);
+}
+
+.path-toggle-track {
+  display: inline-flex; gap: 0;
+  background: var(--surface-0); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: var(--space-xs);
+}
+
+.path-toggle-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 0.125rem;
+  padding: var(--space-md) var(--space-xl);
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-secondary);
+  cursor: pointer; font-family: var(--font-body);
+  transition: background var(--duration-fast) var(--ease-out-quart),
+              color var(--duration-fast) var(--ease-out-quart),
+              border-color var(--duration-fast) var(--ease-out-quart);
+}
+
+.path-toggle-btn:hover { color: var(--text); background: var(--surface-1); }
+
+.path-toggle-btn--active {
+  background: var(--accent); color: oklch(18% 0.02 70);
+  border-color: var(--accent);
+}
+.path-toggle-btn--active:hover {
+  background: var(--accent-hover); color: oklch(18% 0.02 70);
+}
+
+.path-toggle-label {
+  font-family: var(--font-heading); font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.path-toggle-sub {
+  font-size: 0.6875rem; opacity: 0.8;
+}
+
+/* ── Quickstart Path Content ── */
+.quickstart-path {
+  margin-top: var(--space-xl);
+}
+
+.quickstart-path > .command-block,
+.quickstart-path > .video-guide-card,
+.quickstart-path > h3,
+.quickstart-path > .prompt-callout,
+.quickstart-path > .numbered-steps {
+  margin-top: var(--space-lg);
+}
+
+.quickstart-path > h3 {
+  font-family: var(--font-heading); font-size: var(--text-base);
+  font-weight: 600; color: var(--text); margin-bottom: var(--space-sm);
+}
+
+.quickstart-path-crosslink {
+  margin-top: var(--space-2xl); padding-top: var(--space-lg);
+  border-top: 1px solid var(--border);
+  font-size: var(--text-sm); color: var(--text-secondary);
+  display: flex; align-items: center; gap: var(--space-sm);
+}
+
+.manual-bootstrap-details {
+  margin-top: var(--space-lg);
+}
+
+.manual-bootstrap-details summary {
+  font-family: var(--font-heading); font-size: var(--text-sm); font-weight: 600;
+  color: var(--text-secondary); cursor: pointer; padding: var(--space-sm) 0;
+  list-style: none;
+}
+.manual-bootstrap-details summary::before {
+  content: "\25B6  "; font-size: 0.625rem; color: var(--muted);
+  transition: transform var(--duration-fast) var(--ease-out-quart);
+  display: inline-block;
+}
+.manual-bootstrap-details[open] summary::before { transform: rotate(90deg); }
+.manual-bootstrap-details summary::-webkit-details-marker { display: none; }
+
 /* ── Utilities ── */
 .muted { color: var(--muted); }
 .error { color: var(--danger); }
@@ -966,6 +1049,8 @@ a, .btn, .card, .journey-card, .product-item, .sidebar-links a, .ghost-btn, .pil
   .card-grid { grid-template-columns: 1fr; }
   .quickstart-grid { grid-template-columns: 1fr; }
   .quick-links-grid { grid-template-columns: 1fr; }
+  .path-toggle-track { flex-direction: column; width: 100%; }
+  .path-toggle-btn { width: 100%; }
 }
 
 /* ── Reduced Motion ── */

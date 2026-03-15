@@ -32,7 +32,7 @@ function videoOrUndefined(envKey: string, localFile: string): { status: VideoGui
 /* ── prompts ─────────────────────────────────────────────── */
 
 export const QUICKSTART_DEMO_PROMPT =
-  'Search the rickydata marketplace for an arxiv paper search server. Enable it so we can use it directly. Then search for recent papers on "multi-agent LLM systems" and download the most interesting one. After that, list the enabled servers to show what\'s active, then disable the arxiv server and confirm it was removed.';
+  'Search the rickydata marketplace for a "brave" search server. Enable it, then call the brave_web_search tool with a query. After that, disable the server and confirm it was removed.';
 
 /* ── video guides ────────────────────────────────────────── */
 
@@ -87,7 +87,7 @@ export const CLAUDE_CHAT_CONNECTOR_GUIDE: VideoGuide = {
   pageAnchor: "/playbooks#claude-chat-setup",
   recordingPrompt:
     "Go to claude.ai/customize → Connectors → + Add custom connector → name: rickydata, URL: https://connect.rickydata.org/mcp → Connect → complete login.",
-  ...videoOrUndefined("VITE_VIDEO_CLAUDE_CHAT_CONNECTOR_URL", "03-claude-chat-connector.mp4")
+  ...videoOrUndefined("VITE_VIDEO_CLAUDE_CHAT_CONNECTOR_URL", "guide-claude-desktop.mp4")
 };
 
 /** Wallet funding on Base — shown on /playbooks#wallet-controls */

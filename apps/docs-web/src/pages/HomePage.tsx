@@ -58,9 +58,9 @@ export function HomePage(): JSX.Element {
         <h2 className="section-heading">Choose your journey</h2>
         <div className="journey-grid">
           <article className="journey-card journey-card-featured">
-            <h3>CLI + Claude setup</h3>
-            <p>Install CLI, authenticate, connect gateway, verify MCP tools. The recommended starting point for new users.</p>
-            <Link to="/playbooks#local-mcp-setup">Start here</Link>
+            <h3>Get started</h3>
+            <p>Two paths: connect via Claude.ai web chat (no CLI) or install the CLI for full local setup. Pick whichever fits.</p>
+            <Link to="/quickstart">Start here</Link>
           </article>
           <article className="journey-card">
             <h3>MCP server runtime</h3>

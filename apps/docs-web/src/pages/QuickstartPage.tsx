@@ -1,78 +1,105 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { CommandBlock } from "../components/CommandBlock";
+import { PathToggle } from "../components/PathToggle";
 import { VideoGuideCard } from "../components/VideoGuideCard";
-import { FEATURED_VIDEO_GUIDE } from "../content/video-guides";
+import { CLAUDE_CHAT_CONNECTOR_GUIDE, INIT_WIZARD_GUIDE } from "../content/video-guides";
 
-const bootstrapCode = `npm install -g rickydata
-rickydata init
-# Restart Claude Code when prompted`;
+const bootstrapCode = `npm install -g rickydata && rickydata init`;
 
 const manualCode = `rickydata auth login
 rickydata mcp connect
 # Restart Claude Code`;
 
-const mcpWorkflowCode = `rickydata mcp search "brave"
-rickydata mcp enable "io.github.brave/brave-search-mcp-server"
-rickydata mcp tools
-rickydata mcp call io-github-brave-brave-search-mcp-server__brave_web_search '{"query":"transformers","count":3}'`;
-
-const agentsCode = `rickydata apikey set
-rickydata agents list
-rickydata chat <agent-id>`;
+const verifyCode = `rickydata auth status && rickydata mcp tools`;
 
 export function QuickstartPage(): JSX.Element {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activePath = searchParams.get("path") === "local" ? "local" : "web";
+
   useEffect(() => { document.title = "Quickstart — RickyData Docs"; }, []);
+
+  function handlePathChange(path: "web" | "local"): void {
+    setSearchParams({ path }, { replace: true });
+  }
+
   return (
     <div className="page">
       <section className="hero hero-compact">
         <p className="eyebrow">Quickstart</p>
-        <h1>Install CLI, authenticate once, unlock MCP + agents</h1>
+        <h1>Two paths to MCP tools and AI agents</h1>
         <p className="lead">
-          Get <code>rickydata</code> working in Claude Code with marketplace discovery, tool enablement, and direct tool calls.
-          Using Claude.ai web chat? <Link to="/playbooks#claude-chat-setup">Add rickydata as a connector</Link> instead.
+          Use rickydata marketplace tools in Claude.ai web chat with zero install, or set up the full CLI for local development in Claude Code.
         </p>
-        <div className="hero-actions">
-          <Link className="btn btn-primary" to="/playbooks">Continue to Playbooks</Link>
-        </div>
       </section>
 
-      <VideoGuideCard guide={FEATURED_VIDEO_GUIDE} />
+      <PathToggle active={activePath} onChange={handlePathChange} />
 
-      <section className="quickstart-grid">
-        <div className="quickstart-grid-primary">
+      {activePath === "web" ? (
+        <section className="quickstart-path">
+          <VideoGuideCard guide={CLAUDE_CHAT_CONNECTOR_GUIDE} />
+
+          <h3>Connect in 4 steps</h3>
+          <ol className="numbered-steps">
+            <li>
+              Go to <a href="https://claude.ai/customize" target="_blank" rel="noreferrer">claude.ai/customize</a> and
+              click <strong>Connectors</strong>.
+            </li>
+            <li>
+              Click <strong>+ Add custom connector</strong>. Enter name: <code>rickydata</code> and
+              URL: <code>https://connect.rickydata.org/mcp</code>.
+            </li>
+            <li>
+              Click <strong>Connect</strong>. Complete the login flow in the popup.
+            </li>
+            <li>
+              Done. Start a new Claude.ai chat — your marketplace MCP tools are available immediately.
+            </li>
+          </ol>
+
+          <div className="prompt-callout">
+            <h2>Try your first prompt</h2>
+            <pre>Search the rickydata marketplace for a "brave" search server and enable it so I can use it.</pre>
+          </div>
+
+          <p className="quickstart-path-crosslink">
+            Prefer local CLI setup? <button type="button" className="btn btn-ghost" onClick={() => handlePathChange("local")}>Switch to Claude Code path</button>
+          </p>
+        </section>
+      ) : (
+        <section className="quickstart-path">
+          <VideoGuideCard guide={INIT_WIZARD_GUIDE} />
+
           <CommandBlock
-            title="1) Recommended bootstrap"
+            title="1. Install + initialize"
             code={bootstrapCode}
-            caption="rickydata init runs auth + MCP connect setup and verification."
+            caption="Installs the CLI globally, then runs auth, MCP gateway connect, agent proxy setup, and verification in one command."
           />
+
+          <details className="manual-bootstrap-details">
+            <summary>Manual bootstrap (explicit control)</summary>
+            <CommandBlock
+              title="Manual steps"
+              code={manualCode}
+              caption="Login and connect as separate steps if you prefer explicit control."
+            />
+          </details>
+
           <CommandBlock
-            title="3) Verify MCP marketplace workflow"
-            code={mcpWorkflowCode}
-            caption="Search, enable, inspect tools, and call one tool end-to-end from the CLI."
+            title="2. Verify everything works"
+            code={verifyCode}
+            caption="Confirms your auth token and that the MCP gateway is connected and ready."
           />
-        </div>
-        <div className="quickstart-grid-secondary">
-          <CommandBlock
-            title="2) Manual bootstrap"
-            code={manualCode}
-            caption="Use this if you want explicit control over each setup step."
-          />
-          <CommandBlock
-            title="4) Agent workflow (BYOK)"
-            code={agentsCode}
-            caption="Set your Anthropic key, inspect available agents, and start chat."
-          />
-        </div>
-      </section>
+
+          <p className="quickstart-path-crosslink">
+            No CLI needed? <button type="button" className="btn btn-ghost" onClick={() => handlePathChange("web")}>Switch to Claude.ai web chat path</button>
+          </p>
+        </section>
+      )}
 
       <section className="quick-links quick-links-enhanced">
         <h2>Next steps</h2>
         <div className="quick-links-grid">
-          <Link className="quick-link-item" to="/playbooks#claude-chat-setup">
-            <span className="quick-link-title">Connect to Claude.ai</span>
-            <span className="quick-link-meta">Use marketplace tools in web chat</span>
-          </Link>
           <Link className="quick-link-item" to="/playbooks#mcp-runtime">
             <span className="quick-link-title">MCP server lifecycle</span>
             <span className="quick-link-meta">Search, enable, call, disable tools</span>
@@ -89,13 +116,9 @@ export function QuickstartPage(): JSX.Element {
             <span className="quick-link-title">SDK + CLI reference</span>
             <span className="quick-link-meta">Full command reference</span>
           </Link>
-          <Link className="quick-link-item" to="/docs/marketplace-readme">
-            <span className="quick-link-title">Marketplace architecture</span>
-            <span className="quick-link-meta">Gateway and usage patterns</span>
-          </Link>
-          <Link className="quick-link-item" to="/search?q=agent&section=mcp-server">
-            <span className="quick-link-title">Agent-focused docs</span>
-            <span className="quick-link-meta">Search results for agent tools</span>
+          <Link className="quick-link-item" to="/playbooks">
+            <span className="quick-link-title">All playbooks</span>
+            <span className="quick-link-meta">Complete operational guides</span>
           </Link>
         </div>
       </section>

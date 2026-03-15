@@ -88,7 +88,7 @@ export function PlaybooksPage(): JSX.Element {
         <VideoGuideCard guide={FEATURED_VIDEO_GUIDE} />
 
         <ul className="playbook-links">
-          <li><Link to="/quickstart">Quickstart page</Link></li>
+          <li><Link to="/quickstart?path=local">Quickstart (CLI path)</Link></li>
           <li><Link to="/docs/sdk-readme">SDK + CLI reference</Link> · <a href="/docs/sdk-readme/llms.txt">llms.txt</a></li>
           <li><Link to="/docs/sdk-cli-login">CLI auth login command</Link></li>
           <li><Link to="/docs/sdk-cli-connect">CLI mcp connect command</Link></li>
@@ -124,7 +124,7 @@ export function PlaybooksPage(): JSX.Element {
 
         <ul className="playbook-links">
           <li><a href="https://claude.ai/customize" target="_blank" rel="noreferrer">Claude.ai Customize page</a></li>
-          <li><Link to="/quickstart">Quickstart (CLI path)</Link></li>
+          <li><Link to="/quickstart?path=web">Quickstart (web chat path)</Link></li>
         </ul>
       </CollapsibleSection>
 
