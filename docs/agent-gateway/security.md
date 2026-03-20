@@ -73,6 +73,24 @@ curl -X PUT https://agents.rickydata.org/wallet/apikey \
   -d '{ "anthropicApiKey": "sk-ant-..." }'
 ```
 
+## LLM Provider Isolation
+
+User secrets (MCP server API keys like Brave Search, database credentials, etc.) are **never sent to the LLM provider**. The Agent Gateway implements a server-side placeholder replacement architecture:
+
+1. **Placeholder pattern** — Tool schemas instruct Claude to use `{{SECRET_NAME}}` placeholders. The LLM never sees actual secret values.
+2. **Server-side injection** — The Agent Gateway replaces `{{SECRET_NAME}}` with real vault values before forwarding tool calls to the MCP Gateway.
+3. **Tool result redaction** — Before tool results re-enter the LLM context for the next turn, a redactor scrubs any known secret values and replaces them with `[REDACTED:SECRET_NAME]`.
+4. **SSE output redaction** — A second redaction layer scrubs all streamed events before they reach the client.
+
+**What the LLM provider sees:**
+- Tool arguments: `{ "query": "{{BRAVE_API_KEY}}" }` — placeholder only
+- Tool results: text output, with any secret values redacted
+
+**What the LLM provider never sees:**
+- Actual API keys, passwords, or tokens
+- Environment variables injected into MCP server processes
+- The mapping between placeholder names and real values
+
 ## Cross-Gateway Trust
 
 The Agent Gateway verifies MCP Gateway trust via JWKS:

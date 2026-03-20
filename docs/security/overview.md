@@ -65,6 +65,16 @@ See [Security Kernel Verification](/docs/security/kernel-verification) for verif
 - Keys derived from user signatures (Sign-to-Derive)
 - Or: Per-user keys with HKDF from wallet address
 
+### LLM Provider Isolation
+
+User secrets (MCP server API keys, credentials) are **never sent to the LLM provider** (Anthropic, etc.):
+
+1. **Placeholder pattern** — Claude uses `{{SECRET_NAME}}` syntax in tool arguments. The gateway replaces placeholders with real values server-side before calling MCP tools.
+2. **Tool result redaction** — Before tool results re-enter the LLM context for the next turn, a defense-in-depth redactor scrubs any known secret values and replaces them with `[REDACTED:SECRET_NAME]`.
+3. **SSE output redaction** — A second layer redacts all streamed events before they reach the client.
+
+Even if a buggy MCP server echoes back a secret in its output, the two-layer redaction prevents it from reaching the AI model or the client.
+
 ### TPM-Bound Keys
 - Master key sealed in AMD SEV-SNP TPM
 - PCR policy: sha256:0,1,2,3,4,5,7

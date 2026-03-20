@@ -85,6 +85,18 @@ curl https://mcp.rickydata.org/api/secrets \
 
 Only returns secret **names** and **status**, never values.
 
+## Secret Isolation from LLM Providers
+
+MCP server secrets stored in the vault are **never exposed to LLM providers**. The MCP Gateway provides secrets to server processes exclusively via environment variables — they are not included in tool schemas, tool results, or any API response.
+
+When called via the Agent Gateway's chat flow:
+- The Agent Gateway uses a `{{SECRET_NAME}}` placeholder pattern — the LLM only sees placeholders, never real values
+- The Agent Gateway replaces placeholders server-side before calling the MCP Gateway
+- Tool results are redacted for known secret values before re-entering the LLM context
+- The MCP Gateway's own `redactSecretsInText()` catches common secret patterns (`sk-ant-*`, `Bearer *`, etc.) in stderr and error responses
+
+This two-layer architecture (Agent Gateway placeholder injection + MCP Gateway environment variable isolation) ensures user secrets never reach the AI model.
+
 ## Cross-Gateway Trust
 
 The MCP Gateway trusts the Agent Gateway via ES256 JWKS:
