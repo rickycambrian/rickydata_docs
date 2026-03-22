@@ -1,17 +1,39 @@
 # Intelligent Issue Management
 
-AI-powered issue triage, labeling, relationship detection, and state context assembly for GitHub repositories.
+AI-powered issue triage, labeling, relationship detection, state context assembly, and commit-to-issue linking for GitHub repositories.
 
 ## Overview
 
-The Issue Intelligence system automatically enriches GitHub issues when they are created. On receiving an `issues.opened` webhook, the gateway:
+The Issue Intelligence system automatically enriches GitHub issues when they are created or when commits reference them. On receiving an `issues.opened` webhook, the gateway:
 
 1. Runs **auto-triage** before the agent resolution pipeline
 2. Applies high-confidence labels (>= 0.8) to the issue
 3. Detects parent-child, blocking, and duplicate relationships
-4. Posts a triage summary comment with labels, relationships, and active repo areas
+4. Posts a **single consolidated intelligence comment** with labels, relationships, commit links, and active repo areas
+
+On receiving a `push` webhook, the gateway scans commit messages for issue references (`fixes/closes/resolves/refs #N`) and re-triages matched issues to update their intelligence comment with commit activity.
 
 All AI inference uses **MiniMax-M2.7**. When no MiniMax API key is configured, the system falls back to keyword-based heuristics for label suggestions and explicit `#N` reference extraction for relationships.
+
+## Consolidated Intelligence Comment
+
+Each issue gets **one comment**, identified by the HTML marker `<!-- rickydata-intelligence:v1 -->`. This replaces the old approach of posting individual cross-reference comments per relationship/duplicate.
+
+The comment contains:
+- **Labels** applied (confidence >= 0.8)
+- **Relationships** table (issue, type, confidence, reason)
+- **Recent Activity** from commit-to-issue links (sha, message, match type)
+- **Active Areas** from commit analysis
+- **Timestamp** for idempotency tracking
+
+### Anti-Noise Design
+
+| Principle | Implementation |
+|-----------|---------------|
+| One comment per issue | `upsertIntelligenceComment()` finds existing marker comment and updates it (PATCH), or creates a new one |
+| No duplicates | `findIntelligenceComment()` searches for marker; upsert guarantees at most one |
+| Old comment cleanup | `cleanupDuplicateComments()` deletes old-style bot comments (Auto-Triage Summary, duplicate warnings, related links) |
+| Batch idempotency | `triageAll()` skips issues whose intelligence comment was updated within the last hour |
 
 ## Architecture
 
@@ -34,10 +56,20 @@ autoTriage(repo, issueNumber)      <- runs BEFORE agent resolution
   |     +-> detectRelationships()     (after issues fetched)
   |
   +-> apply labels (confidence >= 0.8)
-  +-> post triage summary comment
+  +-> buildIntelligenceComment()     // ONE consolidated comment
+  +-> upsertIntelligenceComment()    // create or update
+  +-> cleanupDuplicateComments()     // remove old-style comments
   |
   v
 Agent resolution continues with enriched issue context
+
+GitHub webhook (push)
+  |
+  v
+workflow-dispatcher.ts -> handlePush()
+  |
+  +-> matchCommitsToIssues()         // scan for fixes/closes/resolves/refs #N
+  +-> autoTriage() per matched issue // re-triage updates consolidated comment
 ```
 
 ## API Reference
@@ -178,7 +210,7 @@ Full auto-triage pipeline: classify, label, detect relationships, post comment.
   "labelsApplied": ["bug"],
   "relationshipsDetected": [{ "fromIssue": 42, "toIssue": 10, "type": "related", "confidence": 0.7, "reason": "..." }],
   "stateContext": { ... },
-  "triageComment": "### Auto-Triage Summary\n\n**Labels applied:** `bug`\n..."
+  "triageComment": "<!-- rickydata-intelligence:v1 -->\n### Issue Intelligence\n\n**Labels:** `bug`\n..."
 }
 ```
 
@@ -218,6 +250,7 @@ console.log('Labels applied:', result.labelsApplied);
 | Label confidence threshold | `LABEL_CONFIDENCE_THRESHOLD` in `issue-intelligence.ts` | 0.8 | Only labels above this are auto-applied |
 | Commit analysis limit | `DEFAULT_COMMIT_LIMIT` | 30 | Max 100, file details fetched for top 10 |
 | GitHub App | `GitHubAppAuth` + `InstallationManager` | required | Must be installed on target repo's owner |
+| Idempotency window | `IDEMPOTENCY_WINDOW_MS` in `issue-intelligence.ts` | 1 hour | Batch triage skips recently-updated issues |
 
 ## How Relationships Work
 
