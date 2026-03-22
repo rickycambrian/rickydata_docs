@@ -100,7 +100,7 @@ curl -s https://mcp.rickydata.org/health | jq '.securityPosture'
 curl -s https://agents.rickydata.org/health | jq '.securityPosture'
 
 # Or use the security page
-open https://mcpmarketplace.rickydata.org/security
+open https://marketplace.rickydata.org/security
 ```
 
 ## Related Documentation

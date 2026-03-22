@@ -100,7 +100,7 @@ export const WALLET_FUNDING_GUIDE: VideoGuide = {
     "Show the wallet funding flow on Base mainnet so users deposit USDC correctly and avoid wrong-network issues.",
   pageAnchor: "/playbooks#wallet-controls",
   recordingPrompt:
-    "Open mcpmarketplace.rickydata.org/wallet, show deposit address, switch wallet network to Base, add USDC token, fund, and explain wrong-network warning + recovery policy.",
+    "Open marketplace.rickydata.org/wallet, show deposit address, switch wallet network to Base, add USDC token, fund, and explain wrong-network warning + recovery policy.",
   ...videoOrUndefined("VITE_VIDEO_WALLET_FUNDING_URL", "04-wallet-funding.mp4")
 };
 

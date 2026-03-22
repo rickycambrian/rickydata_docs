@@ -6,7 +6,7 @@ How the MCP Gateway platform protects user data, secrets, and tool execution wit
 
 The platform runs on **AMD SEV-SNP Confidential VMs** with 10 defense-in-depth layers. Every security claim is independently verifiable — users never need to trust the gateway itself.
 
-**Live verification:** [mcpmarketplace.rickydata.org/security](https://mcpmarketplace.rickydata.org/security) — interactive page that calls real gateway endpoints and shows raw proof payloads for each trust layer.
+**Live verification:** [marketplace.rickydata.org/security](https://marketplace.rickydata.org/security) — interactive page that calls real gateway endpoints and shows raw proof payloads for each trust layer.
 
 **Production endpoints:**
 - MCP Gateway: `https://mcp.rickydata.org`
