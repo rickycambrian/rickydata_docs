@@ -45,10 +45,11 @@ publicRouter.get("/llms.txt", async (req, res, next) => {
       ORDER BY
         CASE
           WHEN slug = 'sdk-readme' THEN 0
-          WHEN slug = 'marketplace-readme' THEN 1
-          WHEN lower(title) LIKE '%quickstart%' THEN 2
-          WHEN lower(title) LIKE '%get started%' THEN 3
-          WHEN doc_type = 'guide' THEN 4
+          WHEN slug = 'sdk-docs-kfdb-getting-started' THEN 1
+          WHEN slug = 'marketplace-readme' THEN 2
+          WHEN lower(title) LIKE '%quickstart%' THEN 3
+          WHEN lower(title) LIKE '%get started%' THEN 4
+          WHEN doc_type = 'guide' THEN 5
           ELSE 9
         END,
         updated_at DESC
@@ -268,10 +269,11 @@ publicRouter.get("/products/:product", async (req, res, next) => {
         CASE
           WHEN lower(title) LIKE '%quickstart%' OR lower(title) LIKE '%get started%' THEN 0
           WHEN source_path ILIKE '%readme%' THEN 1
-          WHEN doc_type = 'guide' THEN 2
-          WHEN doc_type = 'architecture' THEN 3
-          WHEN doc_type = 'api' THEN 4
-          WHEN doc_type = 'cli' THEN 5
+          WHEN product = 'sdk' AND source_path ILIKE '%kfdb%' THEN 2
+          WHEN doc_type = 'guide' THEN 3
+          WHEN doc_type = 'architecture' THEN 4
+          WHEN doc_type = 'api' THEN 5
+          WHEN doc_type = 'cli' THEN 6
           ELSE 9
         END,
         updated_at DESC

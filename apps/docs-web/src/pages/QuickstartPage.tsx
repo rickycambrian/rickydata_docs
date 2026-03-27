@@ -112,6 +112,10 @@ export function QuickstartPage(): JSX.Element {
             <span className="quick-link-title">Agent chat with BYOK</span>
             <span className="quick-link-meta">Use your own API key for agents</span>
           </Link>
+          <Link className="quick-link-item" to="/docs/sdk-docs-kfdb-getting-started">
+            <span className="quick-link-title">KFDB global/private scopes</span>
+            <span className="quick-link-meta">Default global reads, switch to private when needed</span>
+          </Link>
           <Link className="quick-link-item" to="/docs/sdk-readme">
             <span className="quick-link-title">SDK + CLI reference</span>
             <span className="quick-link-meta">Full command reference</span>

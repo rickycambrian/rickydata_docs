@@ -52,6 +52,31 @@ rickydata canvas execute <workflow-id>
 rickydata canvas runs
 rickydata canvas run <run-id>`;
 
+const kfdbScopeExample = `import { KFDBClient } from "rickydata";
+
+const kfdb = new KFDBClient({
+  baseUrl: process.env.KFDB_URL!,
+  token: process.env.KFDB_TOKEN!,
+  // defaultReadScope is "global" unless overridden
+});
+
+// Global read (default)
+const servers = await kfdb.listEntities("MCPServer", { limit: 10 });
+
+// Client-level private scope
+const privateKfdb = kfdb.withScope("private");
+const notes = await privateKfdb.listEntities("Note", { limit: 10 });
+
+// Per-call override (wins over client default)
+const privateTasks = await kfdb.listEntities("Task", { scope: "private", limit: 20 });
+
+// Writes are always tenant-isolated via /api/v1/write
+await kfdb.write({
+  operations: [
+    { operation: "create_node", label: "Note", properties: { title: { String: "Hello" } } }
+  ]
+});`;
+
 export function PlaybooksPage(): JSX.Element {
   useEffect(() => { document.title = "Playbooks — RickyData Docs"; }, []);
   return (
@@ -90,6 +115,7 @@ export function PlaybooksPage(): JSX.Element {
         <ul className="playbook-links">
           <li><Link to="/quickstart?path=local">Quickstart (CLI path)</Link></li>
           <li><Link to="/docs/sdk-readme">SDK + CLI reference</Link> · <a href="/docs/sdk-readme/llms.txt">llms.txt</a></li>
+          <li><Link to="/docs/sdk-docs-kfdb-getting-started">KFDB direct API + scope guide</Link></li>
           <li><Link to="/docs/sdk-cli-login">CLI auth login command</Link></li>
           <li><Link to="/docs/sdk-cli-connect">CLI mcp connect command</Link></li>
         </ul>
@@ -156,6 +182,31 @@ export function PlaybooksPage(): JSX.Element {
           <li><Link to="/docs/sdk-cli-enable-name-or-id">CLI mcp enable</Link></li>
           <li><Link to="/docs/sdk-cli-call-tool-name-args-json">CLI mcp call</Link></li>
           <li><Link to="/docs/sdk-cli-disable-name-or-id">CLI mcp disable</Link></li>
+        </ul>
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        id="kfdb-direct-api-scopes"
+        title="KFDB direct API read scopes (global vs private)"
+        subtitle="Goal: make scope switching explicit and predictable for SDK integrations."
+      >
+        <p>
+          Use <code>KFDBClient</code> for direct KFDB entity reads and writes. Read APIs always send a scope
+          explicitly and default to <code>global</code>, so marketplace entities are visible by default.
+          Use <code>withScope("private")</code> or per-call <code>scope: "private"</code> to read tenant data.
+          Writes stay tenant-isolated through <code>/api/v1/write</code>.
+        </p>
+
+        <CommandBlock
+          title="Scope switching pattern"
+          code={kfdbScopeExample}
+          caption="Default to global reads, opt into private reads, keep writes tenant-isolated."
+        />
+
+        <ul className="playbook-links">
+          <li><Link to="/docs/sdk-docs-kfdb-getting-started">KFDB getting started (full guide)</Link></li>
+          <li><Link to="/docs/sdk-readme">SDK root reference</Link></li>
+          <li><Link to="/products/sdk">SDK product hub</Link></li>
         </ul>
       </CollapsibleSection>
 

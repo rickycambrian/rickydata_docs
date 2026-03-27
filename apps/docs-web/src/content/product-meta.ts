@@ -17,7 +17,7 @@ export const PRODUCT_META: Record<string, ProductMeta> = {
   sdk: {
     label: "RickyData SDK + CLI",
     description:
-      "Install, authenticate, connect local agentic clients, discover servers, call tools, and run agent workflows."
+      "Install and authenticate the CLI, use marketplace tools, and integrate KFDB directly with explicit global/private read scopes."
   },
   serverless: {
     label: "KF Serverless",

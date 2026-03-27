@@ -59,6 +59,11 @@ Use for:
 - architecture references
 - latest updates within one product boundary
 
+SDK hub requirements:
+- keep `sdk-readme` and `sdk-docs-kfdb-getting-started` in `Start Here`
+- make KFDB scope model explicit: reads default `global`, opt into `private`, writes tenant-isolated
+- include one short, copy-pasteable `withScope("private")` example near top
+
 ### `/search`
 
 Purpose: advanced discovery only.
