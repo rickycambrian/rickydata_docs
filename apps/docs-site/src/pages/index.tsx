@@ -1,28 +1,39 @@
 import React from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
-// import BrowserOnly from '@docusaurus/BrowserOnly';
 
-const FEATURES = [
+/* ── Journey cards — asymmetric grid matching docs.rickydata.org ── */
+const JOURNEYS = [
   {
-    title: 'SDK',
-    description: 'TypeScript SDK for MCP tools, agent chat, canvas workflows, and wallet management.',
-    link: '/docs/sdk/overview',
+    title: 'Get started',
+    description:
+      'Two paths: connect via Claude.ai web chat (no CLI) or install the CLI for full local setup. Pick whichever fits.',
+    link: '/docs/getting-started/installation',
+    featured: true,
   },
   {
-    title: 'MCP',
-    description: 'Connect once to thousands of MCP servers. Search, enable, call, disable — all wallet-scoped.',
-    link: '/docs/mcp/overview',
+    title: 'MCP server runtime',
+    description: 'Search, enable, call tools, then disable and audit active servers.',
+    link: '/docs/mcp/search-enable-call',
+    cta: 'Open journey',
   },
   {
-    title: 'Agents',
-    description: 'BYOK Claude agents with MCP tool access, voice chat, and self-improvement.',
+    title: 'Wallet + policy',
+    description: 'Funding, Base-network safety, retention, budgets, self-improvement.',
+    link: '/docs/wallet-billing/overview',
+    cta: 'Open journey',
+  },
+  {
+    title: 'Agents + canvas',
+    description: 'BYOK chat, agent-as-MCP, canvas workflows, voice, sessions.',
     link: '/docs/agents/overview',
+    cta: 'Open journey',
   },
   {
     title: 'Marketplace',
-    description: 'Browse servers, manage tools, chat with agents, and control spending.',
+    description: 'Browse servers, manage tools, chat with agents, control spending.',
     link: '/docs/marketplace/overview',
+    cta: 'Open journey',
   },
 ];
 
@@ -30,68 +41,84 @@ const RESOURCES = [
   { label: 'Changelog', to: '/changelog' },
   { label: 'Status', to: '/status' },
   { label: 'Playground', to: '/playground' },
-  { label: 'GitHub', href: 'https://github.com/rickycambrian/rickydata_SDK' },
+  { label: 'GitHub', href: 'https://github.com/cambriannetwork' },
 ];
 
 function Hero() {
   return (
-    <section
-      style={{
-        padding: '4rem 2rem 3rem',
-        maxWidth: 960,
-        margin: '0 auto',
-      }}
-    >
-      <h1
+    <section style={{ padding: '2rem 2rem 0', maxWidth: 1200, margin: '0 auto' }}>
+      <div
         style={{
-          fontSize: '2.75rem',
-          fontWeight: 700,
-          lineHeight: 1.15,
-          marginBottom: '1rem',
+          padding: '3rem 2.5rem',
+          borderRadius: 14,
+          background: 'var(--ifm-background-surface-color)',
+          border: '1px solid var(--ifm-color-emphasis-200)',
         }}
       >
-        RickyData Docs
-      </h1>
-      <p
-        style={{
-          fontSize: '1.25rem',
-          color: 'var(--ifm-color-emphasis-700)',
-          maxWidth: 600,
-          marginBottom: '2rem',
-        }}
-      >
-        Install once, authenticate once, then discover and use thousands of MCP servers and AI agents.
-      </p>
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-        <Link
-          className="button button--primary button--lg"
-          to="/docs/getting-started/installation"
+        <span
+          style={{
+            fontFamily: 'var(--ifm-heading-font-family)',
+            fontSize: '0.6875rem',
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase' as const,
+            color: 'var(--ifm-color-primary)',
+            marginBottom: '1rem',
+            display: 'block',
+          }}
         >
-          Get Started
-        </Link>
-        <Link
-          className="button button--secondary button--lg"
-          to="/playground"
+          Public Docs
+        </span>
+        <h1
+          style={{
+            fontSize: 'clamp(1.875rem, 3vw, 2.5rem)',
+            fontWeight: 700,
+            lineHeight: 1.15,
+            letterSpacing: '-0.03em',
+            marginBottom: '0.75rem',
+          }}
         >
-          Try Playground
-        </Link>
+          Production docs for MCP onboarding, wallet controls, and agent operations
+        </h1>
+        <p
+          style={{
+            fontSize: '1.05rem',
+            color: 'var(--ifm-color-emphasis-700)',
+            maxWidth: 640,
+            marginBottom: '2rem',
+          }}
+        >
+          Install once, authenticate once, then discover and use 5,000+ MCP servers and AI agents.
+        </p>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <Link
+            className="button button--primary button--lg"
+            to="/docs/getting-started/installation"
+          >
+            Get Started
+          </Link>
+          <Link
+            className="button button--secondary button--lg"
+            to="/docs/getting-started/quickstart-cli"
+          >
+            Browse Playbooks
+          </Link>
+        </div>
       </div>
-      {/* FreeTierBar will be added back once RickyDataProvider is in the auth chain */}
     </section>
   );
 }
 
 function Quickstart() {
   return (
-    <section
-      style={{
-        padding: '2.5rem 2rem',
-        maxWidth: 960,
-        margin: '0 auto',
-        borderTop: '1px solid var(--ifm-color-emphasis-200)',
-      }}
-    >
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.5rem' }}>
+    <section style={{ padding: '3rem 2rem', maxWidth: 1200, margin: '0 auto' }}>
+      <h2
+        style={{
+          fontSize: '1.5rem',
+          fontWeight: 600,
+          marginBottom: '1.5rem',
+        }}
+      >
         Three commands to working MCP
       </h2>
       <div
@@ -104,14 +131,14 @@ function Quickstart() {
         {[
           { step: '1', label: 'Install CLI', code: 'npm install -g rickydata' },
           { step: '2', label: 'Authenticate + connect', code: 'rickydata init' },
-          { step: '3', label: 'Discover servers', code: 'rickydata mcp search "brave"' },
+          { step: '3', label: 'Discover and enable servers', code: 'rickydata mcp search "brave"' },
         ].map((item) => (
           <div
             key={item.step}
             style={{
               padding: '1.25rem',
-              borderRadius: 8,
-              background: 'var(--ifm-background-surface-color, var(--ifm-color-emphasis-100))',
+              borderRadius: 10,
+              background: 'var(--ifm-background-surface-color)',
               border: '1px solid var(--ifm-color-emphasis-200)',
             }}
           >
@@ -125,7 +152,7 @@ function Quickstart() {
                   height: 28,
                   borderRadius: '50%',
                   background: 'var(--ifm-color-primary)',
-                  color: '#fff',
+                  color: '#1a1816',
                   fontSize: '0.85rem',
                   fontWeight: 600,
                   flexShrink: 0,
@@ -139,7 +166,7 @@ function Quickstart() {
               style={{
                 display: 'block',
                 padding: '0.5rem 0.75rem',
-                borderRadius: 4,
+                borderRadius: 6,
                 background: 'var(--ifm-color-emphasis-100)',
                 fontSize: '0.85rem',
                 overflowX: 'auto',
@@ -154,47 +181,104 @@ function Quickstart() {
   );
 }
 
-function FeatureGrid() {
+function JourneyGrid() {
+  const featured = JOURNEYS.find((j) => j.featured);
+  const others = JOURNEYS.filter((j) => !j.featured);
+
   return (
     <section
       style={{
-        padding: '2.5rem 2rem',
-        maxWidth: 960,
+        padding: '3rem 2rem',
+        maxWidth: 1200,
         margin: '0 auto',
         borderTop: '1px solid var(--ifm-color-emphasis-200)',
       }}
     >
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.5rem' }}>
-        Explore the platform
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+        Choose your journey
       </h2>
       <div
         style={{
+          width: '2rem',
+          height: 2,
+          background: 'var(--ifm-color-primary)',
+          marginBottom: '2rem',
+        }}
+      />
+      <div
+        style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gridTemplateColumns: '2fr 1fr 1fr',
+          gridTemplateRows: 'auto auto',
           gap: '1rem',
         }}
       >
-        {FEATURES.map((feature) => (
+        {/* Featured card spans 2 rows */}
+        {featured && (
           <Link
-            key={feature.title}
-            to={feature.link}
+            to={featured.link}
             style={{
-              display: 'block',
+              gridRow: '1 / 3',
+              gridColumn: '1 / 2',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              padding: '2rem',
+              borderRadius: 10,
+              background: 'var(--ifm-background-surface-color)',
+              border: '1px solid var(--ifm-color-emphasis-300)',
+              textDecoration: 'none',
+              color: 'inherit',
+              minHeight: 200,
+              transition: 'border-color 150ms ease-out',
+            }}
+          >
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+              {featured.title}
+            </h3>
+            <p style={{ fontSize: '0.9rem', color: 'var(--ifm-color-emphasis-600)', margin: 0 }}>
+              {featured.description}
+            </p>
+          </Link>
+        )}
+        {/* Smaller cards */}
+        {others.map((journey) => (
+          <Link
+            key={journey.title}
+            to={journey.link}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
               padding: '1.25rem',
-              borderRadius: 8,
-              background: 'var(--ifm-background-surface-color, var(--ifm-color-emphasis-100))',
+              borderRadius: 10,
+              background: 'var(--ifm-background-surface-color)',
               border: '1px solid var(--ifm-color-emphasis-200)',
               textDecoration: 'none',
               color: 'inherit',
-              transition: 'border-color 0.15s ease-out',
+              transition: 'border-color 150ms ease-out',
             }}
           >
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-              {feature.title}
-            </h3>
-            <p style={{ fontSize: '0.9rem', color: 'var(--ifm-color-emphasis-700)', margin: 0 }}>
-              {feature.description}
-            </p>
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem' }}>
+                {journey.title}
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--ifm-color-emphasis-600)', margin: 0 }}>
+                {journey.description}
+              </p>
+            </div>
+            {journey.cta && (
+              <span
+                style={{
+                  marginTop: '0.75rem',
+                  fontSize: '0.85rem',
+                  color: 'var(--ifm-color-primary)',
+                  fontWeight: 500,
+                }}
+              >
+                {journey.cta}
+              </span>
+            )}
           </Link>
         ))}
       </div>
@@ -207,7 +291,7 @@ function ResourcesStrip() {
     <section
       style={{
         padding: '2rem',
-        maxWidth: 960,
+        maxWidth: 1200,
         margin: '0 auto',
         borderTop: '1px solid var(--ifm-color-emphasis-200)',
       }}
@@ -242,12 +326,12 @@ export default function Home(): JSX.Element {
   return (
     <Layout
       title="RickyData Docs"
-      description="MCP tools, AI agents, and wallet-powered workflows"
+      description="Production docs for MCP onboarding, wallet controls, and agent operations"
     >
       <main>
         <Hero />
         <Quickstart />
-        <FeatureGrid />
+        <JourneyGrid />
         <ResourcesStrip />
       </main>
     </Layout>
