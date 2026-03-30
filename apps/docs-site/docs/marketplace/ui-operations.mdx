@@ -3,6 +3,8 @@ title: UI Operations
 sidebar_position: 2
 ---
 
+import SDKWidget from '@site/src/components/SDKWidget';
+
 # Marketplace UI Operations
 
 A walkthrough of common operations in the marketplace web interface.
@@ -68,7 +70,13 @@ Set per-agent limits:
 - **Check** whether a key is configured (key material is never displayed)
 - **Delete** your stored key
 
-{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+<SDKWidget
+  fallback="Connect wallet to see your connection status"
+  render={() => {
+    const { WalletStatusBadge } = require('@rickydata/react');
+    return <WalletStatusBadge />;
+  }}
+/>
 
 ## Checking gateway health
 

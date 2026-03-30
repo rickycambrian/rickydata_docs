@@ -3,6 +3,8 @@ title: Wallet & Billing Overview
 sidebar_position: 1
 ---
 
+import SDKWidget from '@site/src/components/SDKWidget';
+
 # Wallet & Billing
 
 All RickyData authentication and payments are wallet-based. Your wallet address is your identity — it scopes your secrets, sessions, budgets, and transaction history.
@@ -46,7 +48,13 @@ All payments use **USDC on Base mainnet** (chain ID 8453).
 | Browsing, searching, `tools/list` | Free |
 | Free tier | 100 requests/day (tool calls count as 0.25 each) |
 
-{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+<SDKWidget
+  fallback="Connect wallet to see your daily usage"
+  render={() => {
+    const { FreeTierBar } = require('@rickydata/react');
+    return <FreeTierBar />;
+  }}
+/>
 
 ## Unified wallet ledger
 

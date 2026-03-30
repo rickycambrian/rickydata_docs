@@ -3,6 +3,8 @@ title: BYOK Chat
 sidebar_position: 2
 ---
 
+import SDKWidget from '@site/src/components/SDKWidget';
+
 # BYOK Agent Chat
 
 Bring Your Own Key (BYOK) lets you use your own Anthropic API key for agent chat, paying only for actual usage with a 10% platform markup.
@@ -48,7 +50,13 @@ The status endpoint never returns key material — only whether a key is configu
 
 ## Provider selection
 
-{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+<SDKWidget
+  fallback="Connect wallet to see your provider settings"
+  render={() => {
+    const { ProviderSettingsCard } = require('@rickydata/react');
+    return <ProviderSettingsCard />;
+  }}
+/>
 
 ### Default free-tier model
 

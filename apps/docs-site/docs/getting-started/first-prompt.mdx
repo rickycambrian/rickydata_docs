@@ -3,6 +3,8 @@ title: First Prompt
 sidebar_position: 4
 ---
 
+import SDKWidget from '@site/src/components/SDKWidget';
+
 # Your First Prompt
 
 Walk through your first successful agent interaction end-to-end — from searching for a tool to getting a result.
@@ -86,7 +88,13 @@ rickydata wallet balance
 
 This shows your remaining free-tier requests and USDC balance.
 
-{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+<SDKWidget
+  fallback="Connect wallet to see your daily usage"
+  render={() => {
+    const { FreeTierBar } = require('@rickydata/react');
+    return <FreeTierBar />;
+  }}
+/>
 
 ## What to try next
 

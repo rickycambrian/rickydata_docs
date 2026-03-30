@@ -1,22 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect, type ReactNode } from 'react';
 
-// Lazy-load AuthProvider only on client to avoid SSR issues with Privy/wagmi.
-// We avoid BrowserOnly here because it causes React hooks ordering violations
-// when the child component (AuthProvider) uses hooks.
-const LazyAuthProvider = React.lazy(() =>
-  import('../auth/AuthProvider').then((mod) => ({ default: mod.AuthProvider })),
-);
-
-export default function Root({ children }: { children: React.ReactNode }) {
+/**
+ * Swizzled Root component.
+ *
+ * Dynamically loads AuthProvider on client only (it uses Privy + wagmi browser APIs).
+ * During SSR and initial client render, children render without providers.
+ * SDK components wrapped in BrowserOnly will render during the second paint
+ * after the provider loads.
+ */
+export default function Root({ children }: { children: ReactNode }) {
+  const [Wrapper, setWrapper] = useState<React.ComponentType<{ children: ReactNode }> | null>(null);
   const isBrowser = typeof window !== 'undefined';
 
-  if (!isBrowser) {
+  useEffect(() => {
+    import('../auth/AuthProvider').then((mod) => {
+      setWrapper(() => mod.AuthProvider);
+    });
+  }, []);
+
+  if (!isBrowser || !Wrapper) {
     return <>{children}</>;
   }
 
-  return (
-    <React.Suspense fallback={<>{children}</>}>
-      <LazyAuthProvider>{children}</LazyAuthProvider>
-    </React.Suspense>
-  );
+  return <Wrapper>{children}</Wrapper>;
 }

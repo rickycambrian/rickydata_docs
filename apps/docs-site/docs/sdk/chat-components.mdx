@@ -3,6 +3,8 @@ title: Chat Components
 sidebar_position: 5
 ---
 
+import SDKWidget from '@site/src/components/SDKWidget';
+
 # Chat Components
 
 Embed agent chat in your application using components from `@rickydata/react` and `@rickydata/chat`.
@@ -222,7 +224,13 @@ import { DepositPanel } from '@rickydata/react';
 <DepositPanel />
 ```
 
-{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+<SDKWidget
+  fallback="Connect wallet to try the agent chat"
+  render={() => {
+    const { AgentChatEmbed } = require('@rickydata/chat');
+    return <AgentChatEmbed agentId="erc8004-expert" title="ERC-8004 Expert" maxHeight="400px" />;
+  }}
+/>
 
 ## Next steps
 

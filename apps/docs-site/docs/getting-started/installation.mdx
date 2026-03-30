@@ -69,7 +69,15 @@ This shows your wallet address, token type, expiry, and current USDC balance.
 
 Every wallet gets **100 free requests per day**. MCP tool calls count as 0.25 requests each, so you can make up to 400 tool calls daily at no cost. The default free-tier model is MiniMax-M2.7.
 
-{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+import SDKWidget from '@site/src/components/SDKWidget';
+
+<SDKWidget
+  fallback="Connect wallet to see your daily usage"
+  render={() => {
+    const { FreeTierBar } = require('@rickydata/react');
+    return <FreeTierBar />;
+  }}
+/>
 
 ## System requirements
 

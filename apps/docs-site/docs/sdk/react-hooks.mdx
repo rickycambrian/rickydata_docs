@@ -3,6 +3,8 @@ title: React Hooks
 sidebar_position: 4
 ---
 
+import SDKWidget from '@site/src/components/SDKWidget';
+
 # React Hooks
 
 `@rickydata/react` provides hooks and components for building wallet-aware UIs with agent chat, balance tracking, free-tier status, and more.
@@ -326,7 +328,13 @@ function SecretStatus({ serverId }: { serverId: string }) {
 | `SecretForm` | Form for storing server secrets |
 | `SecretOrchestrator` | Multi-secret setup flow |
 
-{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+<SDKWidget
+  fallback="Connect wallet to see your account dashboard"
+  render={() => {
+    const { UsageDashboard } = require('@rickydata/react');
+    return <UsageDashboard />;
+  }}
+/>
 
 ## Next steps
 

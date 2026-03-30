@@ -3,6 +3,8 @@ title: Funding
 sidebar_position: 2
 ---
 
+import SDKWidget from '@site/src/components/SDKWidget';
+
 # Funding Your Wallet
 
 Deposit USDC on Base mainnet to your RickyData wallet to pay for MCP tool calls and agent chat.
@@ -15,7 +17,13 @@ rickydata wallet balance
 
 This shows your USDC balance and your deposit address on Base mainnet. You can also find it in the marketplace at [marketplace.rickydata.org/#/wallet](https://marketplace.rickydata.org/#/wallet).
 
-{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+<SDKWidget
+  fallback="Connect wallet to manage deposits"
+  render={() => {
+    const { DepositPanel } = require('@rickydata/react');
+    return <DepositPanel />;
+  }}
+/>
 
 ## Depositing USDC
 
