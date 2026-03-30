@@ -1,0 +1,164 @@
+---
+title: Quickstart (CLI)
+sidebar_position: 3
+---
+
+# Quickstart — CLI + Claude Code
+
+Full local setup with the RickyData CLI and Claude Code. Three commands to working MCP.
+
+## 1. Install and initialize
+
+```bash
+npm install -g rickydata
+rickydata init
+```
+
+The wizard opens your browser for wallet sign-in, connects to Claude Code, and verifies the connection. Restart Claude Code when prompted.
+
+## 2. Search and enable a server
+
+```bash
+rickydata mcp search "brave"
+```
+
+Output shows matching servers with their IDs, tool counts, and verification status. Enable one:
+
+```bash
+rickydata mcp enable brave-search-mcp-server
+```
+
+## 3. Use it in Claude Code
+
+Once a server is enabled, its tools are available to Claude Code. Ask Claude:
+
+> "Search the web for the latest news about MCP protocol"
+
+Claude will call the enabled Brave Search tool directly.
+
+## CLI quick reference
+
+```bash
+# Search the marketplace (no auth needed)
+rickydata mcp search "brave"
+
+# Enable/disable servers
+rickydata mcp enable brave-search-mcp-server
+rickydata mcp disable brave-search-mcp-server
+
+# List your enabled tools
+rickydata mcp tools
+
+# Call a tool directly from the CLI
+rickydata mcp call blazickjp-arxiv-mcp-server__search_papers \
+  '{"query":"transformers","max_results":3}'
+
+# Check auth status and wallet balance
+rickydata auth status
+rickydata wallet balance
+```
+
+## Manual Claude Code connection
+
+If you ran `rickydata auth login` instead of `rickydata init`, connect manually:
+
+```bash
+rickydata mcp connect
+```
+
+Or use the dry-run flag to see the command without executing:
+
+```bash
+rickydata mcp connect --dry-run
+```
+
+The underlying command is:
+
+```bash
+claude mcp add --transport http mcp-gateway https://mcp.rickydata.org/mcp \
+  --header "Authorization:Bearer YOUR_TOKEN"
+```
+
+## Agent chat (BYOK)
+
+Chat with AI agents that have access to MCP tools. Requires your own Anthropic API key:
+
+```bash
+rickydata apikey set         # Store your sk-ant-... key
+rickydata agents list        # List available agents
+rickydata chat erc8004-expert  # Start chatting
+```
+
+### Chat REPL commands
+
+Inside `rickydata chat`:
+
+| Command | Action |
+|---------|--------|
+| `/session` | Show current session ID |
+| `/model <name>` | Switch model (`haiku`, `sonnet`, `opus`) |
+| `/cost` | Show accumulated session cost |
+| `/exit` | Exit chat |
+
+## Canvas workflows
+
+Build and execute visual workflow DAGs that chain agents, MCP tools, approval gates, and GitHub actions:
+
+```bash
+rickydata canvas list                      # List saved workflows
+rickydata canvas execute <entity-id>       # Execute by ID
+rickydata canvas execute ./workflow.json   # Execute local file
+rickydata canvas runs                      # Check run history
+```
+
+Register the canvas MCP server for Claude Code:
+
+```bash
+claude mcp add --transport stdio canvas-workflows rickydata mcp canvas-server
+```
+
+## Full command tree
+
+```
+rickydata
+├── init               Setup wizard
+├── auth
+│   ├── login          Sign in via browser, token, or private key
+│   ├── status         Auth status, token type, expiry, balance
+│   ├── logout         Clear credentials
+│   └── token create   Generate a wallet token
+├── mcp
+│   ├── search         Search marketplace servers
+│   ├── enable         Enable a server
+│   ├── disable        Disable a server
+│   ├── tools          List tools from enabled servers
+│   ├── call           Call a tool directly
+│   ├── info           Get server details
+│   ├── status         MCP connection status
+│   ├── connect        Add MCP Gateway to Claude Code
+│   └── agent
+│       ├── tools      List an agent's MCP tools
+│       └── call       Call an MCP tool on an agent
+├── agents
+│   ├── list           List available agents
+│   └── describe       Show agent details
+├── canvas
+│   ├── list / execute / runs / run
+│   ├── import / export
+├── chat <agent-id>    Interactive agent chat (BYOK)
+├── sessions
+│   ├── list / get / resume / delete
+├── wallet
+│   ├── balance        USDC balance and deposit address
+│   ├── transactions   Recent transactions
+│   └── settings       Wallet settings
+├── apikey
+│   ├── set / status / delete
+└── config
+    ├── set / get / list / activate / profiles
+```
+
+## Next steps
+
+- [First Prompt](/docs/getting-started/first-prompt) — your first successful agent interaction
+- [MCP Gateway SDK](/docs/sdk/mcp-gateway) — programmatic tool calls from TypeScript

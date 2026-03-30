@@ -1,0 +1,85 @@
+---
+title: MCP Overview
+sidebar_position: 1
+---
+
+# MCP Overview
+
+The Model Context Protocol (MCP) is an open standard that lets AI agents discover and use tools through a unified interface. RickyData operates an MCP Gateway that hosts thousands of MCP servers, so you can connect once and access all of them.
+
+## What the MCP Gateway provides
+
+- **One endpoint, thousands of tools** — connect to `https://mcp.rickydata.org/mcp` and discover tools via gateway meta-tools
+- **No local installation** — servers run on-demand in the cloud, no `npm install` per tool
+- **Wallet-scoped identity** — your secrets, enablement state, and spending are isolated to your wallet
+- **Pay-per-use** — tool discovery is free; execution costs $0.0005 USDC per call via x402
+- **Hardware-backed security** — servers run on AMD SEV-SNP Confidential VMs with execution proofs
+
+## How it works
+
+```
+Your MCP client (Claude Code, Cursor, Claude Desktop)
+    |
+    v
+MCP Gateway (https://mcp.rickydata.org/mcp)
+    |
+    ├── gateway__search_servers    (meta-tool: discover)
+    ├── gateway__enable_server     (meta-tool: activate)
+    ├── gateway__disable_server    (meta-tool: deactivate)
+    ├── gateway__list_enabled      (meta-tool: inventory)
+    ├── gateway__server_info       (meta-tool: details)
+    |
+    └── <enabled server tools>     (actual tool calls, x402 paid)
+```
+
+When you connect an MCP client to the gateway, `tools/list` returns the five gateway meta-tools. These let your AI agent search the marketplace, enable servers, and manage its tool inventory. Once a server is enabled, its tools also appear in `tools/list`.
+
+## Connect in 30 seconds
+
+```bash
+# Claude Code
+claude mcp add --transport http mcp-gateway https://mcp.rickydata.org/mcp
+
+# Or with auth
+claude mcp add --transport http mcp-gateway https://mcp.rickydata.org/mcp \
+  --header "Authorization:Bearer mcpwt_..."
+```
+
+For other clients, see the [Quickstart (Web)](/docs/getting-started/quickstart-web) guide.
+
+## Discovery model
+
+The gateway uses an **opt-in discovery model**:
+
+1. `tools/list` always returns the 5 gateway meta-tools
+2. Server tools only appear after you explicitly enable them
+3. Enablement is scoped to your wallet or session
+
+This prevents tool list explosion — you see only what you've chosen to activate.
+
+### Session scoping
+
+Enablement state is keyed by (in order of precedence):
+
+1. Wallet + `X-MCP-Session` header (most specific)
+2. Wallet only
+3. `X-MCP-Session` header only
+4. Auto-generated anonymous session
+
+Wallet-scoped sessions auto-hydrate from previously configured secrets, so servers you've set up before become available without re-enabling.
+
+## Pricing
+
+| Action | Cost |
+|--------|------|
+| Browsing, searching, `tools/list` | Free |
+| MCP tool call | $0.0005 USDC |
+| Free tier | 100 requests/day (tool calls count as 0.25 each) |
+
+All payments use USDC on Base mainnet (chain ID 8453) via the x402 protocol.
+
+## Next steps
+
+- [Search, Enable, Call](/docs/mcp/search-enable-call) — the full MCP runtime loop
+- [Server Runtime](/docs/mcp/server-runtime) — how servers are hosted and executed
+- [Agent as MCP](/docs/mcp/agent-as-mcp) — expose agents as MCP endpoints

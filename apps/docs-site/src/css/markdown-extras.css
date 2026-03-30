@@ -1,0 +1,45 @@
+/**
+ * RickyData Docs — Markdown extras
+ *
+ * Additional styling for markdown content rendered by Docusaurus.
+ * Supplements Infima defaults with RickyData design tokens.
+ */
+
+/* Tables — warm borders */
+[data-theme='dark'] .markdown table {
+  border-color: oklch(25% 0.005 60);
+}
+
+[data-theme='dark'] .markdown table th {
+  background: oklch(17% 0.008 60);
+  border-color: oklch(25% 0.005 60);
+}
+
+[data-theme='dark'] .markdown table td {
+  border-color: oklch(22% 0.005 60);
+}
+
+/* Blockquotes — accent left border */
+[data-theme='dark'] .markdown blockquote {
+  border-left-color: oklch(72% 0.14 70 / 0.4);
+  color: oklch(68% 0.01 60);
+}
+
+/* Horizontal rules */
+[data-theme='dark'] .markdown hr {
+  border-color: oklch(25% 0.005 60);
+}
+
+/* Links — warm hover */
+[data-theme='dark'] .markdown a {
+  color: oklch(72% 0.14 70);
+}
+
+[data-theme='dark'] .markdown a:hover {
+  color: oklch(78% 0.12 70);
+}
+
+/* Images — rounded corners */
+.markdown img {
+  border-radius: var(--rd-radius-md, 10px);
+}

@@ -1,0 +1,89 @@
+---
+title: Canvas Overview
+sidebar_position: 1
+---
+
+# Canvas Workflows
+
+Canvas is a visual workflow system for composing multi-step operations that chain agents, MCP tools, approval gates, GitHub actions, and browser verification into executable DAGs (directed acyclic graphs).
+
+## What canvas does
+
+Instead of a single chat turn, canvas lets you define a graph of operations:
+
+```
+Text Input → Agent Node → Approval Gate → GitHub Action → Results
+```
+
+Each node in the graph executes in topological order, with data flowing from outputs to inputs along connections. The runtime streams progress events via SSE so you can watch execution in real time.
+
+## Node types
+
+| Node type | Description |
+|-----------|-------------|
+| `textInputNode` | Static text input to the workflow |
+| `agentNode` | Claude agent execution with prompt and model selection |
+| `mcpToolNode` | Direct MCP tool call |
+| `approvalNode` | Human approval gate — pauses execution until approved |
+| `githubNode` | GitHub operation (create PR, push commit, etc.) |
+| `browserVerifyNode` | Browser-based verification step |
+| `resultsNode` | Collects and displays workflow output |
+| `teamNode` | Multi-agent collaboration (feature-flagged) |
+
+### Approval gates
+
+Write-capable actions (GitHub pushes, data writes) require an upstream approval gate. The runtime enforces this — you cannot skip approval for write operations.
+
+## Quick start
+
+### CLI
+
+```bash
+# List saved workflows
+rickydata canvas list
+
+# Execute a workflow by ID
+rickydata canvas execute <entity-id>
+
+# Execute a local workflow file
+rickydata canvas execute ./my-workflow.canvas.json --verbose
+
+# Check run history
+rickydata canvas runs
+rickydata canvas run <run-id>
+```
+
+### Import/export
+
+```bash
+# Export a workflow to a portable .canvas.json file
+rickydata canvas export <entity-id> --output ./backup.canvas.json
+
+# Import a workflow from a file
+rickydata canvas import ./workflow.canvas.json
+```
+
+### Claude Code integration
+
+Register the canvas MCP server to give Claude Code 7 canvas workflow tools:
+
+```bash
+claude mcp add --transport stdio canvas-workflows rickydata mcp canvas-server
+```
+
+Available tools:
+
+| Tool | Description |
+|------|-------------|
+| `canvas_list_workflows` | List saved workflows |
+| `canvas_get_workflow` | Get workflow details |
+| `canvas_execute_workflow` | Execute by entity ID |
+| `canvas_execute_workflow_from_json` | Execute from inline JSON |
+| `canvas_list_runs` | List execution runs |
+| `canvas_get_run` | Get run details |
+| `canvas_save_workflow` | Save a new workflow |
+
+## Next steps
+
+- [Execute Workflows](/docs/canvas/execute-workflows) — running workflows and handling events
+- [Agents Overview](/docs/agents/overview) — agent nodes in canvas

@@ -1,0 +1,163 @@
+---
+title: BYOK Chat
+sidebar_position: 2
+---
+
+# BYOK Agent Chat
+
+Bring Your Own Key (BYOK) lets you use your own Anthropic API key for agent chat, paying only for actual usage with a 10% platform markup.
+
+## How BYOK works
+
+1. You store your Anthropic API key in the Agent Gateway's encrypted vault
+2. When you chat, the gateway uses your key to call Claude
+3. You pay Anthropic directly for LLM usage
+4. RickyData charges a 10% platform markup + $0.0005 per MCP tool call
+5. Total cost is deducted from your wallet's USDC balance
+
+Your API key is encrypted with AES-256-GCM using a per-wallet HKDF-derived key. It is decrypted only at call time, passed directly to the Anthropic API, then the derived key is wiped from memory. Even the VM's hypervisor cannot read it — AMD SEV-SNP encrypts all memory at the hardware level.
+
+## Store your API key
+
+### CLI
+
+```bash
+rickydata apikey set
+# Prompts for your sk-ant-... key
+```
+
+### SDK
+
+```typescript
+import { A2AClient } from 'rickydata/a2a';
+
+const client = new A2AClient({
+  baseUrl: 'https://agents.rickydata.org',
+  token: 'mcpwt_...',
+});
+await client.storeApiKey('sk-ant-...');
+```
+
+### Check status
+
+```bash
+rickydata apikey status
+```
+
+The status endpoint never returns key material — only whether a key is configured.
+
+## Provider selection
+
+{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+
+### Default free-tier model
+
+Without a BYOK key, the free tier uses **MiniMax-M2.7** as the default model. This gives you 100 requests per day at no cost.
+
+### BYOK models
+
+With your Anthropic key stored, you can use any Claude model:
+
+| Model | CLI shortcut | Use case |
+|-------|-------------|----------|
+| Claude Haiku | `haiku` | Fast, low-cost responses |
+| Claude Sonnet | `sonnet` | Balanced quality and speed |
+| Claude Opus | `opus` | Highest quality reasoning |
+
+Switch models in the chat REPL:
+
+```
+/model sonnet
+```
+
+### Other providers
+
+BYOK supports additional providers beyond Anthropic:
+
+- **OpenAI** — GPT-4, GPT-4o
+- **Custom** — any OpenAI-compatible API endpoint
+
+Configure via wallet settings:
+
+```bash
+rickydata wallet settings
+```
+
+## Cost breakdown
+
+### BYOK path
+
+```
+Platform cost = (10% × base LLM cost) + ($0.0005 × MCP tool calls)
+```
+
+Example: A chat turn that uses Claude Sonnet ($0.003 input + $0.015 output = $0.018 base) with 2 tool calls:
+
+```
+Platform cost = (10% × $0.018) + ($0.0005 × 2) = $0.0018 + $0.001 = $0.0028
+Total cost = $0.018 (Anthropic) + $0.0028 (platform) = $0.0208
+```
+
+### Free tier path
+
+```
+100 requests/day, MCP tool calls count as 0.25 each
+Default model: MiniMax-M2.7
+```
+
+## Start chatting
+
+### CLI
+
+```bash
+rickydata chat erc8004-expert
+```
+
+### SDK (streaming)
+
+```typescript
+const task = await client.sendStreamingMessage({
+  message: {
+    role: 'user',
+    parts: [{ type: 'text', text: 'What is ERC-8004?' }],
+  },
+  metadata: { agentId: 'erc8004-expert' },
+});
+
+for await (const event of task) {
+  if (event.type === 'text') process.stdout.write(event.text);
+}
+```
+
+### React
+
+```tsx
+import { useAgentChat } from '@rickydata/react';
+
+function Chat() {
+  const { messages, sendMessage, isStreaming } = useAgentChat({
+    agentId: 'erc8004-expert',
+  });
+  // ... render messages and input
+}
+```
+
+## Key management
+
+| Action | CLI | SDK |
+|--------|-----|-----|
+| Store key | `rickydata apikey set` | `client.storeApiKey(key)` |
+| Check status | `rickydata apikey status` | `useApiKeyStatus()` |
+| Delete key | `rickydata apikey delete` | `useDeleteApiKey()` |
+
+Keys are stored in the Agent Gateway's encrypted vault with:
+
+- AES-256-GCM encryption with per-user HKDF-derived keys
+- HMAC-SHA256 vault keys (wallet addresses never stored in plaintext)
+- Optional persistent encrypted storage across gateway restarts
+
+## Next steps
+
+- [Sessions](/docs/agents/sessions) — session management and persistence
+- [Voice Chat](/docs/agents/voice) — LiveKit voice interactions
+- [Wallet & Billing](/docs/wallet-billing/overview) — funding and spending controls

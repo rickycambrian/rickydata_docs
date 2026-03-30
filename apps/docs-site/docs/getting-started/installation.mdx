@@ -1,0 +1,93 @@
+---
+title: Installation
+sidebar_position: 1
+---
+
+# Installation
+
+Install the RickyData CLI globally to get access to 5,000+ MCP servers, AI agent chat, and canvas workflows.
+
+## Install the CLI
+
+```bash
+npm install -g rickydata
+```
+
+## Run the setup wizard
+
+The `init` command walks you through sign-in, connecting to Claude Code, and verifying everything works:
+
+```bash
+rickydata init
+```
+
+The wizard will:
+
+1. Open your browser for wallet authentication (email, Google, GitHub, Discord, or any Web3 wallet)
+2. Connect the MCP Gateway to Claude Code via `claude mcp add`
+3. Verify the connection is working
+
+When it tells you to restart Claude Code, do so — you'll then have gateway meta-tools available.
+
+## Manual setup (3 commands)
+
+If you prefer to skip the wizard:
+
+```bash
+rickydata auth login       # Sign in via browser (produces a mcpwt_ wallet token)
+rickydata mcp connect      # Connect to Claude Code
+# Restart Claude Code
+```
+
+## Wallet authentication
+
+All authentication is wallet-based via Privy. When you run `rickydata auth login`, your browser opens and you can sign in with:
+
+- Email (magic link)
+- Google, GitHub, or Discord OAuth
+- Any Web3 wallet (MetaMask, WalletConnect, etc.)
+
+This produces a `mcpwt_` wallet token valid for 30 days. The token is self-verifying — the gateway recovers your wallet address via `ecrecover`, so no secrets are stored server-side.
+
+### Other auth methods
+
+| Method | Command | When to use |
+|--------|---------|-------------|
+| Browser login | `rickydata auth login` | Default — works for everyone |
+| Direct token | `rickydata auth login --token mcpwt_...` | Paste a token from another source |
+| Private key | `rickydata auth login --private-key 0x...` | Advanced self-custody x402 signing |
+
+## Check your status
+
+```bash
+rickydata auth status
+```
+
+This shows your wallet address, token type, expiry, and current USDC balance.
+
+## Free tier
+
+Every wallet gets **100 free requests per day**. MCP tool calls count as 0.25 requests each, so you can make up to 400 tool calls daily at no cost. The default free-tier model is MiniMax-M2.7.
+
+{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+
+## System requirements
+
+- **Node.js** 18 or later
+- **npm** 9 or later (ships with Node.js 18+)
+- A modern browser for wallet authentication
+
+## Configuration
+
+The CLI stores configuration at `~/.rickydata/config.json` and credentials at `~/.rickydata/credentials.json` (mode 0600). You can manage multiple gateway configurations using profiles:
+
+```bash
+rickydata config list          # Show all config keys
+rickydata config profiles      # List profiles
+rickydata config activate dev  # Switch to "dev" profile
+```
+
+## Next steps
+
+- [Quickstart (Web)](/docs/getting-started/quickstart-web) — connect via Claude.ai, no CLI needed
+- [Quickstart (CLI)](/docs/getting-started/quickstart-cli) — full local CLI + Claude Code setup

@@ -1,0 +1,173 @@
+---
+title: Sessions
+sidebar_position: 3
+---
+
+# Session Management
+
+Agent chat sessions maintain conversation history, model selection, and tool state. Sessions are wallet-scoped and can be persisted, resumed, and deleted.
+
+## Creating a session
+
+### CLI
+
+```bash
+rickydata chat erc8004-expert
+# Automatically creates a new session
+```
+
+### API
+
+```bash
+SESSION=$(curl -s -X POST "https://agents.rickydata.org/agents/erc8004-expert/sessions" \
+  -H "Authorization: Bearer mcpwt_..." \
+  -H "Content-Type: application/json" \
+  -d '{"model":"haiku"}' | jq -r '.id')
+```
+
+### SDK
+
+```typescript
+import { A2AClient } from 'rickydata/a2a';
+
+const client = new A2AClient({
+  baseUrl: 'https://agents.rickydata.org',
+  token: 'mcpwt_...',
+});
+
+const task = await client.sendMessage({
+  message: {
+    role: 'user',
+    parts: [{ type: 'text', text: 'Hello' }],
+  },
+  metadata: { agentId: 'erc8004-expert' },
+  // sessionId omitted = creates new session
+});
+```
+
+## Listing sessions
+
+### CLI
+
+```bash
+rickydata sessions list
+```
+
+### React
+
+```tsx
+import { useSessions } from '@rickydata/react';
+
+function SessionList() {
+  const { data: sessions } = useSessions();
+  return (
+    <ul>
+      {sessions?.map(s => (
+        <li key={s.id}>
+          {s.agentId} — {new Date(s.createdAt).toLocaleDateString()}
+          {s.messageCount} messages
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+## Resuming a session
+
+### CLI
+
+```bash
+rickydata sessions resume <session-id>
+```
+
+### SDK
+
+```typescript
+const task = await client.sendMessage({
+  message: {
+    role: 'user',
+    parts: [{ type: 'text', text: 'Continue from where we left off' }],
+  },
+  metadata: {
+    agentId: 'erc8004-expert',
+    sessionId: 'existing-session-id',
+  },
+});
+```
+
+### React
+
+```tsx
+const { messages, sendMessage } = useAgentChat({
+  agentId: 'erc8004-expert',
+  sessionId: 'existing-session-id', // resume
+});
+```
+
+## Deleting a session
+
+### CLI
+
+```bash
+rickydata sessions delete <session-id>
+```
+
+### React
+
+```tsx
+import { useDeleteSession } from '@rickydata/react';
+
+function DeleteButton({ sessionId }: { sessionId: string }) {
+  const deleteSession = useDeleteSession();
+  return (
+    <button onClick={() => deleteSession.mutate(sessionId)}>
+      Delete session
+    </button>
+  );
+}
+```
+
+## Session properties
+
+Each session tracks:
+
+| Property | Description |
+|----------|-------------|
+| `id` | Unique session identifier |
+| `agentId` | Which agent this session is with |
+| `walletAddress` | Owner wallet |
+| `model` | Selected model (haiku, sonnet, opus) |
+| `createdAt` | When the session started |
+| `lastMessageAt` | Most recent message timestamp |
+| `messageCount` | Total messages in session |
+
+## Persistence and retention
+
+Sessions are stored on the Agent Gateway's encrypted disk:
+
+- Conversation history is encrypted with AES-256-GCM
+- Encryption keys are derived per-wallet via HKDF
+- Session data is wallet-isolated — no cross-wallet access
+
+Retention is controlled by wallet settings. Configure via:
+
+```bash
+rickydata wallet settings
+```
+
+## Chat REPL commands
+
+Inside a `rickydata chat` session:
+
+| Command | Action |
+|---------|--------|
+| `/session` | Show current session ID |
+| `/model <name>` | Switch model (haiku, sonnet, opus) |
+| `/cost` | Show accumulated session cost |
+| `/exit` | Exit chat |
+
+## Next steps
+
+- [Voice Chat](/docs/agents/voice) — LiveKit voice interactions
+- [Self-Improvement](/docs/wallet-billing/self-improvement) — automatic learning from sessions

@@ -1,0 +1,205 @@
+---
+title: MCP Gateway
+sidebar_position: 2
+---
+
+# MCP Gateway SDK
+
+Programmatic access to the MCP Gateway — search servers, enable tools, call them with automatic x402 payments, and manage secrets.
+
+## Browse servers (no auth needed)
+
+```typescript
+import { MCPGateway } from 'rickydata';
+
+const gw = new MCPGateway({ url: 'https://mcp.rickydata.org' });
+
+// List all servers
+const servers = await gw.listServers();
+
+// Filter by registry
+const npmServers = await gw.listServers({ registry: 'npm' });
+
+// Search by name
+const results = await gw.searchServers('mongodb');
+
+// Get server details
+const server = await gw.getServer('brave-search-mcp-server');
+
+// List tools for a server
+const tools = await gw.listTools('brave-search-mcp-server');
+```
+
+## Authentication
+
+The gateway supports wallet-based authentication. For programmatic access, use a wallet token:
+
+```typescript
+const gw = new MCPGateway({
+  url: 'https://mcp.rickydata.org',
+  token: 'mcpwt_...', // wallet token from rickydata auth login
+});
+```
+
+For advanced self-custody signing:
+
+```typescript
+import { MCPGateway, SpendingWallet } from 'rickydata';
+import { privateKeyToAccount } from 'viem/accounts';
+
+const wallet = await SpendingWallet.fromPrivateKey(process.env.PRIVATE_KEY!, {
+  maxPerCall: 0.01,
+  maxPerDay: 5.0,
+});
+
+const gw = new MCPGateway({
+  url: 'https://mcp.rickydata.org',
+  spendingWallet: wallet,
+});
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`);
+await gw.authenticateAuto({
+  signFn: (message) => account.signMessage({ message }),
+  walletAddress: account.address,
+});
+```
+
+## The MCP runtime loop
+
+The standard workflow for using MCP tools:
+
+### 1. Search
+
+```typescript
+const servers = await gw.searchServers('brave');
+// Returns: [{ id, name, toolsCount, verified, ... }]
+```
+
+### 2. Enable
+
+```typescript
+// If the server needs API keys, store them first
+await gw.storeSecrets('brave-search-mcp-server', {
+  BRAVE_API_KEY: 'your-key',
+});
+
+// Start the server (makes its tools available)
+await gw.startServer('brave-search-mcp-server');
+```
+
+### 3. Call
+
+```typescript
+const result = await gw.callTool(
+  'brave-search-mcp-server',
+  'brave_web_search',
+  { query: 'latest MCP protocol updates' }
+);
+
+console.log(result.content);
+// Tool call result includes execution proof with code hash,
+// request/response hashes, and HMAC signature
+```
+
+When using a `SpendingWallet`, x402 payment is signed and settled automatically on 402 responses.
+
+### 4. Disable
+
+```typescript
+await gw.stopServer('brave-search-mcp-server');
+```
+
+## SpendingWallet
+
+The `SpendingWallet` provides 8-layer defense-in-depth for automated payments:
+
+```typescript
+import { SpendingWallet } from 'rickydata';
+
+const wallet = await SpendingWallet.fromPrivateKey(process.env.SPENDING_KEY!, {
+  maxPerCall: 0.01,       // Max $0.01 per call (20x standard price)
+  maxPerSession: 1.0,     // Max $1.00 per SDK instance lifetime
+  maxPerDay: 5.0,         // Max $5.00 rolling 24h
+  maxPerWeek: 20.0,       // Max $20.00 rolling 7d
+  allowedEndpoints: ['mcp.rickydata.org'],
+  circuitBreakerThreshold: 5,  // Halt after 5 consecutive failures
+});
+
+// Monitor events
+wallet.on('payment:signed', (receipt) => console.log(`Paid $${receipt.amountUsd}`));
+wallet.on('balance:low', ({ balance }) => console.log(`Low: ${balance} USDC`));
+
+// Check spending
+console.log(wallet.getSpending());
+// { totalSpent, sessionSpent, daySpent, callCount }
+
+// Clean up (clears private key from memory)
+wallet.destroy();
+```
+
+### HD wallet for production agents
+
+```typescript
+const wallet = await SpendingWallet.fromSeedPhrase(process.env.SEED!, 0, {
+  maxPerDay: 10.0,
+  allowedEndpoints: ['mcp.rickydata.org'],
+});
+
+console.log(wallet.address);  // Deterministic, recoverable
+console.log(wallet.isHD);     // true
+```
+
+### Human-in-the-loop approval
+
+```typescript
+const wallet = await SpendingWallet.fromPrivateKey(key, {
+  requireApprovalAbove: 0.05,
+  approvalCallback: async (details) => {
+    return await askUser(`Approve $${details.amountUsd} for ${details.toolName}?`);
+  },
+});
+```
+
+### Defense layers
+
+| Layer | Protection |
+|-------|-----------|
+| Wallet isolation | Separate key, separate funds, limited exposure |
+| Spending limits | Per-call, per-session, daily, weekly caps |
+| Endpoint allowlist | Only pay specific gateway URLs |
+| Circuit breaker | Halt after N consecutive failures |
+| Deduplication | Prevent duplicate payments in time window |
+| Approval callback | Human-in-the-loop for amounts above threshold |
+| Balance monitoring | Events when USDC balance is low |
+| Dry run mode | Validate everything without signing |
+
+## API reference
+
+### MCPGateway
+
+| Method | Description |
+|--------|-------------|
+| `listServers(opts?)` | List servers (filter by registry, type, compatibility) |
+| `getServer(id)` | Get server details |
+| `searchServers(query)` | Search by name |
+| `listTools(serverId)` | List tools for a server |
+| `callTool(serverId, tool, args)` | Call a tool (auto-signs x402) |
+| `startServer(serverId)` | Start an on-demand server |
+| `stopServer(serverId)` | Stop a server |
+| `storeSecrets(serverId, secrets)` | Store API keys for a server |
+| `authenticateAuto(options)` | Production-safe authentication |
+
+### SpendingWallet
+
+| Method | Description |
+|--------|-------------|
+| `fromPrivateKey(key, policy?)` | Create from hex private key |
+| `fromSeedPhrase(seed, index?, policy?)` | Derive from BIP-39 mnemonic |
+| `getBalance(rpcUrl?)` | Check USDC and ETH balances |
+| `getSpending()` | Current spending summary |
+| `destroy()` | Clear private key from memory |
+
+## Next steps
+
+- [KFDB Client](/docs/sdk/kfdb-client) — direct entity data access
+- [React Hooks](/docs/sdk/react-hooks) — build wallet-aware React UIs

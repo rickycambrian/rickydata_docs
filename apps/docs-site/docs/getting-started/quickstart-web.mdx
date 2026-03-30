@@ -1,0 +1,103 @@
+---
+title: Quickstart (Web)
+sidebar_position: 2
+---
+
+# Quickstart — Web
+
+Get started with RickyData through the marketplace web interface and Claude.ai. No CLI installation required.
+
+## Browse the marketplace
+
+Visit [marketplace.rickydata.org](https://marketplace.rickydata.org) to browse available MCP servers. You can:
+
+- Search servers by name or category
+- View tool descriptions and documentation
+- Check server verification status (`tools_listed` or `tool_smoke_passed`)
+
+Browsing is free and does not require authentication.
+
+## Connect your wallet
+
+To enable servers and chat with agents, connect your wallet:
+
+1. Click **Connect Wallet** in the marketplace header
+2. Sign in via Privy (email, Google, GitHub, Discord, or Web3 wallet)
+3. Your wallet address becomes your identity across all RickyData services
+
+## Connect to Claude.ai
+
+You can add the MCP Gateway to Claude Desktop or any MCP-compatible client with a single configuration entry.
+
+### Claude Desktop
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "mcp-gateway": {
+      "transport": "http",
+      "url": "https://mcp.rickydata.org/mcp"
+    }
+  }
+}
+```
+
+### Cursor
+
+Add to your MCP settings:
+
+```json
+{
+  "mcp-gateway": {
+    "transport": "http",
+    "url": "https://mcp.rickydata.org/mcp"
+  }
+}
+```
+
+Once connected, your AI client has access to gateway meta-tools:
+
+| Meta-tool | What it does |
+|-----------|-------------|
+| `gateway__search_servers` | Search the marketplace by name or category |
+| `gateway__enable_server` | Enable a server to access its tools |
+| `gateway__disable_server` | Disable a server |
+| `gateway__list_enabled` | See your currently enabled servers |
+| `gateway__server_info` | Get details about a specific server |
+
+## Try a search
+
+Ask your AI client:
+
+> "Search for a Brave search MCP server and enable it"
+
+The client will use `gateway__search_servers` to find matching servers, then `gateway__enable_server` to activate one. Once enabled, the server's tools appear and the client can call them directly.
+
+## Chat with an agent
+
+The marketplace also hosts AI agents at [marketplace.rickydata.org/agents](https://marketplace.rickydata.org). To chat:
+
+1. Pick an agent (research, crypto, coding, security, etc.)
+2. Connect your wallet if not already connected
+3. Store your Anthropic API key (BYOK) or use the free tier
+4. Start chatting — the agent calls MCP tools on your behalf
+
+The default agent is **erc8004-expert** at `https://rickydata.org/agents/erc8004-expert`.
+
+## Costs
+
+| Action | Cost |
+|--------|------|
+| Browsing, searching, `tools/list` | Free |
+| MCP tool call | $0.0005 USDC (0.25 of a free-tier request) |
+| Agent chat (BYOK) | 10% markup on LLM cost + $0.0005 per tool call |
+| Free tier | 100 requests/day (400 tool calls) |
+
+All payments use USDC on Base mainnet (chain ID 8453).
+
+## Next steps
+
+- [Quickstart (CLI)](/docs/getting-started/quickstart-cli) — install the CLI for full local control
+- [First Prompt](/docs/getting-started/first-prompt) — your first successful agent interaction

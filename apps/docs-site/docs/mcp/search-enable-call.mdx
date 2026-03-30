@@ -1,0 +1,184 @@
+---
+title: Search, Enable, Call
+sidebar_position: 2
+---
+
+# The MCP Runtime Loop
+
+The standard workflow for using MCP tools: **search** for servers, **enable** them, **call** their tools, then **disable** when done.
+
+## 1. Search
+
+### Via MCP client
+
+Ask your AI agent:
+
+> "Search for a Brave search MCP server"
+
+The agent calls `gateway__search_servers` and returns matching results with server IDs, tool counts, and verification status.
+
+### Via CLI
+
+```bash
+rickydata mcp search "brave"
+```
+
+### Via REST API
+
+```bash
+curl -s "https://mcp.rickydata.org/api/servers?search=brave" | \
+  jq '.servers[] | {name, toolsCount}'
+```
+
+### Via SDK
+
+```typescript
+import { MCPGateway } from 'rickydata';
+const gw = new MCPGateway({ url: 'https://mcp.rickydata.org' });
+const results = await gw.searchServers('brave');
+```
+
+## 2. Enable
+
+### Store secrets (if required)
+
+Some servers need API keys. Check requirements first:
+
+```bash
+curl -s "https://mcp.rickydata.org/api/servers/$SERVER_ID" | jq '.secretsRequired'
+```
+
+Store them via CLI or API:
+
+```bash
+# CLI
+rickydata mcp enable brave-search-mcp-server
+# If secrets are needed, you'll be prompted
+
+# API (requires wallet auth)
+curl -X POST "https://mcp.rickydata.org/api/secrets/$SERVER_ID" \
+  -H "Authorization: Bearer mcpwt_..." \
+  -H "Content-Type: application/json" \
+  -d '{"secrets":{"BRAVE_API_KEY":"your-key"}}'
+```
+
+### Enable the server
+
+```bash
+rickydata mcp enable brave-search-mcp-server
+```
+
+Or ask your AI agent:
+
+> "Enable the Brave search server"
+
+Once enabled, the server's tools appear in `tools/list` for your wallet/session scope.
+
+## 3. Call
+
+### Via MCP client
+
+Just ask naturally:
+
+> "Search the web for the latest MCP protocol news"
+
+Your AI agent will select and call the appropriate tool.
+
+### Via CLI
+
+```bash
+rickydata mcp call brave-search-mcp-server__brave_web_search \
+  '{"query":"MCP protocol news"}'
+```
+
+### Via MCP protocol (curl)
+
+```bash
+curl -s -X POST "https://mcp.rickydata.org/mcp" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Authorization: Bearer mcpwt_..." \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "brave-search-mcp-server__brave_web_search",
+      "arguments": {"query": "MCP protocol"}
+    }
+  }'
+```
+
+### Via REST API
+
+```bash
+curl -s -X POST "https://mcp.rickydata.org/api/servers/$SERVER_ID/tools/brave_web_search" \
+  -H "Content-Type: application/json" \
+  -H "X-Payment: <signed-payment>" \
+  -d '{"query": "MCP protocol"}'
+```
+
+Without a valid payment header, you'll get a 402 response with payment requirements.
+
+### Via SDK (auto-payment)
+
+```typescript
+const result = await gw.callTool(
+  'brave-search-mcp-server',
+  'brave_web_search',
+  { query: 'MCP protocol' }
+);
+// SpendingWallet auto-signs x402 payment on 402 response
+```
+
+## 4. Disable
+
+```bash
+rickydata mcp disable brave-search-mcp-server
+```
+
+Or:
+
+> "Disable the Brave search server"
+
+The server's tools are removed from `tools/list`.
+
+## Payment flow
+
+When you call a tool:
+
+1. Gateway checks for valid payment header
+2. If missing, returns HTTP 402 with payment requirements (price, operator address, EIP-712 domain)
+3. Client signs EIP-3009 `TransferWithAuthorization` for USDC on Base
+4. Client retries with `X-Payment` header containing the signed payment
+5. Gateway verifies signature, executes the tool
+6. **Only on success**: USDC transfer is settled on-chain
+7. Response includes tool result + payment confirmation with `txHash`
+
+If the tool call fails, the payment is not settled — you are never charged for failed calls.
+
+## Execution proofs
+
+Every tool call returns a cryptographic execution proof:
+
+| Field | What it proves |
+|-------|---------------|
+| `gateway.codeHash` | Which code version processed the request |
+| `gateway.teeEnabled` | Whether AMD SEV-SNP was active |
+| `server.package` | Which package was executed |
+| `execution.requestHash` | SHA-256 of your request |
+| `execution.responseHash` | SHA-256 of the response |
+| `signature.value` | HMAC-SHA256 over all fields |
+
+Verify a proof:
+
+```bash
+curl -X POST "https://mcp.rickydata.org/api/verify" \
+  -H "Content-Type: application/json" \
+  -d @proof.json | jq '.verdict'
+```
+
+## Next steps
+
+- [Server Runtime](/docs/mcp/server-runtime) — how servers are hosted
+- [SDK MCP Gateway](/docs/sdk/mcp-gateway) — full SDK reference for the runtime loop

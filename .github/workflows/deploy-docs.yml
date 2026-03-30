@@ -12,9 +12,9 @@ concurrency:
 env:
   PROJECT_ID: ai-projects-442213
   REGION: us-central1
-  WEB_REPOSITORY: rickydata-docs-web
+  WEB_REPOSITORY: rickydata-docs-site
   API_REPOSITORY: rickydata-docs-api
-  WEB_SERVICE: rickydata-docs-web
+  WEB_SERVICE: rickydata-docs-site
   API_SERVICE: rickydata-docs-api
 
 jobs:
@@ -91,15 +91,12 @@ jobs:
 
       - name: Build and push web image
         run: |
-          WEB_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.WEB_REPOSITORY }}/docs-web:${{ github.sha }}"
-          docker build -f apps/docs-web/Dockerfile \
-            --build-arg VITE_DOCS_API_URL="$API_URL" \
-            --build-arg VITE_VIDEO_QUICKSTART_DEMO_URL="${{ secrets.VITE_VIDEO_QUICKSTART_DEMO_URL }}" \
-            --build-arg VITE_VIDEO_MCP_RUNTIME_URL="${{ secrets.VITE_VIDEO_MCP_RUNTIME_URL }}" \
-            --build-arg VITE_VIDEO_INIT_WIZARD_URL="${{ secrets.VITE_VIDEO_INIT_WIZARD_URL }}" \
-            --build-arg VITE_VIDEO_CLAUDE_CHAT_CONNECTOR_URL="${{ secrets.VITE_VIDEO_CLAUDE_CHAT_CONNECTOR_URL }}" \
-            --build-arg VITE_VIDEO_WALLET_FUNDING_URL="${{ secrets.VITE_VIDEO_WALLET_FUNDING_URL }}" \
-            -t "$WEB_IMAGE" .
+          WEB_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.WEB_REPOSITORY }}/docs-site:${{ github.sha }}"
+          docker build -f apps/docs-site/Dockerfile \
+            --build-arg DOCS_API_URL="$API_URL" \
+            --build-arg AGENT_GATEWAY_URL="${{ secrets.AGENT_GATEWAY_URL }}" \
+            --build-arg PRIVY_APP_ID="${{ secrets.PRIVY_APP_ID }}" \
+            -t "$WEB_IMAGE" apps/docs-site
           docker push "$WEB_IMAGE"
           echo "WEB_IMAGE=$WEB_IMAGE" >> "$GITHUB_ENV"
 
@@ -119,7 +116,8 @@ jobs:
           set -euo pipefail
           WEB_URL=$(gcloud run services describe ${{ env.WEB_SERVICE }} --region=${{ env.REGION }} --format='value(status.url)')
           curl -fsS "$WEB_URL" > /tmp/web.html
-          grep -q '<div id="root"></div>' /tmp/web.html
+          grep -q '__docusaurus' /tmp/web.html
+          curl -fsS "$WEB_URL/health" | grep -q 'healthy'
           curl -fsS "$API_URL/health" | grep -q '"status":"ok"'
           curl -fsS "$API_URL/api/public/nav" | grep -q 'products'
 

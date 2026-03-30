@@ -1,0 +1,86 @@
+---
+title: Agent as MCP
+sidebar_position: 4
+---
+
+# Agent as MCP Endpoint
+
+Any RickyData agent can be exposed as an MCP server, letting MCP clients call agent capabilities as individual tools.
+
+## Concept
+
+When you connect to an agent via MCP, the agent's capabilities are listed as tools. This means Claude Code, Cursor, or any MCP client can call agent-specific operations without going through the chat interface.
+
+## SDK usage
+
+```typescript
+import { AgentMCPClient } from 'rickydata';
+
+const client = new AgentMCPClient({ token: 'mcpwt_...' });
+
+// Connect to an agent (MCP initialize handshake)
+const info = await client.connect('research-agent');
+console.log(info.name, info.version);
+
+// List the agent's tools
+const tools = await client.listTools('research-agent');
+tools.forEach(t => console.log(t.name, '-', t.description));
+
+// Call a tool
+const result = await client.callTool(
+  'research-agent',
+  'web_research',
+  { topic: 'MCP protocol updates' }
+);
+console.log(result);
+```
+
+## CLI usage
+
+```bash
+# List an agent's MCP tools
+rickydata mcp agent tools research-agent
+
+# Call an MCP tool on an agent
+rickydata mcp agent call research-agent web_research \
+  '{"topic":"MCP protocol updates"}'
+```
+
+## Claude Code integration
+
+Register an agent as an MCP server in Claude Code:
+
+```bash
+claude mcp add --transport http research-agent \
+  https://agents.rickydata.org/agents/research-agent/mcp \
+  --header "Authorization:Bearer mcpwt_..."
+```
+
+After adding, Claude Code can discover and use the agent's tools directly.
+
+## How it works
+
+The Agent Gateway exposes each agent at a per-agent MCP endpoint:
+
+```
+POST /agents/:agentId/mcp
+```
+
+This endpoint:
+
+1. Validates wallet authentication
+2. Returns the agent's tool definitions via `tools/list`
+3. Routes `tools/call` through the agent's execution pipeline
+4. The agent can use MCP Gateway tools during execution (tools calling tools)
+
+## Use cases
+
+- **Research agent as a tool** — let Claude Code call `web_research`, `paper_search`, or `summarize` without managing a full chat session
+- **Coding agent as a reviewer** — call `review_code` or `suggest_fixes` as standalone operations
+- **Chaining agents** — one agent calls another agent's MCP tools through the gateway
+- **Canvas workflows** — agent nodes in canvas DAGs use the MCP interface internally
+
+## Next steps
+
+- [Agents Overview](/docs/agents/overview) — the full agent gateway
+- [Canvas Workflows](/docs/canvas/overview) — chain agents and tools in workflows

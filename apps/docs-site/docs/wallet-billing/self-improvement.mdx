@@ -1,0 +1,126 @@
+---
+title: Self-Improvement
+sidebar_position: 4
+---
+
+# Self-Improvement System
+
+The Agent Gateway includes a built-in self-improvement engine that converts conversation history into reusable learnings and skills.
+
+## How it works
+
+1. **Facet extraction** — after conversations, the system analyzes your session history and extracts patterns, preferences, and domain knowledge
+2. **Synthesis** — extracted facets are combined into reusable skills and knowledge fragments
+3. **Application** — synthesized learnings are applied to future conversations, making the agent more effective over time
+
+This is all wallet-scoped — your learnings are private and never shared with other wallets.
+
+## Configuration
+
+### CLI
+
+```bash
+rickydata wallet settings
+```
+
+### API
+
+```bash
+# Check self-improvement status
+curl -s https://agents.rickydata.org/wallet/self-improvement/status \
+  -H "Authorization: Bearer mcpwt_..."
+
+# Manually trigger a self-improvement run
+curl -s -X POST https://agents.rickydata.org/wallet/self-improvement/trigger \
+  -H "Authorization: Bearer mcpwt_..."
+
+# View history
+curl -s https://agents.rickydata.org/wallet/self-improvement/history \
+  -H "Authorization: Bearer mcpwt_..."
+```
+
+### Settings
+
+Control via `PUT /wallet/settings`:
+
+| Setting | Values | Description |
+|---------|--------|-------------|
+| `autoImprove` | `true` / `false` | Enable/disable automatic runs |
+| `improveSchedule` | `after_each`, `daily`, `weekly`, `biweekly` | When to run |
+
+### Schedule options
+
+| Schedule | When it runs | Best for |
+|----------|-------------|----------|
+| `after_each` | After every conversation | Heavy users who want maximum learning |
+| `daily` | Once per day | Balanced approach |
+| `weekly` | Once per week | Light users |
+| `biweekly` | Every two weeks | Minimal overhead |
+
+## Cost
+
+Self-improvement runs consume wallet balance:
+
+- Each run uses your BYOK API key to call Claude for analysis
+- The 10% platform markup applies to LLM costs
+- Runs are subject to your wallet's budget limits
+
+You can set a **retention budget** to cap how much the system spends on self-improvement:
+
+```bash
+rickydata wallet settings
+# Set retention budget in the settings
+```
+
+## What gets extracted
+
+The facet extraction pipeline looks for:
+
+- **Preferences** — how you like responses formatted, level of detail, communication style
+- **Domain knowledge** — topics you frequently discuss, terminology you use
+- **Tool patterns** — which tools you use most, common argument patterns
+- **Workflow patterns** — multi-step operations you repeat
+
+## Monitoring
+
+### Status check
+
+```bash
+curl -s https://agents.rickydata.org/wallet/self-improvement/status \
+  -H "Authorization: Bearer mcpwt_..." | jq .
+```
+
+Returns:
+
+- Whether auto-improve is enabled
+- Current schedule
+- Last run timestamp
+- Number of extracted facets
+- Number of synthesized skills
+
+### History
+
+```bash
+curl -s https://agents.rickydata.org/wallet/self-improvement/history \
+  -H "Authorization: Bearer mcpwt_..." | jq '.runs[-1]'
+```
+
+Shows recent runs with:
+
+- Run timestamp
+- Sessions analyzed
+- Facets extracted
+- Skills synthesized
+- Cost of the run
+
+## Privacy
+
+- All self-improvement data is wallet-scoped and encrypted
+- Facets and skills are stored on the Agent Gateway's encrypted disk
+- No cross-wallet data sharing occurs
+- Delete your data by deleting your sessions and triggering a cleanup
+
+## Next steps
+
+- [Spending Policy](/docs/wallet-billing/spending-policy) — budget controls
+- [Sessions](/docs/agents/sessions) — session management

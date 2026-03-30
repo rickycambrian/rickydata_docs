@@ -1,0 +1,106 @@
+---
+title: Spending Policy
+sidebar_position: 3
+---
+
+# Spending Policy
+
+Control how much your wallet can spend across agents, tool calls, and self-improvement operations.
+
+## Per-agent budgets
+
+Set spending limits per agent on daily, weekly, and monthly timeframes:
+
+```bash
+rickydata wallet settings
+```
+
+### Budget tiers
+
+| Timeframe | What it controls |
+|-----------|-----------------|
+| **Daily** | Maximum USDC spend per agent per day |
+| **Weekly** | Rolling 7-day limit per agent |
+| **Monthly** | Rolling 30-day limit per agent |
+
+When a budget limit is reached, further requests to that agent are rejected until the timeframe resets.
+
+## SDK SpendingWallet policy
+
+For programmatic access, the `SpendingWallet` provides 8-layer defense-in-depth:
+
+```typescript
+import { SpendingWallet } from 'rickydata';
+
+const wallet = await SpendingWallet.fromPrivateKey(process.env.KEY!, {
+  maxPerCall: 0.01,       // Max per individual tool call
+  maxPerSession: 1.0,     // Max per SDK instance lifetime
+  maxPerDay: 5.0,         // Rolling 24h limit
+  maxPerWeek: 20.0,       // Rolling 7d limit
+  allowedEndpoints: ['mcp.rickydata.org'],
+  circuitBreakerThreshold: 5,
+  requireApprovalAbove: 0.05,
+  approvalCallback: async (details) => {
+    return await askUser(`Approve $${details.amountUsd}?`);
+  },
+});
+```
+
+### Defense layers
+
+| Layer | What it does |
+|-------|-------------|
+| **Wallet isolation** | Separate key with separate funds — limits exposure |
+| **Spending limits** | Per-call, per-session, daily, weekly caps |
+| **Endpoint allowlist** | Only pay to specific gateway URLs |
+| **Circuit breaker** | Auto-halt after N consecutive payment failures |
+| **Deduplication** | Prevent duplicate payments within a time window |
+| **Approval callback** | Human-in-the-loop for amounts above a threshold |
+| **Balance monitoring** | Emits events when USDC balance is low |
+| **Dry run mode** | Validate everything without actually signing |
+
+### Monitoring spending
+
+```typescript
+wallet.on('payment:signed', (receipt) => {
+  console.log(`Paid $${receipt.amountUsd} for ${receipt.toolName}`);
+});
+
+wallet.on('balance:low', ({ balance }) => {
+  console.log(`Low balance: ${balance} USDC`);
+});
+
+console.log(wallet.getSpending());
+// { totalSpent: 0.0005, sessionSpent: 0.0005, daySpent: 0.0005, callCount: 1 }
+```
+
+## Wallet settings
+
+Manage spending-related settings via the CLI:
+
+```bash
+rickydata wallet settings
+```
+
+Key settings:
+
+| Setting | Description |
+|---------|-------------|
+| Auto-improve | Enable/disable automatic self-improvement |
+| Improve schedule | Frequency: `after_each`, `daily`, `weekly`, `biweekly` |
+| Retention budget | How much to allocate for session retention |
+
+## Minimum balance enforcement
+
+Before executing any chat or tool call, the Agent Gateway checks:
+
+1. Wallet has sufficient available balance
+2. Request would not exceed per-agent budget limits
+3. BYOK key is present (for agent chat)
+
+If any check fails, the request is rejected with a clear error message before any execution or charging occurs.
+
+## Next steps
+
+- [Self-Improvement](/docs/wallet-billing/self-improvement) — how self-improvement spends
+- [Funding](/docs/wallet-billing/funding) — deposit more USDC

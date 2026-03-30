@@ -1,0 +1,108 @@
+---
+title: Server Runtime
+sidebar_position: 3
+---
+
+# Server Runtime
+
+How the MCP Gateway hosts and executes MCP servers on-demand with hardware-backed isolation.
+
+## On-demand execution
+
+MCP servers are not always running. When you enable a server and call one of its tools, the gateway:
+
+1. Pulls the server package from its registry (npm, PyPI, Docker, or Git)
+2. Starts the server in an isolated container
+3. Routes your tool call to the running server
+4. Returns the result with an execution proof
+5. The server stays warm for subsequent calls, then shuts down after inactivity
+
+Package caching ensures fast cold starts — the gateway pre-caches packages from all registries.
+
+## Container sandbox
+
+Each MCP server runs in an isolated Docker container with multiple hardening layers:
+
+| Property | Setting |
+|----------|---------|
+| Root filesystem | Read-only (`--read-only`) |
+| `/tmp` | Mounted as `noexec` |
+| Capabilities | All dropped (`--cap-drop=ALL`) |
+| Privileges | No new privileges (`--security-opt=no-new-privileges`) |
+| User | Non-root inside container |
+| Network | Restricted to specific upstream services |
+| Runtime | Optional gVisor for syscall filtering |
+
+### Secrets in containers
+
+Server secrets (API keys you've stored) are:
+
+- Injected as environment variables (never written to the container filesystem)
+- Redacted from all error paths by the MCP bridge process
+- Recorded by name (not value) in execution proofs for audit
+
+## Package registries
+
+The gateway supports servers from multiple registries:
+
+| Registry | Package format | Example |
+|----------|---------------|---------|
+| **npm** | Node.js packages | `@anthropic/brave-search-mcp-server` |
+| **PyPI** | Python packages | `arxiv-mcp-server` |
+| **Docker** | Container images | `ghcr.io/owner/mcp-server` |
+| **Git** | Git repositories | `https://github.com/owner/mcp-server` |
+
+### Verification tiers
+
+Servers go through tiered verification:
+
+| Tier | Meaning |
+|------|---------|
+| `tools_listed` | Server started and tools were listed successfully |
+| `tool_smoke_passed` | At least one safe runtime tool probe executed successfully |
+
+Continuous discovery runs periodically to refresh marketplace data and improve coverage.
+
+## Per-server endpoints
+
+In addition to the unified `/mcp` endpoint, each server has a dedicated endpoint:
+
+```
+POST /mcp/server/:serverId
+```
+
+This endpoint exposes only that server's tools and validates server existence, security filter status, and runnability before accepting calls.
+
+## Warmup and caching
+
+The gateway pre-caches packages for fast startup:
+
+```bash
+# Check cache status
+curl -s https://mcp.rickydata.org/api/warmup/status | jq '.summary'
+```
+
+A daily cron job at 3 AM UTC refreshes all package caches. Packages are also cached through normal usage when servers are started.
+
+## MCP protocol details
+
+The gateway implements Streamable HTTP transport with JSON-RPC 2.0:
+
+| Method | Description |
+|--------|-------------|
+| `initialize` | MCP handshake |
+| `tools/list` | List available tools (meta-tools + enabled server tools) |
+| `tools/call` | Execute a tool (x402 payment required for non-meta tools) |
+| `notifications/initialized` | Client ready notification |
+
+The endpoint is **stateless** — `GET` and `DELETE` on `/mcp` return 405. Session state is managed through wallet auth and the `X-MCP-Session` header, not through MCP protocol sessions.
+
+### Request constraints
+
+- Maximum serialized argument size for `tools/call`: 100KB
+- Invalid methods or malformed JSON-RPC payloads return standard JSON-RPC errors
+
+## Next steps
+
+- [Agent as MCP](/docs/mcp/agent-as-mcp) — expose agents as MCP endpoints
+- [Architecture — Gateway](/docs/architecture/gateway) — deep dive into gateway internals

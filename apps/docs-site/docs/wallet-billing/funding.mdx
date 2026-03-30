@@ -1,0 +1,132 @@
+---
+title: Funding
+sidebar_position: 2
+---
+
+# Funding Your Wallet
+
+Deposit USDC on Base mainnet to your RickyData wallet to pay for MCP tool calls and agent chat.
+
+## Get your deposit address
+
+```bash
+rickydata wallet balance
+```
+
+This shows your USDC balance and your deposit address on Base mainnet. You can also find it in the marketplace at [marketplace.rickydata.org/#/wallet](https://marketplace.rickydata.org/#/wallet).
+
+{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+
+## Depositing USDC
+
+Send USDC on **Base mainnet** (chain ID 8453) to your deposit address. The token contract is:
+
+```
+0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+```
+
+### From an exchange
+
+1. Withdraw USDC from your exchange
+2. Select **Base** as the network (not Ethereum mainnet)
+3. Paste your RickyData deposit address
+4. Confirm the withdrawal
+
+### From a wallet (MetaMask, etc.)
+
+1. Switch to Base network in your wallet
+2. Send USDC to your deposit address
+3. Transaction confirms in seconds on Base
+
+### How much to deposit
+
+| Usage pattern | Recommended deposit |
+|--------------|-------------------|
+| Casual browsing + occasional tool calls | $1-5 USDC |
+| Regular agent chat sessions | $10-20 USDC |
+| Production agent workloads | $50+ USDC |
+
+At $0.0005 per tool call, $1 USDC covers 2,000 tool calls.
+
+## Checking your balance
+
+### CLI
+
+```bash
+rickydata wallet balance
+```
+
+### SDK
+
+```tsx
+import { useWalletBalance } from '@rickydata/react';
+
+function Balance() {
+  const { data } = useWalletBalance();
+  if (!data) return null;
+  return (
+    <div>
+      <p>Balance: {data.usdcBalance} USDC</p>
+      <p>Deposit: {data.depositAddress}</p>
+    </div>
+  );
+}
+```
+
+### API
+
+```bash
+curl -s https://agents.rickydata.org/wallet/balance \
+  -H "Authorization: Bearer mcpwt_..." | jq .
+```
+
+## Transaction history
+
+```bash
+rickydata wallet transactions
+```
+
+```tsx
+import { useWalletTransactions } from '@rickydata/react';
+
+function History() {
+  const { data: txns } = useWalletTransactions();
+  return (
+    <table>
+      <thead>
+        <tr><th>Type</th><th>Amount</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        {txns?.map(tx => (
+          <tr key={tx.id}>
+            <td>{tx.type}</td>
+            <td>${tx.amount}</td>
+            <td>{new Date(tx.timestamp).toLocaleString()}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+```
+
+## Balance accounting
+
+Your available balance is calculated as:
+
+```
+available = onChainBalance - unsettledSpend - pendingWithdrawals
+```
+
+- **On-chain balance**: USDC at your deposit address (cached, refreshed periodically)
+- **Unsettled spend**: tool calls and chat charges not yet settled on-chain
+- **Pending withdrawals**: withdrawal requests being processed
+
+## Important: Base mainnet only
+
+All USDC must be on **Base mainnet** (chain ID 8453). USDC sent on other networks (Ethereum mainnet, Arbitrum, Optimism, etc.) will not be detected. If you accidentally send on the wrong network, see the [wrong network recovery policy](https://marketplace.rickydata.org/support).
+
+## Next steps
+
+- [Spending Policy](/docs/wallet-billing/spending-policy) — set budgets and limits
+- [Self-Improvement](/docs/wallet-billing/self-improvement) — control automatic spending

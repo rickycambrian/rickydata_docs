@@ -1,0 +1,126 @@
+---
+title: MCP Gateway
+sidebar_position: 2
+---
+
+# MCP Gateway Architecture
+
+The MCP Gateway is a stateless MCP endpoint that hosts thousands of MCP servers on-demand with x402 micropayments and hardware-backed execution proofs.
+
+## Core behavior
+
+- Exposes a stateless MCP endpoint at `POST /mcp`
+- Uses an opt-in discovery model: `tools/list` returns gateway meta-tools by default, server tools only after enablement
+- Supports per-server endpoints at `POST /mcp/server/:serverId`
+- All transport is Streamable HTTP with JSON-RPC 2.0
+
+## Auth model
+
+| Method | Header/Token | Use case |
+|--------|-------------|----------|
+| Wallet token | `Authorization: Bearer mcpwt_...` | Long-lived MCP client auth |
+| JWT | `Authorization: Bearer <jwt>` | Short-lived session auth (24h) |
+| ERC-8128 | Request signature headers | Operator-to-gateway hardened auth |
+
+When both bearer and ERC-8128 are present, ERC-8128 takes precedence. Operator traffic can be hardened with `ERC8128_ENFORCE_OPERATOR_MCP=true` to reject bearer-only requests from operator wallets.
+
+## Secret management
+
+Wallet/server secrets follow this model:
+
+1. **Encryption**: AES-256-GCM with per-user keys
+2. **Key derivation**: HKDF-SHA256 — `KDF(masterKey, walletAddress + salt, serverId)` produces a unique key per wallet per server
+3. **Vault keys**: HMAC-SHA256 — wallet addresses are never stored in plaintext
+4. **Optional persistence**: when `GATEWAY_SECRET_KEY` is configured, secrets persist encrypted at `VAULT_PERSISTENCE_DIR`
+5. **Auto-hydration**: wallet-scoped sessions auto-restore previously configured secrets
+
+## Payment model
+
+The gateway uses the x402 protocol for tool call payments:
+
+1. x402 verifies payment proof pre-execution
+2. Tool executes in sandboxed container
+3. Settlement is deferred until after successful execution
+4. Failed tool calls are never settled (no charge)
+
+Payment details:
+
+| Property | Value |
+|----------|-------|
+| Network | Base mainnet (chain ID 8453) |
+| Token | USDC (`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`) |
+| Price | $0.0005 per tool call |
+| Verification | EIP-712 typed data signature |
+| Settlement | On-chain `transferWithAuthorization` |
+
+## Container sandbox
+
+MCP servers run in Docker containers with:
+
+- Read-only root filesystem
+- `/tmp` mounted as `noexec`
+- All capabilities dropped
+- No new privileges
+- Non-root user
+- Restricted network policy
+- Optional gVisor runtime
+
+Secrets are injected as environment variables, never written to the filesystem. The MCP bridge process redacts secrets from all error paths.
+
+## Attestation and proofs
+
+### TEE attestation
+
+```bash
+curl -s https://mcp.rickydata.org/api/attestation | jq '{teeEnabled, platform, codeHash}'
+```
+
+Endpoints:
+
+| Endpoint | Description |
+|----------|-------------|
+| `/api/attestation` | TEE summary and security properties |
+| `/api/attestation/report` | Raw AMD SEV-SNP report + certificates |
+| `/api/attestation/bundle` | Offline verification bundle |
+| `/api/attestation/security` | Security feature details |
+| `/api/attestation/build-info` | Git commit, source hash, build time |
+| `/api/attestation/provenance` | Signed build provenance metadata |
+
+### Execution proofs
+
+Every tool call returns a proof containing:
+
+- Gateway code hash and git commit
+- Server package and registry digest
+- Request/response SHA-256 hashes
+- HMAC-SHA256 signature (key sealed to vTPM)
+- Timestamp and TEE status
+
+Verify independently:
+
+```bash
+curl -s https://mcp.rickydata.org/api/attestation/bundle | \
+  jq -r '.offlineVerification.script' > verify.sh && bash verify.sh
+```
+
+## REST API
+
+| Endpoint | Method | Cost | Description |
+|----------|--------|------|-------------|
+| `/mcp` | POST | Varies | MCP JSON-RPC endpoint |
+| `/api/servers` | GET | Free | List servers |
+| `/api/servers/:id` | GET | Free | Server details |
+| `/api/servers/:id/tools` | GET | Free | List tools |
+| `/api/servers/:id/tools/:name` | POST | x402 | Call a tool |
+| `/api/auth/challenge` | GET | Free | Auth challenge |
+| `/api/auth/verify` | POST | Free | Verify signature |
+| `/api/auth/create-token` | POST | Free | Create wallet token |
+| `/api/secrets/:serverId` | POST/GET/DELETE | Free | Manage secrets |
+| `/api/payments/config` | GET | Free | Payment configuration |
+| `/api/verify` | POST | x402 | Verify execution proof |
+| `/health` | GET | Free | Gateway health |
+
+## Next steps
+
+- [Agent Gateway](/docs/architecture/agent-gateway) — the agent runtime
+- [Security Model](/docs/architecture/security-model) — full trust chain

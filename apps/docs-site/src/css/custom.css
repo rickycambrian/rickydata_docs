@@ -1,0 +1,200 @@
+/**
+ * RickyData Docs — OKLCH Design System
+ *
+ * All colors use OKLCH. No Tailwind. No hex (except Infima fallbacks).
+ * Fonts: Space Grotesk (headings), DM Sans (body), IBM Plex Mono (code).
+ * Dark theme is default.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Light mode (Infima primary scale + RickyData tokens)               */
+/* ------------------------------------------------------------------ */
+:root {
+  /* Infima primary — warm amber/ochre, hue 70 */
+  --ifm-color-primary: oklch(62% 0.155 70);
+  --ifm-color-primary-dark: oklch(56% 0.155 70);
+  --ifm-color-primary-darker: oklch(52% 0.155 70);
+  --ifm-color-primary-darkest: oklch(44% 0.155 70);
+  --ifm-color-primary-light: oklch(68% 0.14 70);
+  --ifm-color-primary-lighter: oklch(72% 0.14 70);
+  --ifm-color-primary-lightest: oklch(78% 0.12 70);
+
+  /* Typography */
+  --ifm-font-family-base: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ifm-heading-font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ifm-font-family-monospace: "IBM Plex Mono", Menlo, Consolas, monospace;
+  --ifm-font-size-base: 15px;
+  --ifm-code-font-size: 95%;
+
+  /* RickyData design tokens — light mode */
+  --rd-bg: oklch(97% 0.005 60);
+  --rd-surface-0: oklch(94% 0.005 60);
+  --rd-surface-1: oklch(91% 0.005 60);
+  --rd-surface-2: oklch(88% 0.005 60);
+  --rd-text: oklch(20% 0.005 60);
+  --rd-text-secondary: oklch(40% 0.01 60);
+  --rd-muted: oklch(55% 0.01 60);
+  --rd-accent: oklch(62% 0.155 70);
+  --rd-accent-hover: oklch(56% 0.14 70);
+  --rd-accent-subtle: oklch(62% 0.155 70 / 0.08);
+  --rd-accent-2: oklch(50% 0.12 250);
+  --rd-danger: oklch(55% 0.2 25);
+  --rd-border: oklch(80% 0.005 60);
+  --rd-border-active: oklch(70% 0.008 60);
+  --rd-ring: oklch(62% 0.155 70 / 0.3);
+
+  /* Spacing tokens */
+  --rd-space-xs: 0.25rem;
+  --rd-space-sm: 0.5rem;
+  --rd-space-md: 0.75rem;
+  --rd-space-lg: 1rem;
+  --rd-space-xl: 1.5rem;
+  --rd-space-2xl: 2rem;
+  --rd-space-3xl: 3rem;
+  --rd-space-4xl: 4.5rem;
+
+  /* Radii */
+  --rd-radius-sm: 6px;
+  --rd-radius-md: 10px;
+  --rd-radius-lg: 14px;
+
+  /* Motion */
+  --rd-ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --rd-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --rd-duration-fast: 150ms;
+  --rd-duration-normal: 250ms;
+  --rd-duration-slow: 400ms;
+
+  --docusaurus-highlighted-code-line-bg: oklch(90% 0.005 60 / 0.5);
+}
+
+/* ------------------------------------------------------------------ */
+/* Dark mode — default                                                */
+/* ------------------------------------------------------------------ */
+[data-theme='dark'] {
+  /* Infima primary — warm amber/ochre, lighter for dark bg */
+  --ifm-color-primary: oklch(72% 0.14 70);
+  --ifm-color-primary-dark: oklch(66% 0.14 70);
+  --ifm-color-primary-darker: oklch(62% 0.155 70);
+  --ifm-color-primary-darkest: oklch(54% 0.155 70);
+  --ifm-color-primary-light: oklch(78% 0.12 70);
+  --ifm-color-primary-lighter: oklch(82% 0.10 70);
+  --ifm-color-primary-lightest: oklch(88% 0.08 70);
+
+  /* Infima backgrounds — warm chroma, never pure gray */
+  --ifm-background-color: oklch(13% 0.008 60);
+  --ifm-background-surface-color: oklch(17% 0.008 60);
+
+  /* RickyData design tokens — dark mode */
+  --rd-bg: oklch(13% 0.008 60);
+  --rd-surface-0: oklch(17% 0.008 60);
+  --rd-surface-1: oklch(20% 0.007 60);
+  --rd-surface-2: oklch(23% 0.007 60);
+  --rd-text: oklch(90% 0.005 60);
+  --rd-text-secondary: oklch(68% 0.01 60);
+  --rd-muted: oklch(55% 0.01 60);
+  --rd-accent: oklch(72% 0.14 70);
+  --rd-accent-hover: oklch(78% 0.12 70);
+  --rd-accent-subtle: oklch(72% 0.14 70 / 0.08);
+  --rd-accent-2: oklch(70% 0.12 250);
+  --rd-danger: oklch(65% 0.2 25);
+  --rd-border: oklch(30% 0.005 60);
+  --rd-border-active: oklch(38% 0.008 60);
+  --rd-ring: oklch(72% 0.14 70 / 0.3);
+
+  --docusaurus-highlighted-code-line-bg: oklch(25% 0.005 60 / 0.5);
+}
+
+/* ------------------------------------------------------------------ */
+/* Dark navbar / footer — warm chroma backgrounds                     */
+/* ------------------------------------------------------------------ */
+[data-theme='dark'] .navbar {
+  background: oklch(15% 0.008 60);
+  border-bottom: 1px solid oklch(25% 0.005 60);
+}
+
+[data-theme='dark'] .footer {
+  background: oklch(11% 0.008 60);
+  border-top: 1px solid oklch(25% 0.005 60);
+}
+
+/* ------------------------------------------------------------------ */
+/* Code blocks — warm dark background                                 */
+/* ------------------------------------------------------------------ */
+[data-theme='dark'] .prism-code {
+  background-color: oklch(10% 0.005 60) !important;
+}
+
+[data-theme='dark'] pre {
+  background-color: oklch(10% 0.005 60) !important;
+}
+
+/* Inline code */
+code {
+  border-radius: 3px;
+  font-family: var(--ifm-font-family-monospace);
+}
+
+/* ------------------------------------------------------------------ */
+/* Typography                                                         */
+/* ------------------------------------------------------------------ */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ifm-heading-font-family);
+  letter-spacing: -0.02em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Sidebar — no box-shadow, warm borders                              */
+/* ------------------------------------------------------------------ */
+[data-theme='dark'] .theme-doc-sidebar-container {
+  border-right-color: oklch(25% 0.005 60);
+}
+
+/* Sidebar links — warm hover */
+.menu__link:hover {
+  transition: color var(--rd-duration-fast) var(--rd-ease-out-quart),
+              background var(--rd-duration-fast) var(--rd-ease-out-quart);
+}
+
+[data-theme='dark'] .menu__link:hover {
+  background: oklch(20% 0.007 60);
+}
+
+[data-theme='dark'] .menu__link--active {
+  color: oklch(72% 0.14 70);
+}
+
+/* ------------------------------------------------------------------ */
+/* Table of contents — warm active indicator                          */
+/* ------------------------------------------------------------------ */
+[data-theme='dark'] .table-of-contents__link--active {
+  color: oklch(72% 0.14 70);
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons — warm accent                                              */
+/* ------------------------------------------------------------------ */
+.button--primary {
+  transition: background var(--rd-duration-fast) var(--rd-ease-out-quart);
+}
+
+/* ------------------------------------------------------------------ */
+/* Cards / admonitions — warm surfaces                                */
+/* ------------------------------------------------------------------ */
+[data-theme='dark'] .alert {
+  border-color: oklch(30% 0.005 60);
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion                                                     */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

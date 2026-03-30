@@ -1,0 +1,85 @@
+---
+title: UI Operations
+sidebar_position: 2
+---
+
+# Marketplace UI Operations
+
+A walkthrough of common operations in the marketplace web interface.
+
+## Browsing servers
+
+1. Visit [marketplace.rickydata.org](https://marketplace.rickydata.org)
+2. Use the search bar to find servers by name (e.g., "brave", "github", "arxiv")
+3. Browse by category using the sidebar filters
+4. Click a server card to see its details, tools, and verification status
+
+## Enabling a server
+
+1. Connect your wallet (top-right button)
+2. Navigate to a server's detail page
+3. If the server requires API keys, enter them in the secrets form
+4. Click **Enable** — the server's tools become available in your MCP client
+
+Secrets are encrypted per-wallet and stored in the gateway's vault. The marketplace UI never has direct access to the vault — all operations go through the gateway API.
+
+## Managing enabled servers
+
+View your currently enabled servers from the dashboard. For each enabled server you can:
+
+- **View tools** — see the list of tools and their descriptions
+- **Disable** — remove the server from your active tool list
+- **Update secrets** — change API keys if needed
+
+## Chatting with agents
+
+1. Navigate to the **Agents** section
+2. Pick an agent (e.g., erc8004-expert, research-agent)
+3. If you haven't already, store your Anthropic API key via the settings panel
+4. Start chatting — messages stream via SSE with tool call transparency
+
+The chat interface shows:
+
+- **Message bubbles** — your messages and agent responses
+- **Tool calls** — expandable panels showing which tools the agent called and their results
+- **Session info** — current session ID, model, accumulated cost
+
+## Wallet management
+
+Access wallet features from the wallet menu:
+
+### Balance
+
+- View your USDC balance on Base mainnet
+- See your deposit address (send USDC on Base to this address)
+- View transaction history
+
+### Spending budgets
+
+Set per-agent limits:
+
+- **Daily budget** — maximum spend per day per agent
+- **Weekly budget** — rolling 7-day limit
+- **Monthly budget** — rolling 30-day limit
+
+### API key management
+
+- **Store** your Anthropic API key (sk-ant-...)
+- **Check** whether a key is configured (key material is never displayed)
+- **Delete** your stored key
+
+{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+
+## Checking gateway health
+
+The marketplace connects to both gateways. Check their status:
+
+- **MCP Gateway**: `https://mcp.rickydata.org/health`
+- **Agent Gateway**: `https://agents.rickydata.org/health`
+
+Or visit the [status page](/status) for a live health check.
+
+## Next steps
+
+- [Server Publishing](/docs/marketplace/server-publishing) — publish your own servers
+- [Wallet & Billing](/docs/wallet-billing/overview) — detailed billing docs

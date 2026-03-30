@@ -1,0 +1,98 @@
+---
+title: Agents Overview
+sidebar_position: 1
+---
+
+# Agents Overview
+
+The Agent Gateway is a wallet-authenticated runtime for AI agents. Each agent has access to MCP tools, a unified wallet ledger, and session persistence — all running on AMD SEV-SNP Confidential VMs.
+
+## What the Agent Gateway provides
+
+- **BYOK agent chat** — bring your own Anthropic API key for pay-as-you-go economics
+- **MCP tool access** — agents call tools through the MCP Gateway on your behalf
+- **Wallet-scoped sessions** — conversation history, settings, and budgets are tied to your wallet
+- **Self-improvement** — automatic facet extraction and skill synthesis from conversation history
+- **Canvas runtime** — execute multi-step workflow DAGs with agent, tool, and approval nodes
+
+## Available agents
+
+Browse agents at [marketplace.rickydata.org/agents](https://marketplace.rickydata.org) or via the CLI:
+
+```bash
+rickydata agents list
+rickydata agents describe erc8004-expert
+```
+
+The default agent is **erc8004-expert**, a general-purpose research and analysis agent at `https://rickydata.org/agents/erc8004-expert`.
+
+### Via SDK
+
+```typescript
+import { useAgents } from '@rickydata/react';
+
+function AgentList() {
+  const { data: agents } = useAgents();
+  return (
+    <ul>
+      {agents?.map(a => <li key={a.id}>{a.name} — {a.description}</li>)}
+    </ul>
+  );
+}
+```
+
+## Architecture
+
+```
+Your client (CLI, web, SDK)
+    |
+    v
+Agent Gateway (https://agents.rickydata.org)
+    |
+    ├── Wallet auth (challenge/verify → JWT)
+    ├── Session management
+    ├── BYOK API key vault (AES-256-GCM encrypted)
+    ├── Claude chat orchestration + MCP tool executor
+    ├── Unified wallet ledger (balances, budgets, transactions)
+    ├── Self-improvement engine
+    └── Canvas workflow runtime
+         |
+         v
+    MCP Gateway (tool execution)
+```
+
+The Agent Gateway acts as a client of the MCP Gateway. When an agent needs to call a tool, the request is routed through the gateway with wallet-scoped authentication.
+
+## Chat flow
+
+1. Wallet authenticates via challenge/verify and receives a JWT
+2. Client creates an agent session (`POST /agents/:id/sessions`)
+3. Chat endpoint validates ownership, model, and session constraints
+4. BYOK key is resolved from the encrypted wallet vault
+5. Minimum-balance and budget checks run before execution
+6. ChatService executes the model/tool loop, charges the ledger, and emits SSE events
+
+## Costs
+
+| Path | Formula |
+|------|---------|
+| **BYOK** (your Anthropic key) | 10% platform markup on LLM cost + $0.0005 per MCP tool call |
+| **Free tier** | 100 requests/day, default model MiniMax-M2.7 |
+
+## Quick start
+
+```bash
+# Store your API key (one-time)
+rickydata apikey set
+
+# Chat with an agent
+rickydata chat erc8004-expert
+```
+
+Or try the [chat playground](/playground) in your browser.
+
+## Next steps
+
+- [BYOK Chat](/docs/agents/byok-chat) — provider selection and cost details
+- [Sessions](/docs/agents/sessions) — session management and persistence
+- [Voice Chat](/docs/agents/voice) — LiveKit voice interactions

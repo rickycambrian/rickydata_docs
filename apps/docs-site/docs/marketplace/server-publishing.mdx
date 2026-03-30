@@ -1,0 +1,97 @@
+---
+title: Server Publishing
+sidebar_position: 3
+---
+
+# Publishing MCP Servers
+
+Publish your own MCP server to the RickyData marketplace so others can discover and use your tools.
+
+## How servers are discovered
+
+The marketplace discovery pipeline automatically indexes MCP servers from public registries:
+
+1. **npm** — Node.js packages tagged as MCP servers
+2. **PyPI** — Python packages with MCP server metadata
+3. **Docker** — Container images published to registries
+4. **Git** — Public repositories with MCP server implementations
+
+The continuous discovery workflow (`.github/workflows/continuous-discovery-loop.yml`) runs periodically to find new servers and re-verify existing ones.
+
+## Publishing to npm
+
+The most common path. Create an MCP server as an npm package:
+
+1. Implement the MCP protocol (initialize, tools/list, tools/call)
+2. Publish to npm with appropriate keywords and metadata
+3. The discovery pipeline picks it up automatically
+
+### Package requirements
+
+Your `package.json` should include:
+
+```json
+{
+  "name": "@your-org/your-mcp-server",
+  "description": "Description of what your server does",
+  "keywords": ["mcp", "mcp-server"],
+  "bin": {
+    "your-mcp-server": "./dist/index.js"
+  }
+}
+```
+
+### Secrets declaration
+
+If your server requires API keys, declare them so the marketplace can prompt users:
+
+The gateway discovers required secrets by attempting to start your server and observing which environment variables it checks for. You can also declare them explicitly in your server's metadata.
+
+## Publishing to PyPI
+
+Python MCP servers work the same way:
+
+1. Implement the MCP protocol in Python
+2. Publish to PyPI
+3. The gateway uses `uv` (verified with SHA-256 checksum) to install and run Python packages
+
+## Publishing via Docker
+
+For servers that need a custom runtime:
+
+1. Build a Docker image that implements the MCP protocol
+2. Push to a public container registry (ghcr.io, Docker Hub, etc.)
+3. The gateway pulls and runs your image in its sandboxed environment
+
+Docker servers run with the same sandbox properties as all servers (read-only FS, no capabilities, non-root user, restricted network).
+
+## Verification process
+
+After discovery, your server goes through verification:
+
+### Tier 1: `tools_listed`
+
+The gateway:
+1. Pulls your package
+2. Starts it in a sandbox container
+3. Sends `initialize` and `tools/list` MCP messages
+4. If tools are returned, the server is marked as `tools_listed`
+
+### Tier 2: `tool_smoke_passed`
+
+The gateway additionally:
+1. Selects safe, read-only tools
+2. Runs a probe call with sample arguments
+3. If at least one tool returns successfully, the server is marked as `tool_smoke_passed`
+
+## Best practices
+
+- **Declare your tools clearly** — good `name` and `description` fields help users find and understand your tools
+- **Handle secrets gracefully** — check for required environment variables at startup and return clear error messages if missing
+- **Keep responses reasonable** — the gateway enforces a 100KB max argument size for `tools/call`
+- **Test locally first** — run your server locally with an MCP client before publishing
+
+## Next steps
+
+- [Server Runtime](/docs/mcp/server-runtime) — how the gateway hosts servers
+- [MCP Overview](/docs/mcp/overview) — the gateway architecture

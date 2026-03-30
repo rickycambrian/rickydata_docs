@@ -1,0 +1,132 @@
+---
+title: Agent Gateway
+sidebar_position: 3
+---
+
+# Agent Gateway Architecture
+
+The Agent Gateway is a wallet-authenticated runtime for AI agents, handling BYOK chat, MCP tool delegation, canvas workflows, the unified wallet ledger, and self-improvement.
+
+## Runtime components
+
+```
+auth/                Wallet challenge/verify + JWT session auth
+chat/                Claude chat orchestration + MCP tool executor
+balance/             Unified ledger + budget checks + pricing
+secrets/             Encrypted BYOK API key vault
+routes/              Agent/chat/wallet/canvas/self-improvement APIs
+canvas/executor/     Typed DAG runtime + approvals + GitHub + team mode
+reflect/             Self-improvement engine, scheduler, facet extraction
+```
+
+## Session and chat flow
+
+1. **Authenticate**: wallet challenge/verify produces JWT
+2. **Create session**: `POST /agents/:id/sessions`
+3. **Validate**: ownership, model, session constraints checked
+4. **Resolve BYOK key**: decrypted from per-wallet vault at call time
+5. **Budget check**: minimum balance and per-agent limits enforced
+6. **Execute**: ChatService runs model/tool loop, charges ledger, emits SSE events
+
+## BYOK and billing
+
+### Cost formulas
+
+| Path | Formula |
+|------|---------|
+| **BYOK** | `platformCost = 10% × baseLlmCost + $0.0005 × toolCalls` |
+| **Non-BYOK** (internal) | `platformCost = baseLlmCost × 1.15 + $0.0005 × toolCalls` |
+
+The chat route requires a BYOK key (`ANTHROPIC_API_KEY`) in the vault. If no key exists, the request is rejected with guidance on how to store one.
+
+## API key vault
+
+Per-wallet encrypted storage for BYOK Anthropic API keys:
+
+| Property | Implementation |
+|----------|---------------|
+| Encryption | AES-256-GCM with per-user HKDF-derived keys |
+| Vault keys | HMAC-SHA256 (wallet addresses never stored in plaintext) |
+| Persistence | Optional encrypted persistence via `LEDGER_ENCRYPTION_KEY` + `VAULT_PERSISTENCE_DIR` |
+| Production mode | Can fail-closed if persistent vault is unavailable |
+
+The status endpoint (`GET /wallet/apikey`) returns only configuration state, never key material.
+
+## Unified wallet ledger
+
+| Feature | Description |
+|---------|-------------|
+| One deposit address | Per wallet, USDC on Base mainnet |
+| Balance tracking | On-chain balance cache + off-chain spend accounting |
+| Pending withdrawals | Tracked separately from available balance |
+| Per-agent budgets | Daily, weekly, monthly limits |
+| Transaction history | Full spend/audit visibility |
+| Withdrawal guardrails | Rate and amount limits |
+
+### Balance calculation
+
+```
+available = onChainBalance - unsettledSpend - pendingWithdrawals
+```
+
+## MCP Gateway integration
+
+The Agent Gateway acts as a client of the MCP Gateway:
+
+- **Operator path**: ERC-8128 signed requests for integrity and replay protection
+- **Per-wallet delegated path**: ES256 JWTs signed with `MCP_SIGNING_KEY` (TPM-sealed), verified by MCP Gateway via JWKS
+- **x402 tool costs**: integrated in the MCP execution path
+
+### Cross-gateway auth
+
+The Agent Gateway's ES256 public key is:
+- Published at `GET /.well-known/jwks.json`
+- Hash bound into the AMD attestation report (`REPORT_DATA[32:48]`)
+- Verified by MCP Gateway with trust states: `trusted`, `degraded_hash_mismatch`, `degraded_no_attestation`
+
+## Canvas runtime
+
+Canvas execution at `/canvas/workflows/execute/stream`:
+
+- Topological node execution with typed runtime
+- Node status/log events streamed via SSE
+- Approval-gated write flows (enforced — write nodes require upstream approval)
+- GitHub nodes for repository operations
+- Browser verification nodes
+- Team mode with orchestrator + teammate collaboration (feature-flagged)
+
+## Self-improvement
+
+Wallet-scoped endpoints at `/wallet/self-improvement/*`:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/status` | GET | Current status and configuration |
+| `/trigger` | POST | Manually trigger a run |
+| `/history` | GET | Past run history |
+
+Scheduling: `after_each`, `daily`, `weekly`, `biweekly` via `PUT /wallet/settings`.
+
+The pipeline extracts facets from conversation history and synthesizes reusable learnings/skills.
+
+## TEE attestation
+
+The Agent Gateway runs on its own AMD SEV-SNP Confidential VM with matching attestation endpoints:
+
+| Endpoint | Description |
+|----------|-------------|
+| `/api/attestation` | TEE summary |
+| `/api/attestation/report` | AMD SNP report |
+| `/api/attestation/security` | Security features |
+| `/api/attestation/build-info` | Build metadata |
+| `/api/attestation/provenance` | Signed build provenance |
+
+```bash
+# Check security posture
+curl -s https://agents.rickydata.org/health | jq '.securityPosture'
+```
+
+## Next steps
+
+- [Security Model](/docs/architecture/security-model) — full TEE trust chain
+- [MCP Gateway](/docs/architecture/gateway) — the tool execution layer

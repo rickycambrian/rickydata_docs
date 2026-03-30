@@ -1,0 +1,148 @@
+---
+title: SDK Overview
+sidebar_position: 1
+---
+
+# SDK Overview
+
+The `rickydata` SDK is the unified TypeScript client for the RickyData platform. It covers MCP tool discovery and execution, agent chat, canvas workflows, KFDB data access, and wallet management.
+
+## Packages
+
+| Package | Import | Purpose |
+|---------|--------|---------|
+| **core** | `import { MCPGateway, KFDBClient, SpendingWallet } from 'rickydata'` | Gateway client, KFDB client, spending wallet, auth manager |
+| **react** | `import { useFreeTierStatus, useAgentChat } from '@rickydata/react'` | React hooks and components for wallet, agents, and chat UI |
+| **chat** | `import { AgentChatEmbed } from '@rickydata/chat'` | Embeddable agent chat component |
+
+## Install
+
+```bash
+npm install rickydata          # Core SDK + CLI
+npm install @rickydata/react   # React hooks and components
+npm install @rickydata/chat    # Chat embed component
+```
+
+## Core capabilities
+
+### MCP Gateway — discover and call tools
+
+```typescript
+import { MCPGateway } from 'rickydata';
+
+const gw = new MCPGateway({ url: 'https://mcp.rickydata.org' });
+
+// Browse (free, no auth)
+const servers = await gw.listServers();
+const tools = await gw.listTools('brave-search-mcp-server');
+
+// Call tools (requires wallet auth + payment)
+const result = await gw.callTool(
+  'brave-search-mcp-server',
+  'brave_web_search',
+  { query: 'MCP protocol' }
+);
+```
+
+See [MCP Gateway](/docs/sdk/mcp-gateway) for full details including authentication and spending wallets.
+
+### KFDB — read and write entity data
+
+```typescript
+import { KFDBClient } from 'rickydata';
+
+const kfdb = new KFDBClient({
+  baseUrl: 'http://34.60.37.158',
+  apiKey: process.env.KFDB_API_KEY!,
+});
+
+// Global read (default)
+const servers = await kfdb.listEntities('MCPServer', { limit: 10 });
+
+// Private read
+const notes = await kfdb.withScope('private').listEntities('Note', { limit: 25 });
+```
+
+See [KFDB Client](/docs/sdk/kfdb-client) for the full scope model.
+
+### Agent chat
+
+```typescript
+import { A2AClient } from 'rickydata/a2a';
+
+const client = new A2AClient({
+  baseUrl: 'https://agents.rickydata.org',
+  token: 'mcpwt_...',
+});
+await client.storeApiKey('sk-ant-...');
+
+const task = await client.sendMessage({
+  message: {
+    role: 'user',
+    parts: [{ type: 'text', text: 'Research MCP protocol' }],
+  },
+  metadata: { agentId: 'research-agent' },
+});
+```
+
+### Canvas workflows
+
+```typescript
+import { CanvasClient, AuthManager } from 'rickydata';
+
+const auth = new AuthManager('https://agents.rickydata.org', 'mcpwt_...');
+const canvas = new CanvasClient({ auth });
+
+for await (const event of canvas.executeWorkflow({
+  nodes: [
+    { id: 'input', type: 'textInputNode', data: { value: 'Summarize MCP' } },
+    { id: 'agent', type: 'agentNode', data: { prompt: 'Summarize', model: 'haiku' } },
+    { id: 'output', type: 'resultsNode', data: {} },
+  ],
+  connections: [
+    { source: 'input', target: 'agent' },
+    { source: 'agent', target: 'output' },
+  ],
+})) {
+  if (event.type === 'run_completed') console.log('Results:', event.data.results);
+}
+```
+
+### Agent as MCP server
+
+Expose any agent as an MCP endpoint:
+
+```typescript
+import { AgentMCPClient } from 'rickydata';
+
+const client = new AgentMCPClient({ token: 'mcpwt_...' });
+const tools = await client.listTools('research-agent');
+const result = await client.callTool('research-agent', 'web_research', { topic: 'MCP' });
+```
+
+## Error handling
+
+All errors extend `MCPGatewayError`. Key subtypes:
+
+| Error | When |
+|-------|------|
+| `SpendingLimitExceededError` | A spending policy limit was hit |
+| `CircuitBreakerTrippedError` | Too many consecutive failures |
+| `EndpointNotAllowedError` | URL not in the endpoint allowlist |
+| `DuplicatePaymentError` | Duplicate payment detected within dedup window |
+| `PaymentSigningError` | x402 payment signature failed |
+
+## Architecture
+
+| Service | URL | Purpose |
+|---------|-----|---------|
+| MCP Gateway | `https://mcp.rickydata.org` | MCP server hosting + tool proxy |
+| Agent Gateway | `https://agents.rickydata.org` | BYOK Claude agents + canvas runtime |
+| Marketplace | `https://marketplace.rickydata.org` | Browse + manage servers |
+
+## Next steps
+
+- [MCP Gateway](/docs/sdk/mcp-gateway) — full search/enable/call/disable flow
+- [KFDB Client](/docs/sdk/kfdb-client) — scope model and data access
+- [React Hooks](/docs/sdk/react-hooks) — build wallet-aware React UIs
+- [Chat Components](/docs/sdk/chat-components) — embed agent chat

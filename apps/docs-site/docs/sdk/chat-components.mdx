@@ -1,0 +1,230 @@
+---
+title: Chat Components
+sidebar_position: 5
+---
+
+# Chat Components
+
+Embed agent chat in your application using components from `@rickydata/react` and `@rickydata/chat`.
+
+## AgentChatEmbed
+
+The `AgentChatEmbed` component from `@rickydata/chat` provides a full-featured chat interface with streaming responses, tool execution display, and session management.
+
+```bash
+npm install @rickydata/chat
+```
+
+### Basic usage
+
+```tsx
+import { AgentChatEmbed } from '@rickydata/chat';
+
+function ChatPage() {
+  return (
+    <AgentChatEmbed
+      agentId="erc8004-expert"
+      token="mcpwt_..."
+      gatewayUrl="https://agents.rickydata.org"
+    />
+  );
+}
+```
+
+### In Docusaurus (SSG-safe)
+
+Since Docusaurus pre-renders pages at build time, wrap chat components with `BrowserOnly`:
+
+```mdx
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+<BrowserOnly fallback={<p>Connect wallet to try the chat playground</p>}>
+  {() => {
+    const { AgentChatEmbed } = require('@rickydata/chat');
+    return (
+      <AgentChatEmbed
+        agentId="erc8004-expert"
+        gatewayUrl="https://agents.rickydata.org"
+      />
+    );
+  }}
+</BrowserOnly>
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `agentId` | `string` | required | Agent to chat with |
+| `token` | `string` | — | Wallet token for authentication |
+| `gatewayUrl` | `string` | `'https://agents.rickydata.org'` | Agent Gateway URL |
+| `sessionId` | `string` | — | Resume an existing session |
+| `model` | `string` | — | Override default model |
+| `className` | `string` | — | Additional CSS class |
+
+## Building custom chat with useAgentChat
+
+For full control over the chat UI, use the `useAgentChat` hook directly:
+
+```tsx
+import { useAgentChat } from '@rickydata/react';
+
+function CustomChat() {
+  const {
+    messages,
+    sendMessage,
+    isStreaming,
+    error,
+    sessionId,
+    toolApprovals,
+    approveToolCall,
+    rejectToolCall,
+  } = useAgentChat({
+    agentId: 'erc8004-expert',
+  });
+
+  return (
+    <div className="chat-container">
+      <div className="messages">
+        {messages.map((msg, i) => (
+          <div key={i} className={`message message-${msg.role}`}>
+            {msg.parts.map((part, j) => {
+              if (part.type === 'text') return <p key={j}>{part.text}</p>;
+              if (part.type === 'tool_result') {
+                return (
+                  <details key={j}>
+                    <summary>Tool: {part.toolName}</summary>
+                    <pre>{JSON.stringify(part.result, null, 2)}</pre>
+                  </details>
+                );
+              }
+              return null;
+            })}
+          </div>
+        ))}
+      </div>
+
+      {/* Tool approval UI */}
+      {toolApprovals.map((approval) => (
+        <div key={approval.id} className="approval-prompt">
+          <p>Agent wants to call: {approval.toolName}</p>
+          <button onClick={() => approveToolCall(approval.id)}>Approve</button>
+          <button onClick={() => rejectToolCall(approval.id)}>Reject</button>
+        </div>
+      ))}
+
+      {/* Input */}
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        const input = e.currentTarget.elements.namedItem('msg') as HTMLInputElement;
+        if (input.value.trim()) {
+          sendMessage(input.value);
+          input.value = '';
+        }
+      }}>
+        <input
+          name="msg"
+          disabled={isStreaming}
+          placeholder={isStreaming ? 'Agent is responding...' : 'Ask something...'}
+          autoComplete="off"
+        />
+        <button type="submit" disabled={isStreaming}>Send</button>
+      </form>
+
+      {error && <p className="error">{error.message}</p>}
+    </div>
+  );
+}
+```
+
+## Voice chat
+
+For voice interactions, use `useAgentVoiceChat` which integrates LiveKit for real-time audio:
+
+```tsx
+import { useAgentVoiceChat, speakNarration } from '@rickydata/react';
+
+function VoiceAgent() {
+  const {
+    isConnected,
+    phase,       // 'idle' | 'connecting' | 'listening' | 'thinking' | 'speaking'
+    transcripts,
+    toolCalls,
+    connect,
+    disconnect,
+  } = useAgentVoiceChat({ agentId: 'erc8004-expert' });
+
+  return (
+    <div>
+      <p>Status: {phase}</p>
+
+      <button onClick={isConnected ? disconnect : connect}>
+        {isConnected ? 'End call' : 'Start voice chat'}
+      </button>
+
+      <div className="transcript">
+        {transcripts.map((t, i) => (
+          <p key={i}><strong>{t.speaker}:</strong> {t.text}</p>
+        ))}
+      </div>
+
+      {toolCalls.length > 0 && (
+        <div className="tools">
+          <h4>Tools called</h4>
+          {toolCalls.map((tc, i) => (
+            <p key={i}>{tc.name}: {tc.status}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+## Helper components
+
+### SecretForm
+
+Collect API keys from users for MCP servers that require authentication:
+
+```tsx
+import { SecretForm } from '@rickydata/react';
+
+<SecretForm
+  serverId="brave-search-mcp-server"
+  secrets={[
+    { name: 'BRAVE_API_KEY', label: 'Brave API Key', required: true },
+  ]}
+  onSaved={() => console.log('Secrets stored')}
+/>
+```
+
+### SecretOrchestrator
+
+Multi-step secret collection flow for servers with multiple required keys:
+
+```tsx
+import { SecretOrchestrator } from '@rickydata/react';
+
+<SecretOrchestrator
+  serverId="github-mcp-server"
+  onComplete={() => console.log('All secrets configured')}
+/>
+```
+
+### DepositPanel
+
+USDC deposit interface with QR code for the wallet's deposit address:
+
+```tsx
+import { DepositPanel } from '@rickydata/react';
+
+<DepositPanel />
+```
+
+{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+
+## Next steps
+
+- [React Hooks](/docs/sdk/react-hooks) — all available hooks
+- [Agents Overview](/docs/agents/overview) — agent gateway architecture

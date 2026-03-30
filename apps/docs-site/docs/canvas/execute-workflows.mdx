@@ -1,0 +1,209 @@
+---
+title: Execute Workflows
+sidebar_position: 2
+---
+
+# Executing Canvas Workflows
+
+How to run workflows, handle streaming events, and manage approval gates.
+
+## SDK execution (streaming)
+
+```typescript
+import { CanvasClient, AuthManager } from 'rickydata';
+
+const auth = new AuthManager('https://agents.rickydata.org', 'mcpwt_...');
+const canvas = new CanvasClient({ auth });
+
+for await (const event of canvas.executeWorkflow({
+  nodes: [
+    {
+      id: 'input',
+      type: 'textInputNode',
+      data: { value: 'Summarize the MCP protocol' },
+    },
+    {
+      id: 'agent',
+      type: 'agentNode',
+      data: { prompt: 'Summarize the following input', model: 'haiku' },
+    },
+    {
+      id: 'output',
+      type: 'resultsNode',
+      data: {},
+    },
+  ],
+  connections: [
+    { source: 'input', target: 'agent' },
+    { source: 'agent', target: 'output' },
+  ],
+})) {
+  switch (event.type) {
+    case 'node_started':
+      console.log(`Starting: ${event.data.nodeId}`);
+      break;
+    case 'node_completed':
+      console.log(`Done: ${event.data.nodeId}`);
+      break;
+    case 'node_error':
+      console.error(`Error at ${event.data.nodeId}: ${event.data.error}`);
+      break;
+    case 'approval_required':
+      console.log(`Approval needed: ${event.data.approvalId}`);
+      // See "Handling approval gates" below
+      break;
+    case 'run_completed':
+      console.log('Results:', event.data.results);
+      break;
+  }
+}
+```
+
+## SDK execution (synchronous)
+
+Wait for the complete result:
+
+```typescript
+const result = await canvas.executeWorkflowSync({
+  nodes: [...],
+  connections: [...],
+}, {
+  timeout: 60000, // 60 second timeout
+});
+
+console.log(result.status);  // 'completed' | 'failed' | 'approval_pending'
+console.log(result.results);
+```
+
+## CLI execution
+
+```bash
+# Execute by entity ID (streams progress)
+rickydata canvas execute <entity-id> --verbose
+
+# Execute a local file
+rickydata canvas execute ./workflow.canvas.json --verbose
+```
+
+The `--verbose` flag shows node-level progress in real time.
+
+## Handling approval gates
+
+When a workflow hits an approval node, execution pauses and emits an `approval_required` event:
+
+```typescript
+case 'approval_required':
+  const { approvalId, nodeId, description } = event.data;
+
+  // Present to user, then approve or reject
+  const approved = await askUser(description);
+
+  await canvas.approveGate(runId, approvalId, {
+    decision: approved ? 'approve' : 'reject',
+    reason: 'Reviewed and approved',
+  });
+  break;
+```
+
+### Why approval gates exist
+
+Write-capable nodes (GitHub pushes, data mutations) require an upstream approval gate in the workflow graph. The canvas runtime enforces this topological constraint — if a write node has no approval gate in its upstream path, the workflow is rejected at validation time.
+
+## Event types
+
+The SSE stream emits these event types:
+
+| Event | When | Data |
+|-------|------|------|
+| `run_started` | Workflow execution begins | `{ runId }` |
+| `node_started` | A node begins execution | `{ nodeId, nodeType }` |
+| `node_log` | Progress update from a node | `{ nodeId, message }` |
+| `node_completed` | A node finishes successfully | `{ nodeId, output }` |
+| `node_error` | A node fails | `{ nodeId, error }` |
+| `approval_required` | Approval gate reached | `{ approvalId, nodeId, description }` |
+| `run_completed` | All nodes finished | `{ status, results }` |
+| `run_failed` | Workflow failed | `{ error }` |
+
+## Managing workflows
+
+### List saved workflows
+
+```typescript
+const workflows = await canvas.listWorkflows();
+workflows.forEach(w => console.log(w.id, w.name));
+```
+
+### Save a workflow
+
+```typescript
+await canvas.saveWorkflow({
+  name: 'Research and summarize',
+  nodes: [...],
+  connections: [...],
+});
+```
+
+### List runs
+
+```typescript
+const runs = await canvas.listRuns();
+runs.forEach(r => console.log(r.id, r.status, r.startedAt));
+```
+
+### Get run details
+
+```typescript
+const run = await canvas.getRun('run-id');
+console.log(run.status, run.results);
+```
+
+## API reference
+
+### CanvasClient
+
+| Method | Description |
+|--------|-------------|
+| `executeWorkflow(request, signal?)` | SSE streaming execution (async generator) |
+| `executeWorkflowSync(request, options?)` | Wait for complete result |
+| `listWorkflows()` | List saved workflows |
+| `saveWorkflow(workflow)` | Save a new workflow |
+| `listRuns()` | List execution runs |
+| `getRun(runId)` | Get run details |
+| `approveGate(runId, approvalId, decision)` | Approve/reject an approval gate |
+
+## Example: research workflow
+
+A workflow that searches for papers, summarizes them, and creates a GitHub issue:
+
+```typescript
+const workflow = {
+  nodes: [
+    { id: 'topic', type: 'textInputNode', data: { value: 'Zero-knowledge proofs in MCP' } },
+    { id: 'search', type: 'mcpToolNode', data: {
+      serverId: 'arxiv-mcp-server', tool: 'search_papers', args: { max_results: 5 }
+    }},
+    { id: 'summarize', type: 'agentNode', data: {
+      prompt: 'Summarize these papers into a brief report', model: 'sonnet'
+    }},
+    { id: 'approve', type: 'approvalNode', data: {
+      description: 'Review summary before creating GitHub issue'
+    }},
+    { id: 'github', type: 'githubNode', data: {
+      action: 'create_issue', repo: 'my-org/research', title: 'Research: ZK + MCP'
+    }},
+    { id: 'output', type: 'resultsNode', data: {} },
+  ],
+  connections: [
+    { source: 'topic', target: 'search' },
+    { source: 'search', target: 'summarize' },
+    { source: 'summarize', target: 'approve' },
+    { source: 'approve', target: 'github' },
+    { source: 'github', target: 'output' },
+  ],
+};
+```
+
+## Next steps
+
+- [Canvas Overview](/docs/canvas/overview) — node types and CLI usage
+- [Agent as MCP](/docs/mcp/agent-as-mcp) — agents in canvas use MCP internally

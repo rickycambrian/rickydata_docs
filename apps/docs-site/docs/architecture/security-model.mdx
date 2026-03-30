@@ -1,0 +1,183 @@
+---
+title: Security Model
+sidebar_position: 4
+---
+
+# Security Model
+
+The RickyData platform runs on AMD SEV-SNP Confidential VMs with 10 defense-in-depth layers. Every security claim is independently verifiable — you never need to trust the gateway itself.
+
+**Live verification**: [marketplace.rickydata.org/security](https://marketplace.rickydata.org/security) — interactive page that calls real gateway endpoints and shows raw proof payloads.
+
+## Defense-in-depth layers
+
+| Layer | Technology | What it protects |
+|-------|-----------|-----------------|
+| 1. Hardware | AMD SEV-SNP | Memory encryption — hypervisor cannot read VM RAM |
+| 2. Code identity | SHA-256 hash pinning | Proves exactly which code version is running |
+| 3. Build provenance | Signed CI/CD metadata | Links deployed image to specific GitHub commit |
+| 4. Secrets | vTPM PCR-bound keys | Platform secrets sealed to hardware |
+| 5. Wallet isolation | AES-256-GCM + HKDF | Each user's secrets encrypted with wallet-derived keys |
+| 6. Authentication | Wallet tokens + ES256 | Cryptographic proof of wallet ownership |
+| 7. Sandbox | Docker + gVisor + read-only FS | MCP servers run in isolated containers |
+| 8. Payments | x402 conditional settlement | Charge only on success, EIP-712 signed |
+| 9. Output protection | Secret redaction | Secrets never appear in logs or responses |
+| 10. Release guard | Attestation-gated | Secrets blocked if attestation is degraded |
+
+## Layer 1: AMD SEV-SNP hardware
+
+Both gateways run inside AMD SEV-SNP Confidential VMs on Google Cloud:
+
+- All VM memory is encrypted — the cloud hypervisor cannot read it
+- Memory tampering is detected by the CPU
+- Attestation reports are signed by a key burned into the AMD chip at the factory
+
+```bash
+# Verify AMD attestation
+curl -s https://mcp.rickydata.org/api/attestation/report > report.json
+curl -s https://kdsintf.amd.com/vlek/v1/Milan/cert_chain -o amd_chain.pem
+jq -r '.certificates.vcek' report.json > vcek.pem
+openssl verify -CAfile amd_chain.pem vcek.pem
+# Expected: vcek.pem: OK
+```
+
+## Layer 2: Code identity
+
+The gateway computes SHA-256 over its own JS artifacts at startup. This hash is:
+
+1. Embedded in the AMD attestation report (`REPORT_DATA` field)
+2. Compared against `PUBLISHED_CODE_HASH` from CI/CD
+3. Included in every execution proof
+
+If anyone modifies the code, the hash changes and all verification fails.
+
+## Layer 3: Build provenance
+
+Deployed images include signed CI/CD metadata:
+
+```bash
+curl -s https://mcp.rickydata.org/api/attestation/provenance | \
+  jq '{commit: .source.gitCommit, digest: .image.digest}'
+```
+
+Includes git commit SHA, OCI image digest, attestation bundle hash, and verification hints.
+
+## Layer 4: TPM-sealed secrets
+
+Platform secrets are sealed to the vTPM using PCR-bound policy (`sha256:0,1,2,3,4,5,7`):
+
+**MCP Gateway** (3 secrets):
+
+| Secret | Purpose |
+|--------|---------|
+| `JWT_SECRET` | Signs MCP gateway session tokens |
+| `GATEWAY_SECRET_KEY` | Derives vault encryption keys + signs execution proofs |
+| `GATEWAY_PROOF_PRIVATE_KEY_B64` | Ed25519 key for offline-verifiable proof signatures |
+
+**Agent Gateway** (3 secrets):
+
+| Secret | Purpose |
+|--------|---------|
+| `JWT_SECRET` | Signs agent gateway session tokens |
+| `LEDGER_ENCRYPTION_KEY` | Derives vault encryption keys for BYOK API keys |
+| `MCP_SIGNING_KEY` | ES256 key for per-wallet MCP JWTs (cross-gateway auth) |
+
+All secrets are unsealed at startup via `tpm2_unseal` (persistent handle `0x81000099`). If the VM's boot chain changes, unsealing fails.
+
+## Layer 5: Wallet-scoped isolation
+
+User secrets are encrypted per-wallet:
+
+1. **HKDF-SHA256 key derivation**: `KDF(masterKey, walletAddress + salt, serverId)` per wallet per server
+2. **AES-256-GCM encryption**: each secret independently encrypted
+3. **HMAC-SHA256 vault keys**: wallet addresses never stored in plaintext
+4. **Secure wipe**: derived keys zeroed from memory after use
+
+Wallet A's secrets are cryptographically inaccessible to wallet B.
+
+## Layer 6: Authentication
+
+Three wallet-based auth methods:
+
+| Method | Properties |
+|--------|-----------|
+| **Wallet token** (`mcpwt_`) | Self-verifying via `ecrecover`, zero server storage, long-lived |
+| **JWT** (24h) | Challenge-response with one-time nonce |
+| **ES256 JWKS** | Cross-gateway auth, public key hash bound in attestation report |
+
+## Layer 7: Container sandbox
+
+MCP servers run with: read-only FS, `noexec /tmp`, all capabilities dropped, no new privileges, non-root user, restricted network, optional gVisor.
+
+## Layer 8: x402 payments
+
+- EIP-712 signed `TransferWithAuthorization` (ERC-3009)
+- Conditional settlement: only settled after successful tool execution
+- In-flight nonce guard prevents concurrent replay
+- Fail-closed if all RPC nodes unavailable
+
+## Layer 9: Secret redaction
+
+All output paths are scrubbed before reaching clients:
+
+- `sk-ant-*` (Anthropic keys), `mcpwt_*` (wallet tokens), bearer tokens
+- Key-value pairs with sensitive names (`SECRET`, `TOKEN`, `PASSWORD`, `API_KEY`)
+- Deep-traversal of SSE events (text, tool results, errors)
+
+## Layer 10: Release guard
+
+Before decrypting vault secrets, the system checks attestation state. In enforced mode, degraded attestation blocks secret release entirely.
+
+## Trust chain visualization
+
+```
+AMD Factory (Root of Trust)
+    |
+    v
+VCEK Certificate (burned into CPU chip)
+    |
+    v
+AMD SEV-SNP Attestation Report
+    |  (signs REPORT_DATA containing code hash + JWKS key hash)
+    v
+Gateway Code Hash (SHA-256 over dist/**/*.js)
+    |  - matches PUBLISHED_CODE_HASH from CI/CD
+    |  - embedded in every execution proof
+    v
+Build Provenance (GitHub Actions + attestation bundle)
+    v
+vTPM PCR-Bound Secrets (sha256:0,1,2,3,4,5,7)
+    |  handle 0x81000099, only this TEE can unseal
+    v
+Per-Wallet Encrypted Vault (AES-256-GCM + HKDF)
+    v
+Execution Proof Signatures (Ed25519 / HMAC-SHA256)
+    v
+Verified Tool Call Result
+```
+
+## Quick verification commands
+
+```bash
+# Full TEE status
+curl -s https://mcp.rickydata.org/api/attestation | jq '{teeEnabled, platform}'
+
+# Agent Gateway security posture
+curl -s https://agents.rickydata.org/health | jq '.securityPosture'
+
+# Cross-gateway trust
+curl -s https://mcp.rickydata.org/health | jq '.crossGatewayTrust'
+
+# Build provenance
+curl -s https://mcp.rickydata.org/api/attestation/provenance | jq '{source, image}'
+
+# Offline verification
+curl -s https://mcp.rickydata.org/api/attestation/bundle | \
+  jq -r '.offlineVerification.script' > verify.sh && bash verify.sh
+```
+
+## Next steps
+
+- [Architecture Overview](/docs/architecture/overview) — system topology
+- [MCP Gateway](/docs/architecture/gateway) — gateway internals
+- [Agent Gateway](/docs/architecture/agent-gateway) — agent runtime

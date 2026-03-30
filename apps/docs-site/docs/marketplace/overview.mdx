@@ -1,0 +1,70 @@
+---
+title: Marketplace Overview
+sidebar_position: 1
+---
+
+# Marketplace Overview
+
+The RickyData Marketplace is the web interface for browsing MCP servers, managing your tool inventory, and chatting with AI agents.
+
+**URL:** [marketplace.rickydata.org](https://marketplace.rickydata.org)
+
+## What you can do
+
+| Feature | Auth required | Cost |
+|---------|--------------|------|
+| Browse servers and tools | No | Free |
+| Search by name or category | No | Free |
+| View server details, tools, verification status | No | Free |
+| Enable/disable servers | Yes (wallet) | Free |
+| Store API keys for servers | Yes (wallet) | Free |
+| Chat with agents | Yes (wallet + BYOK) | Pay-per-use |
+| View wallet balance and transactions | Yes (wallet) | Free |
+| Manage spending budgets | Yes (wallet) | Free |
+
+## Server discovery
+
+The marketplace indexes servers from multiple registries (npm, PyPI, Docker, Git). Each server listing shows:
+
+- **Name and description** — what the server does
+- **Tool count** — number of tools available
+- **Registry** — where the package comes from
+- **Verification tier** — `tools_listed` or `tool_smoke_passed`
+- **Categories** — browseable groupings
+- **Secrets required** — whether the server needs API keys
+
+### Verification tiers
+
+| Tier | Meaning | Trust level |
+|------|---------|------------|
+| `tools_listed` | Server started successfully and its tools were enumerated | Basic — server runs |
+| `tool_smoke_passed` | At least one tool probe executed successfully | Higher — tools actually work |
+
+Continuous discovery workflows periodically re-verify servers and update the marketplace.
+
+## Security trust chain
+
+The marketplace includes a security verification page at [marketplace.rickydata.org/security](https://marketplace.rickydata.org/security) that calls real gateway endpoints and shows:
+
+- AMD SEV-SNP attestation status
+- Code hash integrity (runtime vs published)
+- Build provenance (git commit, image digest)
+- Key source verification (vTPM PCR-bound)
+- Cross-gateway trust state
+
+Every claim is independently verifiable — you never need to trust the gateway itself.
+
+## Authentication
+
+The marketplace uses wallet-based authentication via Privy:
+
+1. Click **Connect Wallet** in the header
+2. Sign in with email, Google, GitHub, Discord, or any Web3 wallet
+3. Your wallet address becomes your identity
+
+All secrets, enablement state, budgets, and sessions are scoped to your wallet.
+
+## Next steps
+
+- [UI Operations](/docs/marketplace/ui-operations) — how to use the web interface
+- [Server Publishing](/docs/marketplace/server-publishing) — publish your own MCP servers

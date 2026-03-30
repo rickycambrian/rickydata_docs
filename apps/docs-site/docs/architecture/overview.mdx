@@ -1,0 +1,90 @@
+---
+title: Architecture Overview
+sidebar_position: 1
+---
+
+# System Architecture
+
+RickyData is a three-service platform: MCP Gateway, Agent Gateway, and Marketplace UI. Both gateways run on AMD SEV-SNP Confidential VMs with hardware-encrypted memory.
+
+## Topology
+
+```
+Clients (MCP clients, web UI, SDK)
+    |
+    ├──► MCP Gateway (mcp.rickydata.org)
+    │       Stateless MCP endpoint + tool proxy
+    │       On-demand server execution in sandboxed containers
+    │       x402 USDC payments on Base mainnet
+    │
+    ├──► Agent Gateway (agents.rickydata.org)
+    │       Wallet-authenticated agent sessions
+    │       BYOK Claude chat + MCP tool executor
+    │       Canvas workflow runtime
+    │       Self-improvement engine
+    │
+    └──► Marketplace UI (marketplace.rickydata.org)
+            React frontend on Vercel
+            Server browsing + agent chat + wallet management
+
+Data/infra dependencies:
+    ├── KFDB (server registry + marketplace data)
+    ├── Base mainnet (USDC settlement + x402)
+    ├── Anthropic API (BYOK or operator paths)
+    └── Encrypted local disk on TEE VMs
+```
+
+## Service boundaries
+
+| Service | URL | Runtime | Purpose |
+|---------|-----|---------|---------|
+| MCP Gateway | `mcp.rickydata.org` | AMD SEV-SNP TEE | MCP server hosting, tool proxy, x402 payments |
+| Agent Gateway | `agents.rickydata.org` | AMD SEV-SNP TEE | Agent chat, canvas runtime, wallet ledger |
+| Marketplace | `marketplace.rickydata.org` | Vercel | Web UI for browsing, chat, and management |
+
+### Key security boundary
+
+The frontend (Marketplace UI) never connects to KFDB or any database directly. All data flows through the gateway backends. Wallet identity scopes secrets, enablement state, budgets, and workflow execution context.
+
+## Authentication architecture
+
+- **Human and direct MCP clients**: wallet tokens (`mcpwt_`) or JWT bearer auth
+- **Agent Gateway to MCP Gateway (operator path)**: ERC-8128 per-request signatures for request integrity and replay protection
+- **Per-wallet delegated calls**: ES256 JWTs signed by Agent Gateway, verified by MCP Gateway via JWKS (`/.well-known/jwks.json`)
+
+## Data flow
+
+### MCP tool call
+
+```
+Client → MCP Gateway → Server Container → Tool Execution → Result + Proof
+              ↓                                    ↓
+        x402 Payment                    Execution Proof (HMAC-SHA256)
+         (on success)                   signed by vTPM-sealed key
+```
+
+### Agent chat
+
+```
+Client → Agent Gateway → Session + Budget Check → Claude API (BYOK key)
+              ↓                                        ↓
+        JWT/Wallet Auth                          MCP Gateway (tool calls)
+              ↓                                        ↓
+        Ledger Charge                            Tool results → SSE stream
+```
+
+### Canvas workflow
+
+```
+Client → Agent Gateway → Topology Validation → Node Execution Loop
+              ↓                                       ↓
+        Approval Gates                         Agent + MCP + GitHub nodes
+              ↓                                       ↓
+        SSE Progress Events                    Results Collection
+```
+
+## Next steps
+
+- [MCP Gateway Architecture](/docs/architecture/gateway) — deep dive into the MCP Gateway
+- [Agent Gateway Architecture](/docs/architecture/agent-gateway) — agent runtime internals
+- [Security Model](/docs/architecture/security-model) — TEE trust chain and encryption

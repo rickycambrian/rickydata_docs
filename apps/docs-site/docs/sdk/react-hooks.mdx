@@ -1,0 +1,334 @@
+---
+title: React Hooks
+sidebar_position: 4
+---
+
+# React Hooks
+
+`@rickydata/react` provides hooks and components for building wallet-aware UIs with agent chat, balance tracking, free-tier status, and more.
+
+## Setup
+
+```bash
+npm install @rickydata/react
+```
+
+Wrap your app with `RickyDataProvider`:
+
+```tsx
+import { RickyDataProvider } from '@rickydata/react';
+
+function App() {
+  return (
+    <RickyDataProvider
+      gatewayUrl="https://agents.rickydata.org"
+      token="mcpwt_..."
+    >
+      <YourApp />
+    </RickyDataProvider>
+  );
+}
+```
+
+Access the provider context anywhere:
+
+```tsx
+import { useRickyData } from '@rickydata/react';
+
+function Status() {
+  const { isConnected, walletAddress } = useRickyData();
+  return <p>{isConnected ? walletAddress : 'Not connected'}</p>;
+}
+```
+
+## Free tier and usage
+
+### useFreeTierStatus
+
+Track daily free-tier usage:
+
+```tsx
+import { useFreeTierStatus } from '@rickydata/react';
+
+function UsageBar() {
+  const { data } = useFreeTierStatus();
+  if (!data) return null;
+
+  return (
+    <div>
+      <p>{data.requestsUsed} / {data.requestsTotal} requests today</p>
+      <p>{data.remainingRequests} remaining</p>
+    </div>
+  );
+}
+```
+
+### useWalletPlan
+
+Get the current wallet plan level:
+
+```tsx
+import { useWalletPlan } from '@rickydata/react';
+
+function PlanBadge() {
+  const { data: plan } = useWalletPlan();
+  return <span>{plan?.tier ?? 'free'}</span>;
+}
+```
+
+## Wallet and balance
+
+### useWalletBalance
+
+```tsx
+import { useWalletBalance } from '@rickydata/react';
+
+function Balance() {
+  const { data } = useWalletBalance();
+  if (!data) return null;
+
+  return (
+    <div>
+      <p>USDC: {data.usdcBalance}</p>
+      <p>Deposit address: {data.depositAddress}</p>
+    </div>
+  );
+}
+```
+
+### useWalletTransactions
+
+```tsx
+import { useWalletTransactions } from '@rickydata/react';
+
+function Transactions() {
+  const { data: txns } = useWalletTransactions();
+  return (
+    <ul>
+      {txns?.map((tx) => (
+        <li key={tx.id}>{tx.type}: ${tx.amount}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### useWalletSettings
+
+```tsx
+import { useWalletSettings } from '@rickydata/react';
+
+function Settings() {
+  const { data: settings } = useWalletSettings();
+  if (!settings) return null;
+
+  return (
+    <div>
+      <p>Auto-improve: {settings.autoImprove ? 'on' : 'off'}</p>
+      <p>Schedule: {settings.improveSchedule}</p>
+    </div>
+  );
+}
+```
+
+## Agents
+
+### useAgents / useAgent
+
+```tsx
+import { useAgents, useAgent } from '@rickydata/react';
+
+function AgentList() {
+  const { data: agents } = useAgents();
+  return (
+    <ul>
+      {agents?.map((a) => <li key={a.id}>{a.name}</li>)}
+    </ul>
+  );
+}
+
+function AgentDetail({ id }: { id: string }) {
+  const { data: agent } = useAgent(id);
+  if (!agent) return null;
+  return <p>{agent.name}: {agent.description}</p>;
+}
+```
+
+## Chat
+
+### useAgentChat
+
+SSE streaming chat with an agent:
+
+```tsx
+import { useAgentChat } from '@rickydata/react';
+import type { UseAgentChatOptions } from '@rickydata/react';
+
+function Chat() {
+  const {
+    messages,
+    sendMessage,
+    isStreaming,
+    error,
+  } = useAgentChat({
+    agentId: 'erc8004-expert',
+    sessionId: undefined, // auto-creates a new session
+  });
+
+  return (
+    <div>
+      {messages.map((msg, i) => (
+        <div key={i} className={msg.role}>
+          {msg.parts.map((p, j) =>
+            p.type === 'text' ? <p key={j}>{p.text}</p> : null
+          )}
+        </div>
+      ))}
+
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        const input = e.currentTarget.elements.namedItem('msg') as HTMLInputElement;
+        sendMessage(input.value);
+        input.value = '';
+      }}>
+        <input name="msg" disabled={isStreaming} placeholder="Ask something..." />
+      </form>
+    </div>
+  );
+}
+```
+
+### useAgentVoiceChat
+
+LiveKit-based voice chat with narration:
+
+```tsx
+import { useAgentVoiceChat } from '@rickydata/react';
+
+function VoiceChat() {
+  const {
+    isConnected,
+    phase,
+    transcripts,
+    connect,
+    disconnect,
+  } = useAgentVoiceChat({
+    agentId: 'erc8004-expert',
+  });
+
+  return (
+    <div>
+      <p>Phase: {phase}</p>
+      <button onClick={isConnected ? disconnect : connect}>
+        {isConnected ? 'Disconnect' : 'Connect Voice'}
+      </button>
+      {transcripts.map((t, i) => (
+        <p key={i}>{t.speaker}: {t.text}</p>
+      ))}
+    </div>
+  );
+}
+```
+
+## Sessions
+
+### useSessions / useSession / useDeleteSession
+
+```tsx
+import { useSessions, useSession, useDeleteSession } from '@rickydata/react';
+
+function SessionList() {
+  const { data: sessions } = useSessions();
+  const deleteSession = useDeleteSession();
+
+  return (
+    <ul>
+      {sessions?.map((s) => (
+        <li key={s.id}>
+          {s.agentId} — {s.createdAt}
+          <button onClick={() => deleteSession.mutate(s.id)}>Delete</button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+## API keys
+
+### useApiKeyStatus / useSetApiKey / useDeleteApiKey
+
+Manage the BYOK Anthropic API key stored in the encrypted vault:
+
+```tsx
+import { useApiKeyStatus, useSetApiKey, useDeleteApiKey } from '@rickydata/react';
+
+function ApiKeyManager() {
+  const { data: status } = useApiKeyStatus();
+  const setKey = useSetApiKey();
+  const deleteKey = useDeleteApiKey();
+
+  if (status?.configured) {
+    return (
+      <div>
+        <p>API key configured</p>
+        <button onClick={() => deleteKey.mutate()}>Remove key</button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      const input = e.currentTarget.elements.namedItem('key') as HTMLInputElement;
+      setKey.mutate(input.value);
+    }}>
+      <input name="key" type="password" placeholder="sk-ant-..." />
+      <button type="submit">Store key</button>
+    </form>
+  );
+}
+```
+
+## Secrets
+
+### useSecrets
+
+Manage MCP server secrets:
+
+```tsx
+import { useSecrets } from '@rickydata/react';
+
+function SecretStatus({ serverId }: { serverId: string }) {
+  const { data } = useSecrets(serverId);
+  return (
+    <ul>
+      {data?.map((s) => (
+        <li key={s.name}>{s.name}: {s.configured ? 'set' : 'missing'}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+## Components
+
+`@rickydata/react` also exports ready-made components:
+
+| Component | Purpose |
+|-----------|---------|
+| `FreeTierBar` | Visual bar showing daily free-tier usage |
+| `ProviderSettingsCard` | BYOK provider selection (MiniMax, Anthropic, OpenAI) |
+| `WalletStatusBadge` | Connected/disconnected wallet indicator |
+| `UsageDashboard` | Full usage overview with charts |
+| `WalletChip` | Compact wallet address display |
+| `DepositPanel` | USDC deposit UI with QR code |
+| `SecretForm` | Form for storing server secrets |
+| `SecretOrchestrator` | Multi-secret setup flow |
+
+{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+
+## Next steps
+
+- [Chat Components](/docs/sdk/chat-components) — embed full agent chat
+- [MCP Gateway](/docs/sdk/mcp-gateway) — programmatic tool access

@@ -1,0 +1,102 @@
+---
+title: First Prompt
+sidebar_position: 4
+---
+
+# Your First Prompt
+
+Walk through your first successful agent interaction end-to-end — from searching for a tool to getting a result.
+
+## Prerequisites
+
+You should have completed either:
+- [Quickstart (Web)](/docs/getting-started/quickstart-web) — connected via Claude Desktop or another MCP client
+- [Quickstart (CLI)](/docs/getting-started/quickstart-cli) — connected via `rickydata init`
+
+## Step 1: Search for a server
+
+In Claude Code or your MCP client, ask:
+
+> "Search for an arXiv paper search MCP server"
+
+Claude will call `gateway__search_servers` and show you matching results. You'll see something like:
+
+```
+Found 2 servers matching "arxiv":
+  1. blazickjp-arxiv-mcp-server (3 tools, verified: tool_smoke_passed)
+  2. arxiv-search-server (2 tools, verified: tools_listed)
+```
+
+## Step 2: Enable the server
+
+Ask Claude:
+
+> "Enable the arxiv MCP server"
+
+Claude calls `gateway__enable_server`. The server's tools now appear in your tool list.
+
+Or from the CLI:
+
+```bash
+rickydata mcp enable blazickjp-arxiv-mcp-server
+```
+
+## Step 3: Use a tool
+
+Now ask Claude something that requires the tool:
+
+> "Find recent papers about agent-to-agent communication protocols"
+
+Claude will call the `search_papers` tool with your query. The result includes paper titles, authors, abstracts, and links.
+
+### What happened behind the scenes
+
+1. Claude recognized it needed the arxiv tool
+2. The MCP Gateway routed the `tools/call` request to the enabled server
+3. If you're on the free tier, this counted as 0.25 of your daily 100 free requests
+4. If you're on the paid tier, an x402 payment of $0.0005 USDC was signed and settled on Base mainnet
+5. The response includes an execution proof (code hash, request/response hashes, HMAC signature)
+
+## Step 4: Try agent chat
+
+For a more conversational experience, try the agent chat. From the CLI:
+
+```bash
+# Store your API key first (one-time)
+rickydata apikey set
+
+# Chat with the default agent
+rickydata chat erc8004-expert
+```
+
+Or visit the [agent chat playground](/playground) in the browser.
+
+Ask the agent:
+
+> "What is the ERC-8004 standard and how does it relate to MCP?"
+
+The agent has full access to MCP tools and will research your question, calling tools as needed and streaming the response.
+
+## Step 5: Check your usage
+
+```bash
+rickydata auth status
+rickydata wallet balance
+```
+
+This shows your remaining free-tier requests and USDC balance.
+
+{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+
+## What to try next
+
+- **Enable multiple servers** — you can have many servers enabled simultaneously
+- **Call tools directly** — `rickydata mcp call <server>__<tool> '{"arg":"value"}'`
+- **Browse the marketplace** — [marketplace.rickydata.org](https://marketplace.rickydata.org) for all available servers
+- **Try canvas workflows** — chain agents and tools into DAGs with `rickydata canvas`
+
+## Next steps
+
+- [SDK Overview](/docs/sdk/overview) — build applications with the TypeScript SDK
+- [MCP Gateway](/docs/sdk/mcp-gateway) — programmatic search, enable, call, disable
+- [React Hooks](/docs/sdk/react-hooks) — embed wallet and agent UI in your app

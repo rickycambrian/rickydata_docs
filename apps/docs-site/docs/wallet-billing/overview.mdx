@@ -1,0 +1,91 @@
+---
+title: Wallet & Billing Overview
+sidebar_position: 1
+---
+
+# Wallet & Billing
+
+All RickyData authentication and payments are wallet-based. Your wallet address is your identity — it scopes your secrets, sessions, budgets, and transaction history.
+
+## Authentication via Privy
+
+Sign in through any of these methods:
+
+| Method | How |
+|--------|-----|
+| Email | Magic link via Privy |
+| OAuth | Google, GitHub, Discord |
+| Web3 wallet | MetaMask, WalletConnect, or any EIP-1193 wallet |
+
+All methods produce a wallet address that becomes your RickyData identity. Behind the scenes, Privy creates or links to a wallet.
+
+## Wallet tokens
+
+After authentication, you receive a `mcpwt_` wallet token:
+
+- **Self-verifying** — the gateway recovers your wallet address via `ecrecover`
+- **Zero server storage** — no session state stored on the gateway
+- **Long-lived** — valid up to 30 days (configurable up to years)
+- **Survives restarts** — unlike session JWTs
+
+```bash
+# Create a wallet token
+rickydata auth login
+# Token is stored at ~/.rickydata/credentials.json (mode 0600)
+```
+
+## Payment model
+
+All payments use **USDC on Base mainnet** (chain ID 8453).
+
+| Action | Cost |
+|--------|------|
+| MCP tool call (managed wallet flow) | $0.0005 USDC |
+| MCP tool call (self-custody x402 signing) | $0.0005 USDC |
+| Agent chat (BYOK) | 10% markup on LLM cost + $0.0005 per tool call |
+| Browsing, searching, `tools/list` | Free |
+| Free tier | 100 requests/day (tool calls count as 0.25 each) |
+
+{/* SDK interactive component — requires RickyDataProvider, re-enable when auth chain is stable */}
+
+## Unified wallet ledger
+
+The Agent Gateway maintains a unified ledger per wallet:
+
+- **One deposit address** per wallet
+- **On-chain balance cache** + off-chain spend accounting
+- **Pending withdrawal tracking**
+- **Per-agent budget limits** (daily, weekly, monthly)
+- **Full transaction history** for audit
+
+### Check your balance
+
+```bash
+rickydata wallet balance
+```
+
+```bash
+# API
+curl -s https://agents.rickydata.org/wallet/balance \
+  -H "Authorization: Bearer mcpwt_..." | jq .
+```
+
+## x402 payment protocol
+
+For MCP tool calls, the gateway uses the x402 protocol:
+
+1. You call a tool endpoint
+2. Gateway returns HTTP 402 with payment requirements
+3. Your client signs an EIP-3009 `TransferWithAuthorization` for USDC
+4. Client retries with the `X-Payment` header
+5. Gateway verifies, executes the tool
+6. **On success only**: USDC transfer settles on-chain
+7. Response includes `txHash` for verification
+
+Failed tool calls are never charged.
+
+## Next steps
+
+- [Funding](/docs/wallet-billing/funding) — depositing USDC and managing balance
+- [Spending Policy](/docs/wallet-billing/spending-policy) — budgets and limits
+- [Self-Improvement](/docs/wallet-billing/self-improvement) — automatic learning system
