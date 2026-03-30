@@ -64,6 +64,44 @@ The marketplace uses wallet-based authentication via Privy:
 
 All secrets, enablement state, budgets, and sessions are scoped to your wallet.
 
+## Architecture
+
+The Marketplace UI is a thin client that talks to the **MCP Gateway API**, which in turn reads from the server registry index.
+
+```
+Marketplace UI  →  MCP Gateway API  →  Server Registry Index
+                        ↑
+                  TEE (AMD SEV-SNP)
+```
+
+Key architectural details:
+
+- The MCP Gateway runs inside a **Trusted Execution Environment** (AMD SEV-SNP). Your API keys and secrets never leave the enclave — not even RickyData operators can read them.
+- Servers are **proxied through the gateway**, not run on your local machine. When you call a tool, the gateway spins up the server process inside the TEE, executes the call, and returns the result.
+- Every tool call is **metered and logged per-wallet**. You can inspect your usage history and spending from the wallet dashboard.
+- The gateway verifies server integrity on every boot using code-hash attestation, so you can confirm the server running your request matches the published source.
+
+## Pricing
+
+RickyData uses a usage-based model with a generous free tier.
+
+| Tier | Details |
+|------|---------|
+| **Free** | 100 requests/day. Tool calls count as 0.25 requests each, so you get up to 400 tool calls/day at no cost. |
+| **Default model** | MiniMax-M2.7 — included in the free tier for agent chat. |
+| **BYOK** | Bring your own Anthropic or OpenAI API key to use premium models (Claude Sonnet/Opus, GPT-4o, etc.). Model costs are billed directly by the provider. |
+| **USDC billing** | Usage beyond the free tier is billed in USDC from your wallet balance. Top up via the wallet dashboard. |
+| **Spending budgets** | Set daily or monthly caps per-wallet to avoid surprises. Configurable from the Marketplace UI or via the CLI. |
+
+## Quick tour
+
+Here is a walkthrough of the core Marketplace flow:
+
+1. **Browse** — open the Marketplace and search by name, or filter servers by category (data, dev tools, finance, etc.).
+2. **Inspect** — click a server to view its tool list, verification tier, description, and any secrets it requires (e.g., an API key).
+3. **Enable** — toggle the server on. It appears in your active tool list immediately. If the server needs secrets, you will be prompted to enter them — they are stored encrypted inside the TEE.
+4. **Chat** — open the playground (or use Claude Code locally) and start using the enabled tools. The agent will automatically see your active servers and can call their tools on your behalf.
+
 ## Next steps
 
 - [UI Operations](/docs/marketplace/ui-operations) — how to use the web interface

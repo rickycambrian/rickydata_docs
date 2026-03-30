@@ -13,7 +13,7 @@ const actualRoot = require('fs').existsSync(path.join(rickydataRoot, 'dist'))
 const config: Config = {
   title: 'RickyData Docs',
   tagline: 'MCP tools, AI agents, and wallet-powered workflows',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.svg',
 
   future: {
     v4: true,
@@ -135,7 +135,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/rickydata-social-card.png',
+    image: 'img/rickydata-social-card.svg',
     colorMode: {
       defaultMode: 'dark',
       respectPrefersColorScheme: false,

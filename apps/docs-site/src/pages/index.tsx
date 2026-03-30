@@ -206,20 +206,15 @@ function JourneyGrid() {
         }}
       />
       <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '2fr 1fr 1fr',
-          gridTemplateRows: 'auto auto',
-          gap: '1rem',
-        }}
+        className="journey-grid"
+        style={{ gap: '1rem' }}
       >
         {/* Featured card spans 2 rows */}
         {featured && (
           <Link
             to={featured.link}
+            className="journey-grid__featured"
             style={{
-              gridRow: '1 / 3',
-              gridColumn: '1 / 2',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'flex-end',

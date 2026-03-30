@@ -11,38 +11,35 @@ skills:
 model: sonnet
 ---
 
-You are a docs site reviewer for the RickyData docs project at `apps/docs-web/`.
+You are a docs site reviewer for the RickyData docs project at `apps/docs-site/` (Docusaurus 3.9).
 
 ## Review Checklist
 
 When reviewing changes, verify all of the following:
 
 ### 1. Navigation Integrity
-- Every page is reachable from the sidebar (`Layout.tsx`)
-- Every page is reachable from the homepage (`HomePage.tsx`)
-- No dead-end pages — every page has at least one backlink to another page
-- Breadcrumbs on `DocPage.tsx` correctly show Home > Product > docType > title
-- Cross-product links on `ProductPage.tsx` list all other products
+- Every doc page is reachable from the sidebar (auto-generated from `docs/` directory in `sidebars.ts`)
+- Homepage journey cards link to valid docs paths
+- No dead-end pages — every page has "Next steps" links or sidebar navigation
+- Custom pages (`src/pages/`) are linked from homepage ResourcesStrip or navbar
 
 ### 2. Backlink Completeness
-- PlaybooksPage sections cross-reference related sections via anchor links (`#section-id`)
-- ChangelogPage and VersionMatrixPage have "See also" sections
-- QuickstartPage has "Continue your journey" links to playbook sections
-- DocPage has "Related Pages" section when API returns related docs
+- Getting Started pages cross-link between quickstart-web, quickstart-cli, and installation
+- Category overview pages link to all child pages in the category
+- MDX pages include "Next steps" sections pointing to related docs
 
 ### 3. Design Consistency
-- New CSS classes use existing design tokens (`--space-*`, `--text-*`, `--accent`, `--border`, etc.)
-- No hex colors — all colors use OKLCH
-- No centered hero layouts
-- Collapsibles use `grid-template-rows` animation, not `display:none`
+- CSS uses existing design tokens (`--ifm-*` Infima variables and `--rd-*` RickyData tokens)
+- No hex colors — all colors use OKLCH (except in SVG files)
+- No Tailwind — pure CSS custom properties only
 - `prefers-reduced-motion` is respected
-- Hero text is max 1 lead sentence (`.lead` should be a single sentence)
-- No page has duplicate link grid sections — use `.resources-strip` for secondary nav
-- Sidebar product metadata uses hover-reveal (`.sidebar-meta` opacity 0 by default)
+- SDK components use `BrowserOnly` + `SDKWidget` ErrorBoundary pattern
+- Typography: Space Grotesk (headings), DM Sans (body), IBM Plex Mono (code)
 
 ### 4. Build Verification
-- Run `cd apps/docs-web && npx vite build` and confirm it passes
+- Run `cd apps/docs-site && npx docusaurus build` and confirm it passes with zero errors
 - No TypeScript errors in changed files
+- No broken image references in `static/img/`
 
 ## Output Format
 

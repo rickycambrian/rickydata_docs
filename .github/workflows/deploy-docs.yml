@@ -27,6 +27,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate required secrets
+        run: |
+          missing=""
+          [ -z "${{ secrets.GCP_SA_KEY }}" ] && missing="$missing GCP_SA_KEY"
+          [ -z "${{ secrets.PRIVY_APP_ID }}" ] && missing="$missing PRIVY_APP_ID"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required secrets:$missing"
+            exit 1
+          fi
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20

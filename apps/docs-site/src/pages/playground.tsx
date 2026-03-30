@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '@theme/Layout';
-import BrowserOnly from '@docusaurus/BrowserOnly';
+import SDKWidget from '@site/src/components/SDKWidget';
 
 function ChatFallback() {
   return (
@@ -29,9 +29,9 @@ function ChatFallback() {
 
 function AgentSidebar() {
   return (
-    <BrowserOnly fallback={<div style={{ padding: '1rem' }}>Loading agents...</div>}>
-      {() => {
-        const React = require('react');
+    <SDKWidget
+      fallback={<div style={{ padding: '1rem', color: 'var(--ifm-color-emphasis-600)' }}>Connect wallet to see agents</div>}
+      render={() => {
         const { useAgents } = require('@rickydata/react');
 
         function AgentList() {
@@ -75,14 +75,15 @@ function AgentSidebar() {
 
         return <AgentList />;
       }}
-    </BrowserOnly>
+    />
   );
 }
 
 function ChatEmbed() {
   return (
-    <BrowserOnly fallback={<ChatFallback />}>
-      {() => {
+    <SDKWidget
+      fallback={<ChatFallback />}
+      render={() => {
         const { AgentChatEmbed } = require('@rickydata/chat');
         return (
           <AgentChatEmbed
@@ -91,7 +92,7 @@ function ChatEmbed() {
           />
         );
       }}
-    </BrowserOnly>
+    />
   );
 }
 

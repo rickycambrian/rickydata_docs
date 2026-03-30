@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#1f1d19"/>
+  <rect x="0" y="0" width="1200" height="4" fill="#c8a050"/>
+  <text x="80" y="260" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="700" fill="#e8e0d0" letter-spacing="-2">RickyData Docs</text>
+  <text x="80" y="330" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="400" fill="#8a8070">Production docs for MCP onboarding, wallet controls,</text>
+  <text x="80" y="370" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="400" fill="#8a8070">and agent operations.</text>
+  <rect x="80" y="420" width="80" height="3" rx="1.5" fill="#c8a050"/>
+  <text x="80" y="560" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="500" fill="#6a6050">docs.rickydata.org</text>
+</svg>
