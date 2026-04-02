@@ -261,3 +261,13 @@ Relationship detection combines two strategies:
 2. **AI semantic analysis** -- When MiniMax is available, sends up to 30 open issues to MiniMax-M2.7 which analyzes titles and bodies to identify parent-child hierarchies, blocking dependencies, and duplicates. Only relationships with confidence >= 0.5 are kept.
 
 Results are merged and deduplicated. Explicit references take precedence when both methods find the same pair.
+
+## Dashboard
+
+The rickydata_github frontend includes a cross-repo dashboard at `/dashboard` (default landing page) that aggregates issue intelligence data across all installed repos:
+
+- **Action Items** -- PRs awaiting review, sprint items remaining, agent questions pending, issues ready to resolve
+- **Active Sprints** -- Per-repo sprint cards with progress bars and status counts
+- **Recent Activity** -- Feed of recent PRs and resolved issues across repos
+
+The dashboard uses `useQueries` from `@tanstack/react-query` to fan out parallel queries per repo, aggregating results client-side. A dedicated gateway endpoint (`GET /api/v1/dashboard`) also exists for server-side aggregation.
