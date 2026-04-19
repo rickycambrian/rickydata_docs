@@ -10,10 +10,13 @@ ENV DOCS_API_URL=${DOCS_API_URL}
 ENV AGENT_GATEWAY_URL=${AGENT_GATEWAY_URL}
 ENV PRIVY_APP_ID=${PRIVY_APP_ID}
 
-# Install from the root lockfile so workspace resolution is honored
+# Install from the root lockfile so workspace resolution is honored.
+# Copy every workspace package.json so npm sees the full dep graph and hoists correctly.
 COPY package*.json ./
 COPY tsconfig.base.json ./
 COPY apps/docs-site/package.json apps/docs-site/package.json
+COPY apps/docs-web/package.json apps/docs-web/package.json
+COPY apps/docs-api/package.json apps/docs-api/package.json
 COPY packages/shared-types/package.json packages/shared-types/package.json
 COPY packages/content-parsers/package.json packages/content-parsers/package.json
 RUN npm install --legacy-peer-deps
