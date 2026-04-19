@@ -20,7 +20,11 @@ COPY apps/docs-api/package.json apps/docs-api/package.json
 COPY packages/shared-types/package.json packages/shared-types/package.json
 COPY packages/content-parsers/package.json packages/content-parsers/package.json
 RUN npm ci --legacy-peer-deps
-RUN ls node_modules/@rickydata/ 2>&1 || echo "rickydata packages not hoisted to root"
+RUN echo "--- root @rickydata ---" && ls -la node_modules/@rickydata/ 2>&1 && \
+    echo "--- docs-site local @rickydata ---" && ls -la apps/docs-site/node_modules/@rickydata/ 2>&1 || true && \
+    echo "--- versions ---" && \
+    (cat node_modules/@rickydata/react/package.json 2>/dev/null | grep '"version"' || echo "no root react") && \
+    (cat node_modules/@rickydata/chat/package.json 2>/dev/null | grep '"version"' || echo "no root chat")
 
 # Copy remaining source and build only docs-site
 COPY . .
