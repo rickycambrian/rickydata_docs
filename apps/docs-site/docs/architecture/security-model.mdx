@@ -24,7 +24,14 @@ The RickyData platform runs on AMD SEV-SNP Confidential VMs with 10 defense-in-d
 | 9. Output protection | Secret redaction | Secrets never appear in logs or responses |
 | 10. Release guard | Attestation-gated | Secrets blocked if attestation is degraded |
 
-## Layer 1: AMD SEV-SNP hardware
+## Trust chain layers
+
+<Collapsible
+  icon={<Icons.shield width={16} height={16} />}
+  title="Layer 1: AMD SEV-SNP hardware"
+  sub="Memory encryption and CPU-signed attestation reports."
+  defaultOpen
+>
 
 Both gateways run inside AMD SEV-SNP Confidential VMs on Google Cloud:
 
@@ -41,7 +48,13 @@ openssl verify -CAfile amd_chain.pem vcek.pem
 # Expected: vcek.pem: OK
 ```
 
-## Layer 2: Code identity
+</Collapsible>
+
+<Collapsible
+  icon={<Icons.shield width={16} height={16} />}
+  title="Layer 2: Code identity"
+  sub="SHA-256 hash pinning — proves exactly which code is running."
+>
 
 The gateway computes SHA-256 over its own JS artifacts at startup. This hash is:
 
@@ -51,7 +64,13 @@ The gateway computes SHA-256 over its own JS artifacts at startup. This hash is:
 
 If anyone modifies the code, the hash changes and all verification fails.
 
-## Layer 3: Build provenance
+</Collapsible>
+
+<Collapsible
+  icon={<Icons.shield width={16} height={16} />}
+  title="Layer 3: Build provenance"
+  sub="Signed CI/CD metadata linking image to GitHub commit."
+>
 
 Deployed images include signed CI/CD metadata:
 
@@ -62,7 +81,13 @@ curl -s https://mcp.rickydata.org/api/attestation/provenance | \
 
 Includes git commit SHA, OCI image digest, attestation bundle hash, and verification hints.
 
-## Layer 4: TPM-sealed secrets
+</Collapsible>
+
+<Collapsible
+  icon={<Icons.shield width={16} height={16} />}
+  title="Layer 4: TPM-sealed secrets"
+  sub="Platform secrets sealed to hardware via PCR-bound vTPM policy."
+>
 
 Platform secrets are sealed to the vTPM using PCR-bound policy (`sha256:0,1,2,3,4,5,7`):
 
@@ -84,7 +109,13 @@ Platform secrets are sealed to the vTPM using PCR-bound policy (`sha256:0,1,2,3,
 
 All secrets are unsealed at startup via `tpm2_unseal` (persistent handle `0x81000099`). If the VM's boot chain changes, unsealing fails.
 
-## Layer 5: Wallet-scoped isolation
+</Collapsible>
+
+<Collapsible
+  icon={<Icons.shield width={16} height={16} />}
+  title="Layer 5: Wallet-scoped isolation"
+  sub="Per-wallet AES-256-GCM vaults with HKDF-derived keys."
+>
 
 User secrets are encrypted per-wallet:
 
@@ -95,7 +126,13 @@ User secrets are encrypted per-wallet:
 
 Wallet A's secrets are cryptographically inaccessible to wallet B.
 
-## Layer 6: Authentication
+</Collapsible>
+
+<Collapsible
+  icon={<Icons.shield width={16} height={16} />}
+  title="Layer 6: Authentication"
+  sub="Wallet tokens, challenge-response JWTs, cross-gateway ES256."
+>
 
 Three wallet-based auth methods:
 
@@ -105,18 +142,36 @@ Three wallet-based auth methods:
 | **JWT** (24h) | Challenge-response with one-time nonce |
 | **ES256 JWKS** | Cross-gateway auth, public key hash bound in attestation report |
 
-## Layer 7: Container sandbox
+</Collapsible>
+
+<Collapsible
+  icon={<Icons.shield width={16} height={16} />}
+  title="Layer 7: Container sandbox"
+  sub="Docker + gVisor + read-only FS for MCP server isolation."
+>
 
 MCP servers run with: read-only FS, `noexec /tmp`, all capabilities dropped, no new privileges, non-root user, restricted network, optional gVisor.
 
-## Layer 8: x402 payments
+</Collapsible>
+
+<Collapsible
+  icon={<Icons.shield width={16} height={16} />}
+  title="Layer 8: x402 payments"
+  sub="EIP-712 signed, conditional settlement — charge only on success."
+>
 
 - EIP-712 signed `TransferWithAuthorization` (ERC-3009)
 - Conditional settlement: only settled after successful tool execution
 - In-flight nonce guard prevents concurrent replay
 - Fail-closed if all RPC nodes unavailable
 
-## Layer 9: Secret redaction
+</Collapsible>
+
+<Collapsible
+  icon={<Icons.shield width={16} height={16} />}
+  title="Layer 9: Secret redaction"
+  sub="All output paths scrubbed before reaching clients."
+>
 
 All output paths are scrubbed before reaching clients:
 
@@ -124,9 +179,17 @@ All output paths are scrubbed before reaching clients:
 - Key-value pairs with sensitive names (`SECRET`, `TOKEN`, `PASSWORD`, `API_KEY`)
 - Deep-traversal of SSE events (text, tool results, errors)
 
-## Layer 10: Release guard
+</Collapsible>
+
+<Collapsible
+  icon={<Icons.shield width={16} height={16} />}
+  title="Layer 10: Release guard"
+  sub="Attestation-gated secret release — fail-closed on degradation."
+>
 
 Before decrypting vault secrets, the system checks attestation state. In enforced mode, degraded attestation blocks secret release entirely.
+
+</Collapsible>
 
 ## Trust chain visualization
 

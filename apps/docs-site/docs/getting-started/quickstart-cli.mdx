@@ -9,12 +9,24 @@ Full local setup with the RickyData CLI and Claude Code. Three commands to worki
 
 ## 1. Install and initialize
 
-```bash
-npm install -g rickydata
-rickydata init
-```
+<CodeTabs
+  tabs={[
+    { label: 'npm', language: 'bash', code: 'npm install -g rickydata\nrickydata init' },
+    { label: 'pnpm', language: 'bash', code: 'pnpm add -g rickydata\nrickydata init' },
+    { label: 'bun', language: 'bash', code: 'bun add -g rickydata\nrickydata init' },
+    { label: 'curl', language: 'bash', code: 'curl -fsSL https://rickydata.org/install.sh | sh\nrickydata init' },
+  ]}
+/>
 
 The wizard opens your browser for wallet sign-in, connects to Claude Code, and verifies the connection. Restart Claude Code when prompted.
+
+### See it in action
+
+<AnimatedTerminal />
+
+## How it works
+
+<McpFlowDiagram />
 
 ## 2. Search and enable a server
 
@@ -117,6 +129,12 @@ Register the canvas MCP server for Claude Code:
 claude mcp add --transport stdio canvas-workflows rickydata mcp canvas-server
 ```
 
+## How you pay for tools
+
+Tool calls above the free tier are settled per-call via the x402 HTTP payment protocol. Here's the flow:
+
+<X402Flow />
+
 ## Full command tree
 
 ```
@@ -160,5 +178,33 @@ rickydata
 
 ## Next steps
 
-- [First Prompt](/docs/getting-started/first-prompt) — your first successful agent interaction
-- [MCP Gateway SDK](/docs/sdk/mcp-gateway) — programmatic tool calls from TypeScript
+<FeatureGrid>
+  <FeatureCard
+    icon={<Icons.sparkle width={16} height={16} />}
+    title="First Prompt"
+    description="Your first successful agent interaction, end to end."
+    cta="Try it"
+    to="/docs/getting-started/first-prompt"
+  />
+  <FeatureCard
+    icon={<Icons.node width={16} height={16} />}
+    title="MCP Gateway SDK"
+    description="Programmatic tool calls from TypeScript with typed responses."
+    cta="Read the SDK"
+    to="/docs/sdk/mcp-gateway"
+  />
+  <FeatureCard
+    icon={<Icons.bot width={16} height={16} />}
+    title="Agent chat"
+    description="BYOK chat REPL with session resume and per-session cost tracking."
+    cta="Open chat"
+    to="/docs/agents/byok-chat"
+  />
+  <FeatureCard
+    icon={<Icons.coin width={16} height={16} />}
+    title="Wallet & billing"
+    description="Fund your wallet, set spending limits, and review transactions."
+    cta="Manage wallet"
+    to="/docs/wallet-billing/overview"
+  />
+</FeatureGrid>

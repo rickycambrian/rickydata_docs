@@ -15,22 +15,19 @@ The Model Context Protocol (MCP) is an open standard that lets AI agents discove
 - **Pay-per-use** — tool discovery is free; execution costs $0.0005 USDC per call via x402
 - **Hardware-backed security** — servers run on AMD SEV-SNP Confidential VMs with execution proofs
 
+<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '16px 0 24px' }}>
+  <Pill>5,000+ tools</Pill>
+  <Pill tone="accent">x402 native</Pill>
+  <Pill tone="success">TEE-attested</Pill>
+  <Pill>Wallet-scoped</Pill>
+  <Pill tone="accent">Opt-in discovery</Pill>
+</div>
+
 ## How it works
 
-```
-Your MCP client (Claude Code, Cursor, Claude Desktop)
-    |
-    v
-MCP Gateway (https://mcp.rickydata.org/mcp)
-    |
-    ├── gateway__search_servers    (meta-tool: discover)
-    ├── gateway__enable_server     (meta-tool: activate)
-    ├── gateway__disable_server    (meta-tool: deactivate)
-    ├── gateway__list_enabled      (meta-tool: inventory)
-    ├── gateway__server_info       (meta-tool: details)
-    |
-    └── <enabled server tools>     (actual tool calls, x402 paid)
-```
+<McpFlowDiagram />
+
+When you connect an MCP client to the gateway, `tools/list` returns five gateway meta-tools (`gateway__search_servers`, `gateway__enable_server`, `gateway__disable_server`, `gateway__list_enabled`, `gateway__server_info`). These let your AI agent search the marketplace, enable servers, and manage its tool inventory. Once a server is enabled, its tools also appear in `tools/list`.
 
 When you connect an MCP client to the gateway, `tools/list` returns the five gateway meta-tools. These let your AI agent search the marketplace, enable servers, and manage its tool inventory. Once a server is enabled, its tools also appear in `tools/list`.
 

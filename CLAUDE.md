@@ -25,10 +25,13 @@ cd apps/docs-site && npx docusaurus build
 | Skill | When to invoke | Source |
 |-------|---------------|--------|
 | `/docusaurus-theming` | Modifying OKLCH tokens, Infima overrides, fonts, dark mode, or webpack config in `apps/docs-site/` | `.claude/skills/docusaurus-theming/SKILL.md` |
-| `/mdx-sdk-components` | Embedding `@rickydata/react` or `@rickydata/chat` components in MDX pages | `.claude/skills/mdx-sdk-components/SKILL.md` |
+| `/docusaurus-mdx-components` | Registering a shared React primitive globally for MDX via the `src/theme/MDXComponents.tsx` swizzle (zero-import usage in `.mdx` files) | `.claude/skills/docusaurus-mdx-components/SKILL.md` |
+| `/rd-component-library` | Adding a new `rd-*` primitive — React layer emits classes, `markdown-extras.css` holds the styling, tokens from `custom.css` | `.claude/skills/rd-component-library/SKILL.md` |
+| `/docusaurus-browseronly-animations` | Building vanilla-React components with timers/animations — `BrowserOnly` wrapper + static fallback for SSG | `.claude/skills/docusaurus-browseronly-animations/SKILL.md` |
+| `/mdx-sdk-components` | Embedding `@rickydata/react` or `@rickydata/chat` components in MDX pages (SDK/auth components, `require()` pattern) | `.claude/skills/mdx-sdk-components/SKILL.md` |
 | `/docusaurus-sdk-webpack` | Adding new SDK subpath imports or debugging webpack build failures for Node.js modules | `.claude/skills/docusaurus-sdk-webpack/SKILL.md` |
-| `/design-system` | Reference for original OKLCH tokens, typography, spacing, motion patterns | `.claude/skills/design-system/SKILL.md` |
-| `/video-deployment` | Adding, updating, or debugging video guides | `.claude/skills/video-deployment/SKILL.md` |
+| `/design-system` | Legacy SPA (`apps/docs-web/`) design-system reference — tokens carried into docs-site; file paths it cites are legacy | `.claude/skills/design-system/SKILL.md` |
+| `/video-deployment` | Legacy video-guide deploy pipeline for `apps/docs-web/` (GCS → Dockerfile ARG → video-guides.ts) | `.claude/skills/video-deployment/SKILL.md` |
 | `docs-reviewer` agent | After content or navigation changes — verifies backlinks, design consistency, build | `.claude/agents/docs-reviewer.md` |
 
 ## Key Paths
