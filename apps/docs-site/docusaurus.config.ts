@@ -137,7 +137,7 @@ const config: Config = {
   themeConfig: {
     image: 'img/rickydata-social-card.svg',
     colorMode: {
-      defaultMode: 'dark',
+      defaultMode: 'light',
       respectPrefersColorScheme: false,
     },
     navbar: {
@@ -149,17 +149,10 @@ const config: Config = {
           position: 'left',
           label: 'Docs',
         },
-        { to: '/playground', label: 'Playground', position: 'left' },
-        { to: '/status', label: 'Status', position: 'left' },
         { to: '/changelog', label: 'Changelog', position: 'left' },
         {
           href: 'https://marketplace.rickydata.org',
           label: 'Marketplace',
-          position: 'right',
-        },
-        {
-          href: 'https://github.com/cambriannetwork',
-          label: 'GitHub',
           position: 'right',
         },
       ],
@@ -170,7 +163,7 @@ const config: Config = {
         {
           title: 'Docs',
           items: [
-            { label: 'Getting Started', to: '/docs/getting-started' },
+            { label: 'Quickstart (CLI)', to: '/docs/getting-started/quickstart-cli' },
             { label: 'SDK Reference', to: '/docs/sdk/overview' },
             { label: 'MCP Server', to: '/docs/mcp/overview' },
           ],
@@ -187,11 +180,6 @@ const config: Config = {
           title: 'More',
           items: [
             { label: 'Changelog', to: '/changelog' },
-            { label: 'Status', to: '/status' },
-            {
-              label: 'GitHub',
-              href: 'https://github.com/cambriannetwork',
-            },
           ],
         },
       ],
