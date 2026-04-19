@@ -19,7 +19,8 @@ COPY apps/docs-web/package.json apps/docs-web/package.json
 COPY apps/docs-api/package.json apps/docs-api/package.json
 COPY packages/shared-types/package.json packages/shared-types/package.json
 COPY packages/content-parsers/package.json packages/content-parsers/package.json
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
+RUN ls node_modules/@rickydata/ 2>&1 || echo "rickydata packages not hoisted to root"
 
 # Copy remaining source and build only docs-site
 COPY . .
