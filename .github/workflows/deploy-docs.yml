@@ -14,7 +14,7 @@ env:
   REGION: us-central1
   WEB_REPOSITORY: rickydata-docs-site
   API_REPOSITORY: rickydata-docs-api
-  WEB_SERVICE: rickydata-docs-site
+  WEB_SERVICE: rickydata-docs-web
   API_SERVICE: rickydata-docs-api
 
 jobs:
