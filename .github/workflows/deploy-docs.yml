@@ -106,7 +106,7 @@ jobs:
             --build-arg DOCS_API_URL="$API_URL" \
             --build-arg AGENT_GATEWAY_URL="${{ secrets.AGENT_GATEWAY_URL }}" \
             --build-arg PRIVY_APP_ID="${{ secrets.PRIVY_APP_ID }}" \
-            -t "$WEB_IMAGE" apps/docs-site
+            -t "$WEB_IMAGE" .
           docker push "$WEB_IMAGE"
           echo "WEB_IMAGE=$WEB_IMAGE" >> "$GITHUB_ENV"
 
