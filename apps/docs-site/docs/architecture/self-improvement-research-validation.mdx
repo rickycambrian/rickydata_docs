@@ -1,0 +1,161 @@
+---
+title: Self-Improvement & Research Validation
+sidebar_position: 5
+---
+
+# Self-Improvement and Research Validation
+
+RickyData self-improvement is designed as a verified procedural memory system. The goal is not to let an agent rewrite its instructions whenever it has a plausible idea. The goal is to preserve patterns that were observed in real work: first the agent missed, stalled, used the wrong tool, or needed extra user correction; then the correct behavior was reached and can be grounded in the session evidence.
+
+This makes self-improvement conservative by default. A private skill is eligible only when it captures a concrete behavior that worked, has enough evidence to be useful again, and can be stored without leaking data across wallets.
+
+## System Surfaces
+
+RickyData has two related but separate self-improvement systems:
+
+| Surface | Scope | Purpose | Current gate |
+|---------|-------|---------|--------------|
+| Wallet self-improvement | One wallet | Private facets, learnings, skills, and agent instructions for that wallet | BYOK-only extraction, transcript grounding, confidence thresholds, per-wallet storage, bounded history |
+| Admin improvements | Platform/admin agents | Global agent behavior, example questions, and project skills | Recovery detection, candidate generation, A/B testing, promotion gates, rollback snapshots |
+
+The wallet system is private and user-specific. The admin system is broader and therefore has a stricter promotion lifecycle, including A/B tests and rollback. The next hardening step is to let users opt into the same A/B discipline for private wallet skill changes.
+
+## Wallet Flow
+
+Wallet self-improvement runs through the Agent Gateway:
+
+1. **Extract facets** from eligible conversations. The extractor records the goal, task type, tools used, outcome, complexity, friction, key learnings, and execution metrics. It counts actual tool calls from the transcript, not just paid MCP calls.
+2. **Cache facets** under the wallet's private agent directory so each session is processed once.
+3. **Synthesize cross-session learnings** from unsynthesized facets. The synthesizer looks for repeated workflows, recurring friction, successful tool combinations, and concrete techniques.
+4. **Ground learnings in transcript evidence** before they can become skills. Tool names, file paths, and quoted commands or errors must be found in the source transcript often enough to pass the guard.
+5. **Generate skill proposals** only from high-confidence learnings. Related learnings are grouped, new skill creation is capped per run, thin single-observation skills are rejected, and generated skills must include routing, workflow, and quality sections.
+6. **Write wallet-scoped artifacts atomically** under the wallet's `.claude` area. Global project skills are not changed by private wallet improvement.
+7. **Track health** through trigger counts and stale-skill pruning so private skills do not accumulate forever.
+
+Runs are BYOK-only. If a wallet has not stored an API key, the run skips without mutating state. The current schedule options are `after_each`, `daily`, `weekly`, and `biweekly`.
+
+## Admin Flow
+
+Admin improvements are candidate-based:
+
+1. Admin conversations are persisted as raw sessions.
+2. A recovery detector looks for the concrete pattern that matters most: the agent failed or used the wrong path, then later recovered.
+3. MiniMax analysis proposes candidates such as skill updates, skill creation, `CLAUDE.md` routing updates, or example questions.
+4. Candidates are deduplicated by hash and tested before promotion.
+5. A/B testing compares baseline and variant answers on the same questions.
+6. Promotion requires passing status, confidence, daily-limit, and regression gates.
+7. Promotion stores a rollback snapshot and a revision record.
+
+The A/B scorer uses eight dimensions:
+
+| Dimension | Weight | Why it matters |
+|-----------|--------|----------------|
+| relevance | 2 | The answer must address the user request. |
+| accuracy | 2 | Facts and claims must be true. |
+| correctness | 2 | The final conclusion must be right, not just plausible. |
+| completeness | 1 | Important constraints should not be skipped. |
+| structure | 1 | The result should be easy to apply. |
+| toolUsage | 1 | Tools should be used when useful and avoided when unnecessary. |
+| conciseness | 1 | Improvement should not add needless tokens. |
+| actionability | 1 | The answer should leave a clear next step or result. |
+
+The composite score is:
+
+```text
+(relevance*2 + accuracy*2 + correctness*2 + completeness + structure + toolUsage + conciseness + actionability) / 11
+```
+
+A candidate must pass three gates: no per-question composite regression beyond tolerance, no per-question tool-error increase, and no average composite regression beyond tolerance.
+
+## Why This Is Robust
+
+The system is intentionally closer to scientific measurement than preference memory.
+
+| Design choice | Failure mode it prevents |
+|---------------|--------------------------|
+| Verified-only methodology | Prevents documenting guesses, vibes, or aspirational workflows. |
+| Wallet scoping | Prevents one user's private preferences or data from changing another user's agent. |
+| BYOK-only analysis | Prevents platform-funded background learning and keeps analysis under the user's explicit model budget. |
+| Transcript grounding | Prevents hallucinated learnings from becoming persistent instructions. |
+| Confidence and thickness gates | Prevents one-off weak observations from becoming skills. |
+| Bounded skill creation | Prevents skill sprawl. |
+| Atomic writes | Prevents partially written skills or state files. |
+| Skill health tracking | Prevents stale or unused skills from silently dominating future behavior. |
+| Admin A/B testing | Prevents global behavior changes that sound good but regress real answers. |
+| Rollback snapshots | Makes promoted global changes reversible. |
+
+## Hermes Reference Lessons
+
+Hermes is a useful reference because it treats skills as managed procedural memory rather than loose prompt files. The strongest transferable patterns are:
+
+| Hermes pattern | RickyData application |
+|----------------|----------------------|
+| Constrained skill manager | Private skill updates should go through a narrow mutation layer, not arbitrary filesystem edits. |
+| Frontmatter and size validation | Skill creation should reject bad metadata, overbroad bodies, and malformed files before activation. |
+| Supporting-file allowlist | Skill packages should only place extra files in known directories such as `references`, `scripts`, `templates`, and `assets`. |
+| Metadata-first loading | Agents should route on compact metadata and load bodies or references only when needed. |
+| Atomic writes and rollback-on-scan | Skill edits should either fully apply or leave the previous version intact. |
+| Guard scanner | Private skills should be scanned for secret exfiltration, prompt injection, destructive commands, persistence, and wallet-token leakage. |
+| Manifest/provenance records | Wallet skills should remember source session, verification date, content hash, and promotion evidence. |
+
+The main difference is policy. Hermes can allow general agent-created skills. RickyData should keep wallet skills private, verified, provenance-tracked, and scanned by default.
+
+## Research Validation
+
+The research literature supports the conservative parts of this design more strongly than the permissive parts.
+
+| Finding | Design implication |
+|---------|-------------------|
+| Anthropic's skills architecture uses `SKILL.md` frontmatter, automatic or slash-command invocation, and on-demand file loading. Skills keep large references out of context until needed. | Keep `CLAUDE.md` and `AGENTS.md` short. Put intermittent workflows into skills with precise trigger descriptions and supporting files. |
+| SkillsBench finds curated skills improve average pass rate by 16.2 percentage points, but effects vary, some tasks regress, and self-generated skills have no average benefit. Focused skills with 2-3 modules beat comprehensive documentation. | Do not promote self-generated skills just because they exist. Require verification, narrow scope, and regression testing. |
+| SWE-Skills-Bench finds that 39 of 49 public SWE skills produce zero pass-rate improvement, average gain is only +1.2%, and some skills degrade performance due to mismatched guidance. | Software-development skills need repo-specific tests and acceptance criteria. A skill that is useful in one repo should not be assumed useful elsewhere. |
+| CoEvoSkills/EvoSkills shows that autonomous skill generation works best when a skill generator is paired with an information-isolated surrogate verifier. | Private skill candidates should be tested by a separate evaluation path, not by the same generation context that proposed them. |
+| SkillMOO finds that pruning and substitution, not accumulation, are primary drivers of better skill bundles, improving pass rate while reducing cost. | Improve skills by removing stale or vague instructions and replacing them with precise procedures, not by appending warnings indefinitely. |
+| SkillReducer finds widespread verbosity and missing routing descriptions in public skills, and compresses descriptions and bodies while slightly improving quality. | Track token cost and keep skill descriptions sharp. Compression is a quality feature, not only a cost feature. |
+| SkillRouter shows routing quality drops sharply when the skill body is hidden from retrieval in large overlapping registries. | For large registries, use full-text indexing or body-aware reranking offline, then inject only the selected skill at runtime. |
+| AgentSkillOS shows tree-based retrieval and DAG-based orchestration outperform flat skill invocation at ecosystem scale. | When private and marketplace skill counts grow, organize skills hierarchically and compose them as workflows instead of dumping more choices into context. |
+| Wild skill-usage studies show benefits become fragile when agents must retrieve from large uncurated skill pools, but query-specific refinement can recover performance. | Per-wallet improvement should refine skills against the exact recovered question and nearby real tasks. |
+| Skill-Inject and related security papers show malicious skill files can trigger harmful tool use, data exfiltration, and supply-chain attacks. | Skills must be treated as executable supply-chain artifacts, with provenance, scan, trust, and permission boundaries. |
+
+Primary sources:
+
+- [Anthropic Claude Code skills](https://code.claude.com/docs/en/skills)
+- [Anthropic skill authoring best practices](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices)
+- [Agent Skills for Large Language Models](https://arxiv.org/abs/2602.12430)
+- [SkillsBench](https://arxiv.org/abs/2602.12670)
+- [SWE-Skills-Bench](https://arxiv.org/abs/2603.15401)
+- [CoEvoSkills](https://arxiv.org/abs/2604.01687)
+- [SkillMOO](https://arxiv.org/abs/2604.09297)
+- [SkillReducer](https://arxiv.org/abs/2603.29919)
+- [SkillRouter](https://arxiv.org/abs/2603.22455)
+- [SkillFlow retrieval](https://arxiv.org/abs/2504.06188)
+- [AgentSkillOS](https://arxiv.org/abs/2603.02176)
+- [How Well Do Agentic Skills Work in the Wild](https://arxiv.org/abs/2604.04323)
+- [Skill-Inject](https://arxiv.org/abs/2602.20156)
+- [Secure Agent Skills threat taxonomy](https://arxiv.org/abs/2604.02837)
+
+## Benchmarking With Real GitHub Work
+
+RickyData should use the `ai_research` benchmark infrastructure as the measurement layer for private and admin skill evolution.
+
+The strongest evaluation path is TDD-verified GitHub replay:
+
+1. Pick a real closed issue or merged PR.
+2. Pin the base commit and close commit.
+3. Author a narrow test that fails at the base commit and passes at the close commit.
+4. Replay the same task with the baseline skill set and the candidate skill set.
+5. Promote only if the candidate improves or preserves red-green correctness, does not over-engineer the diff, does not introduce security risk, and does not exceed cost limits.
+
+This gives RickyData a legitimate research track rooted in actual development work instead of synthetic preference scores alone. The admin A/B system remains useful for answer quality, but code-facing skills need execution-based gates.
+
+## Next Implementation Steps
+
+1. Add optional per-wallet A/B mode for private skill proposals. The original failed-or-recovered user question becomes the primary regression prompt.
+2. Store candidate private skill changes before activation. Promote only after A/B or TDD evidence, depending on the skill type.
+3. Add Hermes-style validation to the private skill writer: frontmatter checks, allowed support directories, size budgets, atomic writes, and rollback on failed scan.
+4. Add wallet-specific security scanning for private keys, seed phrases, `mcpwt_` tokens, bearer tokens, `.env` dumping, destructive shell commands, persistence, and prompt injection.
+5. Add provenance records for every private skill: source sessions, verification date, hash, evidence level, model used, and promotion gate.
+6. Connect `ai_research` TDD-verified benchmarks to `mcp_deployments_registry` issue/PR history, starting with `mcp-agent-gateway`, `mcp-gateway`, and `mcp-marketplace`.
+7. Surface self-improvement evidence in the wallet UI: proposed change, recovered question, baseline vs variant outcome, token delta, tool-error delta, and promotion status.
+
+The target state is simple: every durable skill should explain what real failure it prevents, what verified behavior it preserves, how it was tested, and when it should be removed.

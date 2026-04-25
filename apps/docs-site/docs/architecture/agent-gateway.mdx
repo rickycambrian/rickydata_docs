@@ -109,6 +109,8 @@ Scheduling: `after_each`, `daily`, `weekly`, `biweekly` via `PUT /wallet/setting
 
 The pipeline extracts facets from conversation history and synthesizes reusable learnings/skills.
 
+For the detailed verification model, admin A/B gates, and research validation, see [Self-Improvement & Research Validation](/docs/architecture/self-improvement-research-validation).
+
 ## TEE attestation
 
 The Agent Gateway runs on its own AMD SEV-SNP Confidential VM with matching attestation endpoints:
@@ -130,3 +132,4 @@ curl -s https://agents.rickydata.org/health | jq '.securityPosture'
 
 - [Security Model](/docs/architecture/security-model) — full TEE trust chain
 - [MCP Gateway](/docs/architecture/gateway) — the tool execution layer
+- [Self-Improvement & Research Validation](/docs/architecture/self-improvement-research-validation) - private skills, A/B tests, and benchmark strategy
