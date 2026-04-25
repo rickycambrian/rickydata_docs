@@ -15,10 +15,10 @@ RickyData has two related but separate self-improvement systems:
 
 | Surface | Scope | Purpose | Current gate |
 |---------|-------|---------|--------------|
-| Wallet self-improvement | One wallet | Private facets, learnings, skills, and agent instructions for that wallet | BYOK-only extraction, transcript grounding, confidence thresholds, per-wallet storage, bounded history |
+| Wallet self-improvement | One wallet | Private facets, learnings, skills, and agent instructions for that wallet | BYOK-only extraction, transcript grounding, confidence thresholds, per-wallet storage, safety scanning, atomic writes, provenance manifest, bounded history |
 | Admin improvements | Platform/admin agents | Global agent behavior, example questions, and project skills | Recovery detection, candidate generation, A/B testing, promotion gates, rollback snapshots |
 
-The wallet system is private and user-specific. The admin system is broader and therefore has a stricter promotion lifecycle, including A/B tests and rollback. The next hardening step is to let users opt into the same A/B discipline for private wallet skill changes.
+The wallet system is private and user-specific. The admin system is broader and therefore has a stricter promotion lifecycle, including A/B tests and rollback.
 
 ## Wallet Flow
 
@@ -29,8 +29,10 @@ Wallet self-improvement runs through the Agent Gateway:
 3. **Synthesize cross-session learnings** from unsynthesized facets. The synthesizer looks for repeated workflows, recurring friction, successful tool combinations, and concrete techniques.
 4. **Ground learnings in transcript evidence** before they can become skills. Tool names, file paths, and quoted commands or errors must be found in the source transcript often enough to pass the guard.
 5. **Generate skill proposals** only from high-confidence learnings. Related learnings are grouped, new skill creation is capped per run, thin single-observation skills are rejected, and generated skills must include routing, workflow, and quality sections.
-6. **Write wallet-scoped artifacts atomically** under the wallet's `.claude` area. Global project skills are not changed by private wallet improvement.
-7. **Track health** through trigger counts and stale-skill pruning so private skills do not accumulate forever.
+6. **Validate private skill content** with frontmatter checks, required workflow sections, size budgets, broad-instruction warnings, and wallet-specific security scanning.
+7. **Write wallet-scoped artifacts atomically** under the wallet's `.claude` area. Global project skills are not changed by private wallet improvement.
+8. **Record provenance** in the private skill manifest, including content hashes, source sessions, source agents, evidence level, validation warnings, and revision count.
+9. **Track health** through trigger counts and stale-skill pruning so private skills do not accumulate forever.
 
 Runs are BYOK-only. If a wallet has not stored an API key, the run skips without mutating state. The current schedule options are `after_each`, `daily`, `weekly`, and `biweekly`.
 
@@ -79,7 +81,9 @@ The system is intentionally closer to scientific measurement than preference mem
 | Transcript grounding | Prevents hallucinated learnings from becoming persistent instructions. |
 | Confidence and thickness gates | Prevents one-off weak observations from becoming skills. |
 | Bounded skill creation | Prevents skill sprawl. |
+| Private skill safety scanning | Blocks wallet tokens, private keys, seed phrases, `.env` dumping, prompt injection, destructive shell commands, and persistence instructions. |
 | Atomic writes | Prevents partially written skills or state files. |
+| Provenance manifests | Makes each private skill revision traceable to source sessions, hashes, evidence level, and validation warnings. |
 | Skill health tracking | Prevents stale or unused skills from silently dominating future behavior. |
 | Admin A/B testing | Prevents global behavior changes that sound good but regress real answers. |
 | Rollback snapshots | Makes promoted global changes reversible. |
@@ -90,13 +94,12 @@ Hermes is a useful reference because it treats skills as managed procedural memo
 
 | Hermes pattern | RickyData application |
 |----------------|----------------------|
-| Constrained skill manager | Private skill updates should go through a narrow mutation layer, not arbitrary filesystem edits. |
-| Frontmatter and size validation | Skill creation should reject bad metadata, overbroad bodies, and malformed files before activation. |
-| Supporting-file allowlist | Skill packages should only place extra files in known directories such as `references`, `scripts`, `templates`, and `assets`. |
+| Constrained skill manager | Private skill updates go through the wallet skill evolver rather than arbitrary filesystem edits. |
+| Frontmatter and size validation | Skill creation rejects bad metadata, overbroad bodies, and malformed files before activation. |
 | Metadata-first loading | Agents should route on compact metadata and load bodies or references only when needed. |
-| Atomic writes and rollback-on-scan | Skill edits should either fully apply or leave the previous version intact. |
-| Guard scanner | Private skills should be scanned for secret exfiltration, prompt injection, destructive commands, persistence, and wallet-token leakage. |
-| Manifest/provenance records | Wallet skills should remember source session, verification date, content hash, and promotion evidence. |
+| Atomic writes | Skill edits either fully apply or leave the previous version intact. |
+| Guard scanner | Private skills are scanned for secret exfiltration, prompt injection, destructive commands, persistence, and wallet-token leakage. |
+| Manifest/provenance records | Wallet skills remember source sessions, revision hashes, evidence level, and validation warnings. |
 
 The main difference is policy. Hermes can allow general agent-created skills. RickyData should keep wallet skills private, verified, provenance-tracked, and scanned by default.
 
@@ -136,7 +139,7 @@ Primary sources:
 
 ## Benchmarking With Real GitHub Work
 
-RickyData should use the `ai_research` benchmark infrastructure as the measurement layer for private and admin skill evolution.
+The `ai_research` benchmark infrastructure is the measurement layer for research-grade evaluation of code-facing skill changes.
 
 The strongest evaluation path is TDD-verified GitHub replay:
 
@@ -146,16 +149,4 @@ The strongest evaluation path is TDD-verified GitHub replay:
 4. Replay the same task with the baseline skill set and the candidate skill set.
 5. Promote only if the candidate improves or preserves red-green correctness, does not over-engineer the diff, does not introduce security risk, and does not exceed cost limits.
 
-This gives RickyData a legitimate research track rooted in actual development work instead of synthetic preference scores alone. The admin A/B system remains useful for answer quality, but code-facing skills need execution-based gates.
-
-## Next Implementation Steps
-
-1. Add optional per-wallet A/B mode for private skill proposals. The original failed-or-recovered user question becomes the primary regression prompt.
-2. Store candidate private skill changes before activation. Promote only after A/B or TDD evidence, depending on the skill type.
-3. Add Hermes-style validation to the private skill writer: frontmatter checks, allowed support directories, size budgets, atomic writes, and rollback on failed scan.
-4. Add wallet-specific security scanning for private keys, seed phrases, `mcpwt_` tokens, bearer tokens, `.env` dumping, destructive shell commands, persistence, and prompt injection.
-5. Add provenance records for every private skill: source sessions, verification date, hash, evidence level, model used, and promotion gate.
-6. Connect `ai_research` TDD-verified benchmarks to `mcp_deployments_registry` issue/PR history, starting with `mcp-agent-gateway`, `mcp-gateway`, and `mcp-marketplace`.
-7. Surface self-improvement evidence in the wallet UI: proposed change, recovered question, baseline vs variant outcome, token delta, tool-error delta, and promotion status.
-
-The target state is simple: every durable skill should explain what real failure it prevents, what verified behavior it preserves, how it was tested, and when it should be removed.
+This gives RickyData a legitimate research track rooted in actual development work instead of synthetic preference scores alone. The admin A/B system remains useful for answer quality, while code-facing skills use execution-based gates when a task has testable repository behavior.
