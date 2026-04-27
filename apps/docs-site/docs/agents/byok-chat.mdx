@@ -7,17 +7,17 @@ import SDKWidget from '@site/src/components/SDKWidget';
 
 # BYOK Agent Chat
 
-Bring Your Own Key (BYOK) lets you use your own Anthropic API key for agent chat, paying only for actual usage with a 10% platform markup.
+Bring Your Own Key (BYOK) lets you use your own provider API key for agent chat, paying only for actual usage with a 10% platform markup.
 
 ## How BYOK works
 
-1. You store your Anthropic API key in the Agent Gateway's encrypted vault
-2. When you chat, the gateway uses your key to call Claude
-3. You pay Anthropic directly for LLM usage
+1. You store your provider API key in the Agent Gateway's encrypted vault
+2. When you chat, the gateway unlocks your provider key for the active session
+3. You pay the model provider directly for LLM usage
 4. RickyData charges a 10% platform markup + $0.0005 per MCP tool call
 5. Total cost is deducted from your wallet's USDC balance
 
-Your API key is encrypted with AES-256-GCM using a per-wallet HKDF-derived key. It is decrypted only at call time, passed directly to the Anthropic API, then the derived key is wiped from memory. Even the VM's hypervisor cannot read it — AMD SEV-SNP encrypts all memory at the hardware level.
+New provider keys are encrypted with sign-to-derive: your wallet signs one deterministic provider-vault message, and that signature derives the encryption key. The gateway persists ciphertext only. After a restart or cache expiry, one provider-vault unlock signature unlocks all configured provider keys for the active session. Decrypted keys are cached only in gateway memory for a bounded session window inside the AMD SEV-SNP TEE.
 
 ## Store your API key
 
@@ -27,6 +27,8 @@ Your API key is encrypted with AES-256-GCM using a per-wallet HKDF-derived key. 
 rickydata apikey set
 # Prompts for your sk-ant-... key
 ```
+
+When the CLI profile was created with `rickydata auth login --private-key`, `apikey set` uses the unified provider-vault sign-to-derive flow. The chat CLI also unlocks the provider vault automatically from that local private key before starting a session.
 
 ### SDK
 
@@ -82,10 +84,13 @@ Switch models in the chat REPL:
 
 BYOK supports additional providers beyond Anthropic:
 
-- **OpenAI** — GPT-4, GPT-4o
-- **Custom** — any OpenAI-compatible API endpoint
+- **OpenRouter** — OpenRouter-hosted models
+- **Z.ai** — GLM models
+- **DeepSeek** — DeepSeek models
+- **Gemini** — Google Gemini models
+- **OpenAI** — Codex/OpenAI execution
 
-Configure via wallet settings:
+Configure providers in Wallet settings:
 
 ```bash
 rickydata wallet settings

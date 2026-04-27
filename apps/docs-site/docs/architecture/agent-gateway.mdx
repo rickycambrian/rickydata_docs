@@ -41,16 +41,16 @@ The chat route requires a BYOK key (`ANTHROPIC_API_KEY`) in the vault. If no key
 
 ## API key vault
 
-Per-wallet encrypted storage for BYOK Anthropic API keys:
+Per-wallet encrypted storage for BYOK provider API keys:
 
 | Property | Implementation |
 |----------|---------------|
-| Encryption | AES-256-GCM with per-user HKDF-derived keys |
+| Encryption | New provider keys use sign-to-derive AES-256-GCM from one deterministic provider-vault wallet signature |
 | Vault keys | HMAC-SHA256 (wallet addresses never stored in plaintext) |
-| Persistence | Optional encrypted persistence via `LEDGER_ENCRYPTION_KEY` + `VAULT_PERSISTENCE_DIR` |
+| Persistence | Provider-vault ciphertext under `VAULT_PERSISTENCE_DIR`; decrypted keys are session-memory only |
 | Production mode | Can fail-closed if persistent vault is unavailable |
 
-The status endpoint (`GET /wallet/apikey`) returns only configuration state, never key material.
+The provider-vault unlock endpoint (`POST /wallet/provider-vault/unlock`) unlocks all configured provider keys with one wallet signature for the active session and migrates legacy server-decryptable copies to user-controlled ciphertext when possible. Status endpoints return only configuration state, never key material.
 
 ## Unified wallet ledger
 
