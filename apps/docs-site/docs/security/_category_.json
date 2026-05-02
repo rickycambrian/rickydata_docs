@@ -1,0 +1,8 @@
+{
+  "label": "Security",
+  "position": 9,
+  "link": {
+    "type": "generated-index",
+    "description": "TEE attestation, security-kernel verification, and Rust trust-plane audit guides."
+  }
+}

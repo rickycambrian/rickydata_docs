@@ -7,7 +7,7 @@ sidebar_position: 4
 
 The RickyData platform runs on AMD SEV-SNP Confidential VMs with 10 defense-in-depth layers. Every security claim is independently verifiable — you never need to trust the gateway itself.
 
-**Live verification**: [marketplace.rickydata.org/security](https://marketplace.rickydata.org/security) — interactive page that calls real gateway endpoints and shows raw proof payloads.
+**Live verification**: [rickydata.org/security](https://rickydata.org/security) — interactive page that calls real gateway endpoints and shows raw proof payloads.
 
 ## Defense-in-depth layers
 
@@ -19,7 +19,7 @@ The RickyData platform runs on AMD SEV-SNP Confidential VMs with 10 defense-in-d
 | 4. Secrets | vTPM PCR-bound keys | Platform secrets sealed to hardware |
 | 5. Wallet isolation | AES-256-GCM + HKDF | Each user's secrets encrypted with wallet-derived keys |
 | 6. Authentication | Wallet tokens + ES256 | Cryptographic proof of wallet ownership |
-| 7. Sandbox | Docker + gVisor + read-only FS | MCP servers run in isolated containers |
+| 7. Sandbox | Rust `sandboxd` + Docker + gVisor | MCP servers run in isolated per-session containers |
 | 8. Payments | x402 conditional settlement | Charge only on success, EIP-712 signed |
 | 9. Output protection | Secret redaction | Secrets never appear in logs or responses |
 | 10. Release guard | Attestation-gated | Secrets blocked if attestation is degraded |
@@ -80,6 +80,15 @@ curl -s https://mcp.rickydata.org/api/attestation/provenance | \
 ```
 
 Includes git commit SHA, OCI image digest, attestation bundle hash, and verification hints.
+
+The same provenance response also exposes the Rust trust-plane helpers shipped inside the gateway image:
+
+```bash
+curl -s https://mcp.rickydata.org/api/attestation/provenance | \
+  jq '.trustPlane | {cargoLockHashSha256, runtimeModes, binaries}'
+```
+
+`sandboxd` owns container lifecycle policy and `trust-plane` owns secret-release/proof decisions. Their SHA-256 hashes are reported beside the npm `@rickydata/security-kernel` lockfile integrity so auditors can see both the cryptographic package and the deployed runtime boundary.
 
 </Collapsible>
 
@@ -147,10 +156,20 @@ Three wallet-based auth methods:
 <Collapsible
   icon={<Icons.shield width={16} height={16} />}
   title="Layer 7: Container sandbox"
-  sub="Docker + gVisor + read-only FS for MCP server isolation."
+  sub="Rust sandboxd + Docker + gVisor for MCP server isolation."
 >
 
-MCP servers run with: read-only FS, `noexec /tmp`, all capabilities dropped, no new privileges, non-root user, restricted network, optional gVisor.
+MCP servers run with: read-only FS, tmpfs/session-local writes, all capabilities dropped, no new privileges, non-root user, restricted or per-session permissive networking, optional gVisor.
+
+The Rust `sandboxd` helper is rolled out behind `SANDBOXD_ENABLED` modes:
+
+| Mode | Behavior |
+|------|----------|
+| `shadow` | TypeScript executes; Rust planned args are compared and mismatches are logged |
+| `permissive` | Rust starts containers; TypeScript fallback remains available for internal errors |
+| `enforced` | Rust owns lifecycle and security denials fail closed |
+
+For `session_permissive_isolated`, normal internet egress is allowed while cloud metadata and private/internal ranges remain blocked.
 
 </Collapsible>
 
@@ -209,6 +228,9 @@ Gateway Code Hash (SHA-256 over dist/**/*.js)
     v
 Build Provenance (GitHub Actions + attestation bundle)
     v
+Rust Trust Plane (sandboxd + trust-plane helper hashes)
+    |  - sandbox lifecycle, secret-release posture, proof canonicalization
+    v
 vTPM PCR-Bound Secrets (sha256:0,1,2,3,4,5,7)
     |  handle 0x81000099, only this TEE can unseal
     v
@@ -231,8 +253,9 @@ curl -s https://agents.rickydata.org/health | jq '.securityPosture'
 # Cross-gateway trust
 curl -s https://mcp.rickydata.org/health | jq '.crossGatewayTrust'
 
-# Build provenance
-curl -s https://mcp.rickydata.org/api/attestation/provenance | jq '{source, image}'
+# Build provenance + trust-plane helper hashes
+curl -s https://mcp.rickydata.org/api/attestation/provenance | \
+  jq '{source, image, securityKernel, trustPlane}'
 
 # Offline verification
 curl -s https://mcp.rickydata.org/api/attestation/bundle | \

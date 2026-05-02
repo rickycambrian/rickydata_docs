@@ -1,0 +1,45 @@
+---
+title: TEE Trust Chain
+sidebar_position: 1
+---
+
+# TEE Trust Chain
+
+RickyData ties hardware attestation, package integrity, Rust trust-plane helpers, and execution proofs into one live verification path.
+
+## Live Verification
+
+```bash
+curl -s https://mcp.rickydata.org/api/attestation/provenance | \
+  jq '{source, image, securityKernel, trustPlane}'
+```
+
+The `securityKernel` object shows the deployed `@rickydata/security-kernel` package version, installed version, package-lock hash, and npm integrity string.
+
+The `trustPlane` object shows the Rust helper hashes and rollout modes:
+
+| Helper | Responsibility |
+|--------|----------------|
+| `sandboxd` | Container planning/start policy and per-session network isolation |
+| `trust-plane` | Secret-release decisions and proof/receipt canonicalization |
+
+## Complete Chain
+
+1. Verify the TEE and code hash: `GET https://mcp.rickydata.org/api/verify`
+2. Verify the deployed image and GitHub Actions provenance: `GET https://mcp.rickydata.org/api/attestation/provenance`
+3. Audit `@rickydata/security-kernel` for encryption, sign-to-derive, and TPM sealing.
+4. Audit the Rust trust plane in `mcp_deployments_registry/rust/` for sandbox lifecycle, secret-release, and proof boundaries.
+5. Verify an execution proof from a real tool call.
+
+## Session Isolation
+
+The `session_permissive_isolated` runtime profile allows tools to use broad internet egress while keeping each authenticated session in its own isolated container/network scope. Metadata endpoints and private/internal ranges remain blocked.
+
+This lets user sessions be permissive enough for real MCP tools while preserving the hard boundary that one session or wallet must not share secret-bearing process state with another.
+
+## Public Audit Surfaces
+
+- Security page: [rickydata.org/security](https://rickydata.org/security)
+- Security kernel source: [github.com/rickycambrian/rickydata_security_kernel](https://github.com/rickycambrian/rickydata_security_kernel)
+- Security kernel package: [npmjs.com/package/@rickydata/security-kernel](https://www.npmjs.com/package/@rickydata/security-kernel)
+- MCP Gateway provenance: [mcp.rickydata.org/api/attestation/provenance](https://mcp.rickydata.org/api/attestation/provenance)

@@ -29,6 +29,7 @@ This is the "gateway_secret_key_fallback" source in the health endpoint.
 | Master Key Source | Random (fresh each startup) |
 | Secret Persistence | None (in-memory only) |
 | TEE | AMD SEV-SNP |
+| Trust Plane | Rust `sandboxd` + `trust-plane` helpers |
 
 ## Verification
 
@@ -57,6 +58,21 @@ ls -la node_modules/@rickydata/security-kernel/
 # Or verify via the gateway
 curl -s https://mcp.rickydata.org/health | jq '.securityPosture.keySources'
 ```
+
+### Rust Trust-Plane Verification
+
+```bash
+curl -s https://mcp.rickydata.org/api/attestation/provenance | \
+  jq '.trustPlane | {cargoLockHashSha256, runtimeModes, binaries}'
+```
+
+Expected:
+- `binaries.sandboxd.matchesManifest`: `true`
+- `binaries.trustPlane.matchesManifest`: `true`
+- `runtimeModes.sandboxd`: `shadow`, `permissive`, or `enforced`
+- `runtimeModes.sandboxRuntimeProfile`: `session_permissive_isolated` during permissive isolated rollout
+
+The trust plane lets individual sessions use permissive internet-capable tools while keeping each session/container/network scope isolated and blocking metadata/private network access.
 
 ## Secret Management
 

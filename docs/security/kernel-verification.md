@@ -15,6 +15,8 @@ The `@rickydata/security-kernel` is a publicly auditable npm package that provid
 
 Both the MCP Gateway and Agent Gateway use this same package, enabling public verification that both gateways use identical cryptographic code.
 
+The MCP Gateway also publishes Rust trust-plane provenance for the security-sensitive runtime boundary. The npm package proves the crypto implementation; the Rust helper hashes prove the deployed sandbox, secret-release, and proof-canonicalization helpers.
+
 ## Quick Verification
 
 ### Step 1: Check Security Kernel Package
@@ -42,6 +44,15 @@ curl -s https://agents.rickydata.org/health | jq '.securityPosture.keySources'
 ```
 
 Expected output shows keys with `tpm_pcr` source.
+
+### Step 4: Verify MCP Gateway Trust Plane
+
+```bash
+curl -s https://mcp.rickydata.org/api/attestation/provenance | \
+  jq '{securityKernel: .securityKernel, trustPlane: .trustPlane}'
+```
+
+Expected output shows `securityKernel.lockedVersion`, npm integrity, `trustPlane.cargoLockHashSha256`, and matching hashes for `sandboxd` and `trust-plane`.
 
 ## Detailed Verification
 
@@ -119,6 +130,13 @@ npm test
 | Master Key Source | Random (in-memory) | TPM-sealed |
 | Persistence | None | TPM |
 | PCR Binding | N/A | sha256:0,1,2,3,4,5,7 |
+
+## Rust Trust Plane
+
+| Helper | Gateway | Responsibility |
+|--------|---------|----------------|
+| `sandboxd` | MCP Gateway | Container lifecycle, Docker isolation args, per-session network posture |
+| `trust-plane` | MCP Gateway | Secret-release decisions and proof/receipt canonicalization |
 
 ## Related Documentation
 

@@ -26,6 +26,10 @@ The Rickydata platform implements multiple layers of security:
 │    └─ Signed CI/CD provenance                                     │
 │       └─ Immutable image digests                                  │
 │                                                                  │
+│  Layer 3b: Rust Trust Plane                                       │
+│    └─ sandboxd + trust-plane helper hashes                        │
+│       └─ Sandbox, secret-release, proof boundaries                │
+│                                                                  │
 │  Layer 4: Secrets Protection                                     │
 │    └─ @rickydata/security-kernel                                  │
 │       └─ TPM-sealed (Agent GW) or in-memory (MCP GW)            │
@@ -90,6 +94,12 @@ Even if a buggy MCP server echoes back a secret in its output, the two-layer red
 - Two modes: "enforced" (production) or "audit" (logging only)
 - Per-gateway trusted/degraded count tracking
 
+### Rust Trust Plane
+- `sandboxd` owns MCP container planning/start policy and per-session network isolation
+- `trust-plane` owns secret-release decisions and proof/receipt canonicalization
+- Helper hashes and rollout modes are exposed in `GET /api/attestation/provenance`
+- `session_permissive_isolated` allows broad internet egress while blocking metadata and private/internal ranges
+
 ## Verification
 
 Run the security verification:
@@ -98,9 +108,10 @@ Run the security verification:
 # Full verification
 curl -s https://mcp.rickydata.org/health | jq '.securityPosture'
 curl -s https://agents.rickydata.org/health | jq '.securityPosture'
+curl -s https://mcp.rickydata.org/api/attestation/provenance | jq '{securityKernel, trustPlane}'
 
 # Or use the security page
-open https://marketplace.rickydata.org/security
+open https://rickydata.org/security
 ```
 
 ## Related Documentation
