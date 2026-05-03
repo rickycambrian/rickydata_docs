@@ -112,6 +112,10 @@ cat src/encryption-inmem.ts
 npm install
 npm run build
 npm test
+
+# Inspect monorepo usage evidence mirrored after gateway deploys
+cat MONOREPO_SYNC.md
+find examples -maxdepth 3 -type f | sort
 ```
 
 ### What to Look For
@@ -120,6 +124,7 @@ npm test
 2. **HKDF**: Key derivation using HMAC-based KDF
 3. **No hardcoded keys**: Keys should come from TPM or random generation
 4. **No secret logging**: Secrets should never appear in logs
+5. **Gateway bindings**: `examples/mcp-gateway/`, `examples/mcp-agent-gateway/`, and `examples/rust-trust-plane/` show how the deployed gateways use the public kernel and Rust trust-plane helpers without mixing gateway-only imports into the npm package.
 
 ## Security Properties
 

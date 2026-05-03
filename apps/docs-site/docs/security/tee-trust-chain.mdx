@@ -28,8 +28,9 @@ The `trustPlane` object shows the Rust helper hashes and rollout modes:
 1. Verify the TEE and code hash: `GET https://mcp.rickydata.org/api/verify`
 2. Verify the deployed image and GitHub Actions provenance: `GET https://mcp.rickydata.org/api/attestation/provenance`
 3. Audit `@rickydata/security-kernel` for encryption, sign-to-derive, and TPM sealing.
-4. Audit the Rust trust plane in `mcp_deployments_registry/rust/` for sandbox lifecycle, secret-release, and proof boundaries.
-5. Verify an execution proof from a real tool call.
+4. Inspect `rickydata_security_kernel/MONOREPO_SYNC.md` and `examples/` for the gateway wrappers and Rust trust-plane sources mirrored from the monorepo after deployment.
+5. Audit the Rust trust plane in `mcp_deployments_registry/rust/` for sandbox lifecycle, secret-release, and proof boundaries.
+6. Verify an execution proof from a real tool call.
 
 ## Session Isolation
 
@@ -41,5 +42,6 @@ This lets user sessions be permissive enough for real MCP tools while preserving
 
 - Security page: [rickydata.org/security](https://rickydata.org/security)
 - Security kernel source: [github.com/rickycambrian/rickydata_security_kernel](https://github.com/rickycambrian/rickydata_security_kernel)
+- Monorepo sync evidence: [github.com/rickycambrian/rickydata_security_kernel/blob/main/MONOREPO_SYNC.md](https://github.com/rickycambrian/rickydata_security_kernel/blob/main/MONOREPO_SYNC.md)
 - Security kernel package: [npmjs.com/package/@rickydata/security-kernel](https://www.npmjs.com/package/@rickydata/security-kernel)
 - MCP Gateway provenance: [mcp.rickydata.org/api/attestation/provenance](https://mcp.rickydata.org/api/attestation/provenance)
