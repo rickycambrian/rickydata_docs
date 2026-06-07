@@ -30,7 +30,6 @@ jobs:
       - name: Validate required secrets
         run: |
           missing=""
-          [ -z "${{ secrets.GCP_SA_KEY }}" ] && missing="$missing GCP_SA_KEY"
           [ -z "${{ secrets.PRIVY_APP_ID }}" ] && missing="$missing PRIVY_APP_ID"
           if [ -n "$missing" ]; then
             echo "::error::Missing required secrets:$missing"
@@ -51,7 +50,8 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: projects/883260741347/locations/global/workloadIdentityPools/github-actions/providers/github-actions-provider
+          service_account: rickydata-docs-gha@ai-projects-442213.iam.gserviceaccount.com
 
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
