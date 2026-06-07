@@ -30,6 +30,7 @@ jobs:
       vars.SKIP_VERIFICATION != 'true'
     permissions:
       issues: write
+      id-token: write
       contents: read
       actions: read
     steps:
@@ -41,7 +42,8 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: projects/883260741347/locations/global/workloadIdentityPools/github-actions/providers/github-actions-provider
+          service_account: rickydata-docs-gha@ai-projects-442213.iam.gserviceaccount.com
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -146,7 +148,12 @@ jobs:
           script: |
             const sha = context.payload.workflow_run?.head_sha || context.sha;
             const title = `[Deploy Verification] Docs deployment check failed (${sha.substring(0, 7)})`;
-            const body = `## Docs Deployment Verification Failed\n\n**Commit:** \`${sha}\`\n**Time:** ${new Date().toISOString()}\n\nSee [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`;
+            const body = `## Docs Deployment Verification Failed
+
+**Commit:** \`${sha}\`
+**Time:** ${new Date().toISOString()}
+
+See [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`;
 
             const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
