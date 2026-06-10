@@ -6,7 +6,7 @@
  * Checks:
  *   1. API /health returns {"status":"ok"}
  *   2. API /api/public/nav returns product navigation
- *   3. Web root serves the SPA shell with <div id="root">
+ *   3. Web root serves the app shell with a React or Docusaurus root container
  *   4. Response times within thresholds
  *
  * Usage:
@@ -93,7 +93,7 @@ async function checkWebRoot() {
     return;
   }
   const res = await timedFetch(WEB_URL);
-  const hasRoot = typeof res.body === 'string' && /<div[^>]*id=["']root["'][^>]*><\/div>/i.test(res.body);
+  const hasRoot = typeof res.body === 'string' && /<div[^>]*id=["'](?:root|__docusaurus)["'][^>]*>/i.test(res.body);
   const passed = res.ok && hasRoot && res.elapsed < THRESHOLDS.webRoot;
   addResult('GET / (Web)', passed, {
     elapsed_ms: res.elapsed,
