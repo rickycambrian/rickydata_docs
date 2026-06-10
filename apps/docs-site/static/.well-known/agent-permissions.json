@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "site": "https://docs.rickydata.org",
+  "canonical": "https://docs.rickydata.org/",
+  "permissions": {
+    "crawl": true,
+    "index": true,
+    "summarize": true,
+    "quote": true,
+    "toolUse": false,
+    "purchase": false
+  },
+  "preferredSources": [
+    "https://docs.rickydata.org/llms.txt",
+    "https://docs.rickydata.org/llms-full.txt",
+    "https://docs.rickydata.org/skill.md",
+    "https://rickydata.org/skill.md"
+  ],
+  "entrypoints": {
+    "platform": "https://rickydata.org/",
+    "mcp": "https://mcp.rickydata.org/mcp",
+    "agentGatewayHealth": "https://agents.rickydata.org/health"
+  },
+  "contacts": {
+    "security": "https://rickydata.org/security",
+    "docs": "https://docs.rickydata.org/"
+  }
+}

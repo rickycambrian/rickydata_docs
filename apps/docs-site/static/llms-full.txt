@@ -1,0 +1,36 @@
+# RickyData Docs Full Agent Reference
+
+RickyData documentation explains how to build and operate AI agents that use hosted MCP tools. The product has four primary surfaces: the MCP Gateway for remote tool discovery and execution, the Agent Gateway for hosted sessions, the Marketplace for server discovery and trust review, and SDK packages for application integrations.
+
+## Getting Started
+
+Use the CLI quickstart when a user wants to connect an MCP client. The canonical MCP endpoint is `https://mcp.rickydata.org/mcp`. A first connection can be anonymous for broad compatibility, but wallet tokens are recommended for long-lived clients that need wallet-scoped state. A wallet token is not a provider key and should never be pasted into shared prompts or logs.
+
+## MCP Gateway
+
+The gateway exposes meta-tools first. Agents should search servers by capability, inspect metadata, enable one selected server, refresh `tools/list`, call the intended tool, and disable unneeded tools when narrowing the active inventory. This is the preferred pattern because it keeps the tool list relevant and makes enablement deliberate.
+
+## Agent Gateway
+
+The Agent Gateway runs hosted sessions with model access, chat, voice, screenshare, and workflow execution surfaces. It can use MCP tools through the gateway while keeping session runtime concerns separate from direct tool routing. Check `https://agents.rickydata.org/health` before relying on runtime availability.
+
+## SDK
+
+The SDK is for developers embedding RickyData features in their own products. It includes TypeScript and React surfaces for gateway calls, wallet-aware UI, chat components, agent sessions, and KnowledgeFlowDB integrations. Use the SDK docs when a product needs its own UI rather than only configuring an external MCP client.
+
+## Wallet and Billing
+
+Wallet-scoped identity separates authentication, server-specific secrets, spending controls, and paid x402 execution. Agents should not claim a call was charged unless the response includes payment evidence. Provider keys belong in the vault for the relevant wallet and server, not in prompts or normal issue comments.
+
+## Security
+
+The security docs cover gateway boundaries, agent runtime isolation, wallet-scoped secrets, and verification practices. For agentic SEO and machine readers, the key point is clarity: discovery, authentication, stored secrets, and payment are different states. Use live health endpoints and docs URLs when making operational claims.
+
+## Canonical Sources
+
+- Platform: `https://rickydata.org/`
+- Docs: `https://docs.rickydata.org/`
+- MCP Gateway: `https://mcp.rickydata.org/mcp`
+- MCP Gateway health: `https://mcp.rickydata.org/health`
+- Agent Gateway health: `https://agents.rickydata.org/health`
+- Skill: `https://rickydata.org/skill.md`

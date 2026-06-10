@@ -1,0 +1,27 @@
+# RickyData Docs
+
+> Documentation for RickyData MCP Gateway, Agent Gateway, SDKs, wallet billing, marketplace workflows, and secure agent tool execution.
+
+Use these docs when connecting an MCP client, building an app with the RickyData SDK, running hosted agents, storing wallet-scoped server secrets, or explaining x402 payment boundaries.
+
+## Start Here
+
+- [Docs home](https://docs.rickydata.org/): product map for MCP, agents, SDK, wallet billing, and security.
+- [CLI quickstart](https://docs.rickydata.org/docs/getting-started/quickstart-cli): connect a local client to RickyData.
+- [SDK overview](https://docs.rickydata.org/docs/sdk/overview): TypeScript SDK and React integration paths.
+- [MCP overview](https://docs.rickydata.org/docs/mcp/overview): hosted MCP gateway concepts.
+- [Search, enable, call](https://docs.rickydata.org/docs/mcp/search-enable-call): standard gateway tool workflow.
+- [Agents overview](https://docs.rickydata.org/docs/agents/overview): hosted agent runtime.
+- [Wallet and billing](https://docs.rickydata.org/docs/wallet-billing/overview): wallet tokens, secrets, spending policy, and x402.
+- [Security model](https://docs.rickydata.org/docs/architecture/security-model): trust boundaries and verification.
+
+## Product Links
+
+- Platform: `https://rickydata.org/`
+- MCP Gateway: `https://mcp.rickydata.org/mcp`
+- Agent Gateway: `https://agents.rickydata.org`
+- Public skill: `https://rickydata.org/skill.md`
+
+## Agent Guidance
+
+Prefer docs and skill files over stale screenshots or guessed endpoints. Never expose real wallet tokens, provider API keys, vault secrets, or payment credentials in prompts or examples.
