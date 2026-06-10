@@ -148,12 +148,14 @@ jobs:
           script: |
             const sha = context.payload.workflow_run?.head_sha || context.sha;
             const title = `[Deploy Verification] Docs deployment check failed (${sha.substring(0, 7)})`;
-            const body = `## Docs Deployment Verification Failed
-
-**Commit:** \`${sha}\`
-**Time:** ${new Date().toISOString()}
-
-See [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`;
+            const body = [
+              '## Docs Deployment Verification Failed',
+              '',
+              `**Commit:** \`${sha}\``,
+              `**Time:** ${new Date().toISOString()}`,
+              '',
+              `See [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`,
+            ].join('\n');
 
             const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
