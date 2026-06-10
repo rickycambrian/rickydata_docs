@@ -77,7 +77,16 @@ jobs:
           echo "API_IMAGE=$API_IMAGE" >> "$GITHUB_ENV"
 
       - name: Deploy docs API
+        env:
+          DOCS_DATABASE_URL: ${{ secrets.DOCS_DATABASE_URL }}
         run: |
+          DATABASE_URL_FIXED=$(node -e '
+            const oldName = "ai-projects-442213:us-central1:rickydata-docs";
+            const newName = process.env.CLOUD_SQL_CONNECTION_NAME;
+            const escaped = oldName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const pattern = new RegExp(`${escaped}(?!-)`, "g");
+            process.stdout.write((process.env.DOCS_DATABASE_URL || "").replace(pattern, newName));
+          ')
           gcloud run deploy ${{ env.API_SERVICE }} \
             --image "$API_IMAGE" \
             --region ${{ env.REGION }} \
@@ -88,7 +97,7 @@ jobs:
             --max-instances 3 \
             --set-cloudsql-instances "${{ env.CLOUD_SQL_CONNECTION_NAME }}" \
             --set-env-vars "NODE_ENV=production" \
-            --set-env-vars "DATABASE_URL=${{ secrets.DOCS_DATABASE_URL }}" \
+            --set-env-vars "DATABASE_URL=$DATABASE_URL_FIXED" \
             --set-env-vars "INGEST_API_TOKEN=${{ secrets.INGEST_API_TOKEN }}" \
             --set-env-vars "CORS_ORIGIN=*" \
             --set-env-vars "DOCS_REPO_WORKDIR=/tmp/docs-sources" \
