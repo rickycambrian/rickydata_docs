@@ -16,6 +16,7 @@ env:
   API_REPOSITORY: rickydata-docs-api
   WEB_SERVICE: rickydata-docs-web
   API_SERVICE: rickydata-docs-api
+  CLOUD_SQL_CONNECTION_NAME: ai-projects-442213:us-central1:rickydata-docs-cmek
 
 jobs:
   deploy:
@@ -85,7 +86,7 @@ jobs:
             --port 8080 \
             --memory 512Mi \
             --max-instances 3 \
-            --add-cloudsql-instances "${{ secrets.CLOUD_SQL_CONNECTION_NAME }}" \
+            --add-cloudsql-instances "${{ env.CLOUD_SQL_CONNECTION_NAME }}" \
             --set-env-vars "NODE_ENV=production" \
             --set-env-vars "DATABASE_URL=${{ secrets.DOCS_DATABASE_URL }}" \
             --set-env-vars "INGEST_API_TOKEN=${{ secrets.INGEST_API_TOKEN }}" \
