@@ -86,7 +86,7 @@ jobs:
             --port 8080 \
             --memory 512Mi \
             --max-instances 3 \
-            --add-cloudsql-instances "${{ env.CLOUD_SQL_CONNECTION_NAME }}" \
+            --set-cloudsql-instances "${{ env.CLOUD_SQL_CONNECTION_NAME }}" \
             --set-env-vars "NODE_ENV=production" \
             --set-env-vars "DATABASE_URL=${{ secrets.DOCS_DATABASE_URL }}" \
             --set-env-vars "INGEST_API_TOKEN=${{ secrets.INGEST_API_TOKEN }}" \
