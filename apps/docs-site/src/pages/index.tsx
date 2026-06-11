@@ -48,6 +48,9 @@ export default function Home(): JSX.Element {
         <meta property="og:url" content="https://docs.rickydata.org/" />
         <meta property="og:image" content="https://docs.rickydata.org/img/rickydata-social-card.svg" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="RickyData Docs - MCP, Agents, SDK, Wallets, and Gateway Operations" />
+        <meta name="twitter:description" content="Start here for RickyData MCP Gateway, Agent Gateway, SDKs, wallet billing, marketplace workflows, and secure agent tool execution." />
+        <meta name="twitter:image" content="https://docs.rickydata.org/img/rickydata-social-card.svg" />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
