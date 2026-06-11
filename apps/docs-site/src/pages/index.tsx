@@ -118,7 +118,7 @@ export default function Home(): JSX.Element {
             RickyData separates free discovery, bearer authentication, wallet-scoped server secrets, model access, and paid x402 tool execution. An agent should not describe a payment as settled without response evidence, should not expose provider keys or wallet tokens, and should verify current gateway health before diagnosing client configuration.
           </p>
           <p>
-            For machine-readable guidance, start with <a href="https://docs.rickydata.org/llms.txt">llms.txt</a>, <a href="https://docs.rickydata.org/llms-full.txt">llms-full.txt</a>, and the public <a href="https://docs.rickydata.org/skill.md">skill file</a>. For human implementation work, begin with the CLI quickstart, then move to the SDK, MCP, wallet billing, and architecture guides as your product needs become more specific.
+            For machine-readable guidance, start with <a href="https://docs.rickydata.org/llms.txt">llms.txt</a>, <a href="https://docs.rickydata.org/llms-full.txt">llms-full.txt</a>, the public <a href="https://docs.rickydata.org/skill.md">skill file</a>, and the <a href="https://rickydata.org/agent-stack">agent stack catalog</a>. For human implementation work, begin with the CLI quickstart, then move to the SDK, MCP, wallet billing, and architecture guides as your product needs become more specific.
           </p>
         </section>
       </main>

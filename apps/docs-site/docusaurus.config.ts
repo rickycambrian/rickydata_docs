@@ -172,6 +172,7 @@ const config: Config = {
           title: 'Products',
           items: [
             { label: 'Marketplace', href: 'https://marketplace.rickydata.org' },
+            { label: 'Agent Stack', href: 'https://rickydata.org/agent-stack' },
             { label: 'Agent Gateway', to: '/docs/agents/overview' },
             { label: 'Wallet', to: '/docs/wallet-billing/overview' },
           ],
