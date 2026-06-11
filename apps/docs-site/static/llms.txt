@@ -6,14 +6,14 @@ Use these docs when connecting an MCP client, building an app with the RickyData
 
 ## Start Here
 
-- [Docs home](https://docs.rickydata.org/): product map for MCP, agents, SDK, wallet billing, and security.
-- [CLI quickstart](https://docs.rickydata.org/docs/getting-started/quickstart-cli): connect a local client to RickyData.
-- [SDK overview](https://docs.rickydata.org/docs/sdk/overview): TypeScript SDK and React integration paths.
-- [MCP overview](https://docs.rickydata.org/docs/mcp/overview): hosted MCP gateway concepts.
-- [Search, enable, call](https://docs.rickydata.org/docs/mcp/search-enable-call): standard gateway tool workflow.
-- [Agents overview](https://docs.rickydata.org/docs/agents/overview): hosted agent runtime.
-- [Wallet and billing](https://docs.rickydata.org/docs/wallet-billing/overview): wallet tokens, secrets, spending policy, and x402.
-- [Security model](https://docs.rickydata.org/docs/architecture/security-model): trust boundaries and verification.
+- [Docs home](https://docs.rickydata.org/): product map for MCP, agents, SDK, wallet billing, and security. (350 tokens)
+- [CLI quickstart](https://docs.rickydata.org/docs/getting-started/quickstart-cli): connect a local client to RickyData. (900 tokens)
+- [SDK overview](https://docs.rickydata.org/docs/sdk/overview): TypeScript SDK and React integration paths. (800 tokens)
+- [MCP overview](https://docs.rickydata.org/docs/mcp/overview): hosted MCP gateway concepts. (800 tokens)
+- [Search, enable, call](https://docs.rickydata.org/docs/mcp/search-enable-call): standard gateway tool workflow. (900 tokens)
+- [Agents overview](https://docs.rickydata.org/docs/agents/overview): hosted agent runtime. (800 tokens)
+- [Wallet and billing](https://docs.rickydata.org/docs/wallet-billing/overview): wallet tokens, secrets, spending policy, and x402. (800 tokens)
+- [Security model](https://docs.rickydata.org/docs/architecture/security-model): trust boundaries and verification. (1,500 tokens)
 
 ## Product Links
 
