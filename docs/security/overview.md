@@ -64,7 +64,7 @@ See [Security Kernel Verification](/docs/security/kernel-verification) for verif
 
 ## Key Security Features
 
-### Zero-Knowledge Architecture
+### User-Controlled Encryption
 - Operator cannot read user data
 - Keys derived from user signatures (Sign-to-Derive)
 - Or: Per-user keys with HKDF from wallet address
