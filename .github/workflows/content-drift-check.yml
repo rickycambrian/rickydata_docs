@@ -40,7 +40,7 @@ jobs:
           clone_repo https://github.com/rickycambrian/mcp_deployments_registry.git /tmp/mcp_deployments_registry
           clone_repo https://github.com/rickycambrian/rickydata_SDK.git /tmp/rickydata_SDK
           clone_repo https://github.com/rickycambrian/rickydata_mcp.git /tmp/rickydata_mcp
-          clone_repo https://github.com/rickycambrian/KF_serverless.git /tmp/KF_serverless
+          clone_repo https://github.com/rickycambrian/KF-serverless.git /tmp/KF_serverless
           clone_repo https://github.com/rickycambrian/canvas-workflows.git /tmp/canvas-workflows
 
       - name: Check drift
