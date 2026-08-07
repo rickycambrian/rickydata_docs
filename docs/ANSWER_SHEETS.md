@@ -2,6 +2,8 @@
 
 Answer sheets are proven solution patterns mined from successful agent sessions. They capture the error signature, ordered solution steps, and a Bayesian confidence score that improves with feedback.
 
+> **New here?** See the [Answer Sheets Quickstart](./ANSWER_SHEETS_QUICKSTART.md) for install, setup, and working code examples.
+
 ## Concepts
 
 ### What Is an Answer Sheet?
